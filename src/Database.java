@@ -122,6 +122,21 @@ public class Database extends JPanel {
         database.add(m);
     }
 
+    /** Removes MatrixData from internal database
+     *
+     * @param index to be removed
+     */
+    public MatrixData removeAtIndex(int index) {
+        return database.remove(index);
+    }
+
+    /** Empties internal Database
+     *
+     */
+    public void wipe() {
+        database.clear();
+    }
+
     /** Retrieves MatrixData at index
      *
      * @param index selected
@@ -139,6 +154,11 @@ public class Database extends JPanel {
         return database.size();
     }
 
+    /** Paints Database with Title and dynamic list of elements
+     *
+     * @param g graphics
+     * @param index index of selection
+     */
     public void paintDatabase(Graphics g, int index) {
         Graphics2D g2 = (Graphics2D) g;
         //list of menu items
