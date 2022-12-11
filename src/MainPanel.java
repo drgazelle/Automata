@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.security.Key;
 
 /** MainPanel class renders a CellMatrix
  *  representing Conway's Game of Life.
@@ -25,6 +24,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private final Database database;
 
     //Animation Variables
+    public static Color mainColor = new Color((int)(Math.random() * 0x1000000));
     private final Timer timer;
     private int numTicks = 0;
     private int delay = 100;
@@ -187,6 +187,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Clear [C]",
                                 "Open Database [J]",
                                 "Navigate Database [U/N]",
+                                "Rename Selected [H]",
                                 "Remove Selected [K]",
                                 "Wipe Database [L]",
                                 "Toggle Menu [T]",
@@ -216,7 +217,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             //loops through menu items
             if(item.equals(menuItems[0])) {
                 //if title
-                g2.setColor(Color.GREEN);
+                g2.setColor(mainColor);
                 g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 14));
 
                 FontMetrics metricsTitle = getFontMetrics(g.getFont());
@@ -478,8 +479,23 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     //Renames on 'H'
                     MatrixData m = database.get(indexDatabase);
                     String name = m.getName();
+
+                    //Sets JOptionPane theme
+                    UIManager UI = new UIManager();
+                    UI.put("OptionPane.messageForeground", mainColor);
+                    UI.put("OptionPane.background", Color.BLACK);
+                    UI.put("Panel.background", Color.BLACK);
+                    UI.put("Button.background", Color.BLACK);
+                    UI.put("Button.foreground", Color.WHITE);
+                    UI.put("Button.highlight", Color.WHITE);
+                    UI.put("TextField.background", Color.BLACK);
+                    UI.put("TextField.selectionBackground", mainColor);
+                    UI.put("TextField.foreground", Color.WHITE);
+                    UI.put("TextField.selectionForeground", Color.BLACK);
+
+                    //Prompts User for new Name
                     String s = (String) JOptionPane.showInputDialog(
-                            this, "", "RENAME",
+                            this, "Rename", "Database",
                             JOptionPane.PLAIN_MESSAGE, null, null, name);
                     if (s != null) {
                         //if name changed
