@@ -190,7 +190,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int pY = AppDriver.HEIGHT - boxHeight - border;
 
         //box for menu background
-        Shape menuBackground = new Rectangle(pX, pY, 200, boxHeight);
+        Shape menuBackground = new Rectangle(pX, pY, boxWidth, boxHeight);
         g2.setColor(Color.black);
         g2.fill(menuBackground);
         //OPT: menu border
