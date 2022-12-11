@@ -33,6 +33,7 @@ public class AppDriver {
         frame.setResizable(true);
         frame.setVisible(true);
         frame.setBackground(Color.black);
+        //Exports Database on Close
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 panel.getDatabase().exportDatabase();

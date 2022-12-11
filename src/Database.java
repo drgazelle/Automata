@@ -52,11 +52,6 @@ public class Database extends JPanel {
      *  @return true if successfully instantiated database, false if error
      */
     private boolean importData() {
-        //course index
-        int cIndex = -1;
-        // deck index
-        int dIndex = -1;
-
         try {
             //creates scanner
             Scanner input = new Scanner(data);
@@ -71,20 +66,22 @@ public class Database extends JPanel {
                 //gets name
                 String name = parts[0];
 
+                //get size
                 String[] temp = parts[1].split("x");
-
                 int[] size = new int[2];
                 size[0] = Integer.parseInt(temp[0].trim());
                 size[1] = Integer.parseInt(temp[1].trim());
 
+                //get live cells
                 ArrayList<int[]> cells = new ArrayList<>();
-                int[] cell = new int[2];
                 for(int i = 2; i < parts.length; i++) {
+                    int[] cell = new int[2];
                     temp = parts[i].split(",");
                     cell[0] = Integer.parseInt(temp[0].trim());
                     cell[1] = Integer.parseInt(temp[1].trim());
                     cells.add(cell);
                 }
+                //adds new MatrixData to database
                 database.add(new MatrixData(name, size, cells));
             }
             //closes scanner
@@ -142,7 +139,7 @@ public class Database extends JPanel {
         return database.size();
     }
 
-    public void paintDatabase(Graphics g) {
+    public void paintDatabase(Graphics g, int index) {
         Graphics2D g2 = (Graphics2D) g;
         //list of menu items
 
@@ -176,10 +173,19 @@ public class Database extends JPanel {
 
         g2.drawString("Database", pX + 5, pY + d);
         pY += (metricsTitle.getAscent() / 2) - 3 + 10;
+
+
+        //draws index
+        if (index > -1) {
+            int highlightBorder = 4;
+            Shape highlightBox = new Rectangle(pX + highlightBorder, pY + (d + 2) * index + 2, boxWidth - 2 * highlightBorder, d);
+            g2.setColor(Color.darkGray);
+            g2.fill(highlightBox);
+        }
+
         //resets color
         g2.setColor(Color.white);
         g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 10));
-
         for (MatrixData m : database) {
             //loops through items
             g2.drawString(m.getName(), pX + 5, pY + d);

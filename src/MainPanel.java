@@ -2,6 +2,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
+import java.security.Key;
 
 /** MainPanel class renders a CellMatrix
  *  representing Conway's Game of Life.
@@ -21,6 +22,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private final double maxP = 0.30;
     private final int increment = 5;
 
+
     private final Database database;
 
     //Animation Variables
@@ -31,6 +33,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showMenu = true;
     private boolean wrapEnabled = true;
     private boolean showDatabase = false;
+    private int indexDatabase = -1;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -113,7 +116,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             paintMenu(g);
         }
         if (showDatabase) {
-            database.paintDatabase(g);
+            database.paintDatabase(g, indexDatabase);
         }
     }
 
@@ -426,6 +429,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if (e.getKeyCode() == KeyEvent.VK_D) {
             showDatabase = !showDatabase;
+            indexDatabase = -1;
             repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_W) {
@@ -446,6 +450,28 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             numTicks = 0;
             repaint();
         }
+        if(showDatabase && e.getKeyCode() == KeyEvent.VK_LEFT && indexDatabase > 0) {
+            //if database showing and exists, navigate down and update
+            indexDatabase--;
+            importFromDatabase();
+        }
+        if(showDatabase && e.getKeyCode() == KeyEvent.VK_RIGHT && indexDatabase < database.databaseSize() - 1) {
+            //if database showing and exists, navigate up and update
+            indexDatabase++;
+            importFromDatabase();
+        }
+    }
+
+    /** Accesses MatrixData from internal index and
+     *  updates numRows, numColumns and matrix
+     */
+    private void importFromDatabase() {
+        MatrixData m = database.get(indexDatabase);
+        int[] size = m.getSize();
+        numRows = size[0];
+        numColumns = size[1];
+        matrix = m.toCellMatrix();
+        repaint();
     }
 
     /**
