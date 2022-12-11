@@ -117,12 +117,21 @@ public class Database extends JPanel {
         return true;
     }
 
+    /** Adds MatrixData to internal database
+     *
+     * @param m CellMatrix to be Added
+     */
     public void add(MatrixData m) {
         database.add(m);
     }
 
-    public CellMatrix getCellMatrix(int index) {
-        return database.get(index).toCellMatrix();
+    /** Retrieves MatrixData at index
+     *
+     * @param index selected
+     * @return MatrixData at index
+     */
+    public MatrixData get(int index) {
+        return database.get(index);
     }
 
     /** Returns length of database
@@ -144,7 +153,7 @@ public class Database extends JPanel {
 
         //position and size variables
         int border = 10;
-        int boxHeight = (d + 2) * database.size() + 20; //dynamic box height
+        int boxHeight = (d + 2) * database.size() + 25; //dynamic box height
         //int boxHeight = AppDriver.HEIGHT - (border * 2); //static box height
         int boxWidth = 125;
         int pX = border;
