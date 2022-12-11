@@ -1,5 +1,4 @@
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.security.Key;
@@ -179,16 +178,19 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                     + " (" + numRows + "x" + numColumns + ") "
                                     + "(" + delay + "ms)",
                                 "Toggle Simulation [SPACE]",
-                                "Change Speed [UP/DOWN]",
                                 "Resize Grid [Q/E]",
+                                "Change Speed [A/D]",
                                 "Wrap-Around Grid [W]",
-                                "Generate Random Seed [R]",
+                                "Generate Random Seed [S]",
+                                "Save [Z]",
+                                "Toggle Grid [X]",
                                 "Clear [C]",
-                                "Open Database [D]",
-                                "Save [A]",
-                                "Toggle Menu [M]",
-                                "Toggle Status [S]",
-                                "Toggle Grid [G]"};
+                                "Open Database [J]",
+                                "Navigate Database [U/N]",
+                                "Remove Selected [K]",
+                                "Wipe Database [L]",
+                                "Toggle Menu [T]",
+                                "Toggle Status [R]"};
 
         //font defining aspects
         g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 10));
@@ -365,8 +367,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 timer.start();
             }
         }
-        if (e.getKeyCode() == KeyEvent.VK_UP && timer.getDelay() > 1) {
-            //speeds up timer on up arrow
+        if (e.getKeyCode() == KeyEvent.VK_D && timer.getDelay() > 1) {
+            //speeds up timer on 'D'
             if (delay >= 100) {
                 delay -= 10;
             }
@@ -377,8 +379,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             repaint();
 
         }
-        if (e.getKeyCode() == KeyEvent.VK_DOWN && timer.getDelay() < 5000) {
-            //slows down timer on up arrow
+        if (e.getKeyCode() == KeyEvent.VK_A && timer.getDelay() < 5000) {
+            //slows down timer on up 'A'
             if (delay >= 100) {
                 delay += 10;
             }
@@ -406,28 +408,30 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
             repaint();
         }
-        if (e.getKeyCode() == KeyEvent.VK_G) {
-            //turns grid on and off on 'G'
+        if (e.getKeyCode() == KeyEvent.VK_X) {
+            //turns grid on and off on 'X'
             Cell.gridEnabled = !Cell.gridEnabled;
             repaint();
         }
-        if (e.getKeyCode() == KeyEvent.VK_A) {
+        if (e.getKeyCode() == KeyEvent.VK_Z) {
+            // Saves Cell Matrix on 'Z'
             database.add(matrix.toMatrixData());
             if(showDatabase) {
                 repaint();
             }
         }
-        if (e.getKeyCode() == KeyEvent.VK_S) {
-            //toggles status on 'S'
+        if (e.getKeyCode() == KeyEvent.VK_R) {
+            //toggles status on 'R'
             showStatus = !showStatus;
             repaint();
         }
-        if (e.getKeyCode() == KeyEvent.VK_M) {
-            //toggles menu on 'M'
+        if (e.getKeyCode() == KeyEvent.VK_T) {
+            //toggles menu on 'T'
             showMenu = !showMenu;
             repaint();
         }
-        if (e.getKeyCode() == KeyEvent.VK_D) {
+        if (e.getKeyCode() == KeyEvent.VK_J) {
+            // toggles database and resets index 0n 'J'
             showDatabase = !showDatabase;
             indexDatabase = -1;
             repaint();
@@ -437,8 +441,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             wrapEnabled = !wrapEnabled;
             repaint();
         }
-        if (e.getKeyCode() == KeyEvent.VK_R) {
-            //randomizes matrix seed on 'R'
+        if (e.getKeyCode() == KeyEvent.VK_S) {
+            //randomizes matrix seed on 'S'
             matrix.genocide();
             matrix.randomSeed(maxP);
             numTicks = 0;
@@ -450,21 +454,56 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             numTicks = 0;
             repaint();
         }
-        if(showDatabase && e.getKeyCode() == KeyEvent.VK_LEFT && database.databaseSize() > 0) {
-            //if database showing and exists, navigate down and update
-            indexDatabase--;
-            if (indexDatabase < 0) {
-                indexDatabase = database.databaseSize() - 1;
+        if (showDatabase && database.databaseSize() > 0) {
+            //if database is visible and not empty
+            if(e.getKeyCode() == KeyEvent.VK_U) {
+                //if database showing and exists, navigate down and update on 'U'
+                indexDatabase--;
+                if (indexDatabase < 0) {
+                    indexDatabase = database.databaseSize() - 1;
+                }
+                importFromDatabase();
             }
-            importFromDatabase();
-        }
-        if(showDatabase && e.getKeyCode() == KeyEvent.VK_RIGHT && database.databaseSize() > 0) {
-            //if database showing and exists, navigate down and update
-            indexDatabase++;
-            if (indexDatabase >= database.databaseSize()) {
-                indexDatabase = 0;
+            if(e.getKeyCode() == KeyEvent.VK_N) {
+                //if database showing and exists, navigate down and update on 'M'
+                indexDatabase++;
+                if (indexDatabase >= database.databaseSize()) {
+                    indexDatabase = 0;
+                }
+                importFromDatabase();
             }
-            importFromDatabase();
+            if (indexDatabase > -1) {
+                //if item selected
+                if(e.getKeyCode() == KeyEvent.VK_H) {
+                    //Renames on 'H'
+                    MatrixData m = database.get(indexDatabase);
+                    String name = m.getName();
+                    String s = (String) JOptionPane.showInputDialog(
+                            this, "", "RENAME",
+                            JOptionPane.PLAIN_MESSAGE, null, null, name);
+                    if (s != null) {
+                        //if name changed
+                        m.setName(s);
+                        repaint();
+                    }
+                }
+                if(e.getKeyCode() == KeyEvent.VK_K) {
+                    //removes CellMatrix at Index
+                    database.removeAtIndex(indexDatabase);
+                    //moves up if at bottom of list
+                    if (indexDatabase == database.databaseSize()) {
+                        indexDatabase--;
+                    }
+                    repaint();
+                }
+            }
+
+            if(e.getKeyCode() == KeyEvent.VK_L) {
+                //wipes database on 'L'
+                database.wipe();
+                indexDatabase = -1;
+                repaint();
+            }
         }
     }
 

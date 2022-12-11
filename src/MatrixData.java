@@ -35,6 +35,14 @@ public class MatrixData {
         this.cells = cells;
     }
 
+    /** Setter Method for Name
+     *
+     * @param name to be assigned
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
     /** Accessor Method for Name
      *
      * @return Name of Matrix
