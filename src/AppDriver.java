@@ -3,6 +3,8 @@ import javax.swing.JFrame;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.lang.reflect.WildcardType;
 
 /** AppDriver class creates the containing
@@ -31,6 +33,13 @@ public class AppDriver {
         frame.setResizable(true);
         frame.setVisible(true);
         frame.setBackground(Color.black);
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                panel.getDatabase().exportDatabase();
+                frame.dispose();
+                System.exit(0);
+            }
+        });
         //frame.addComponentListener(new ComponentAdapter() {
         //    public void componentResized(ComponentEvent componentEvent) {
         //        HEIGHT = frame.getHeight();

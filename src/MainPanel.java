@@ -30,7 +30,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showStatus = true;
     private boolean showMenu = true;
     private boolean wrapEnabled = true;
-    private boolean showDatabase = true;
+    private boolean showDatabase = false;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -226,6 +226,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
     }
 
+    /** Accessor Method for Database
+     *
+     * @return database
+     */
+    public Database getDatabase() {
+        return database;
+    }
+
     /**
      * Flips cell status when clicked.
      *
@@ -233,12 +241,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void mouseClicked(MouseEvent e) {
-        int button = e.getButton();
-        if(button == MouseEvent.BUTTON1) {
-            Cell cell = matrix.findCellAt(mouseX, mouseY);
-            if (cell != null) cell.flip();
-        }
-        repaint();
+
     }
 
     /**
@@ -248,7 +251,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void mousePressed(MouseEvent e) {
-
+        int button = e.getButton();
+        if(button == MouseEvent.BUTTON1) {
+            Cell cell = matrix.findCellAt(mouseX, mouseY);
+            if (cell != null) cell.flip();
+        }
+        repaint();
     }
 
     /**
