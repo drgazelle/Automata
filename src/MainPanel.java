@@ -450,14 +450,20 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             numTicks = 0;
             repaint();
         }
-        if(showDatabase && e.getKeyCode() == KeyEvent.VK_LEFT && indexDatabase > 0) {
+        if(showDatabase && e.getKeyCode() == KeyEvent.VK_LEFT && database.databaseSize() > 0) {
             //if database showing and exists, navigate down and update
             indexDatabase--;
+            if (indexDatabase < 0) {
+                indexDatabase = database.databaseSize() - 1;
+            }
             importFromDatabase();
         }
-        if(showDatabase && e.getKeyCode() == KeyEvent.VK_RIGHT && indexDatabase < database.databaseSize() - 1) {
-            //if database showing and exists, navigate up and update
+        if(showDatabase && e.getKeyCode() == KeyEvent.VK_RIGHT && database.databaseSize() > 0) {
+            //if database showing and exists, navigate down and update
             indexDatabase++;
+            if (indexDatabase >= database.databaseSize()) {
+                indexDatabase = 0;
+            }
             importFromDatabase();
         }
     }
