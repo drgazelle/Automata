@@ -58,7 +58,7 @@ public class Database extends JPanel {
             while (input.hasNextLine()) {
                 String line = input.nextLine();
                 //splits up data fields
-                String[] parts = line.split(" ");
+                String[] parts = line.split("##");
                 //removes brackets from data fields
                 for(int i = 0; i < parts.length; i++) {
                     parts[i] = parts[i].substring(1, parts[i].length() - 1).trim();

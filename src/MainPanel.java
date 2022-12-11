@@ -495,7 +495,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
                     //Prompts User for new Name
                     String s = (String) JOptionPane.showInputDialog(
-                            this, "Rename", "Database",
+                            this, "Modify Matrix Name Below:", "Database",
                             JOptionPane.PLAIN_MESSAGE, null, null, name);
                     if (s != null) {
                         //if name changed

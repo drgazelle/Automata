@@ -81,10 +81,10 @@ public class MatrixData {
 
     @Override
     public String toString() {
-        String temp = "\"" + name + "\" ";
-        temp += "(" + size[0] + "x" + size[1] + ") ";
+        String temp = "\"" + name + "\"";
+        temp += "##(" + size[0] + "x" + size[1] + ")";
         for (int[] cell : cells) {
-            temp += "[" + cell[0] + "," + cell[1] + "] ";
+            temp += "##[" + cell[0] + "," + cell[1] + "]";
         }
         return temp;
     }
