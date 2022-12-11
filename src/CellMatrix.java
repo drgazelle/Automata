@@ -1,4 +1,5 @@
 import java.awt.Graphics;
+import java.util.ArrayList;
 
 /** CellMatrix class generates and
  *  modifies a 2D array of Cell
@@ -230,9 +231,29 @@ public class CellMatrix {
         String temp = "(" + matrix.length + "x" + matrix[0].length + ")";
         for (int x = 0; x < matrix.length; x++) {
             for (int y = 0; y < matrix[0].length; y++) {
-                temp += "[" + x + "," + y + "]";
+                if(matrix[x][y].isAlive()) {
+                    temp += "[" + x + "," + y + "]";
+                }
             }
         }
         return temp;
+    }
+
+    /** Converts Matrix to MatrixData
+     *
+     * @return MatrixData representation of CellMatrix
+     */
+    public MatrixData toMatrixData() {
+        int[] size = {matrix.length, matrix[0].length};
+        ArrayList<int[]> cells = new ArrayList<>();
+        for (int x = 0; x < matrix.length; x++) {
+            for (int y = 0; y < matrix[0].length; y++) {
+                if(matrix[x][y].isAlive()) {
+                    int[] cell = {x, y};
+                    cells.add(cell);
+                }
+            }
+        }
+        return new MatrixData(size, cells);
     }
 }

@@ -21,6 +21,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private final double maxP = 0.30;
     private final int increment = 5;
 
+    private final Database database;
+
     //Animation Variables
     private final Timer timer;
     private int numTicks = 0;
@@ -28,6 +30,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showStatus = true;
     private boolean showMenu = true;
     private boolean wrapEnabled = true;
+    private boolean showDatabase = true;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -43,6 +46,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         matrix.randomSeed(maxP);
         //instantiates timer
         timer = new Timer(delay, this);
+        //database variables
+        database = new Database();
         repaint();
     }
 
@@ -101,11 +106,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     public void paintComponent(Graphics g) {
         matrix.drawMatrix(g);
-        if (showStatus == true) {
+        if (showStatus) {
             paintStatus(g);
         }
-        if(showMenu == true) {
+        if(showMenu) {
             paintMenu(g);
+        }
+        if (showDatabase) {
+            database.paintDatabase(g);
         }
     }
 
@@ -173,6 +181,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Wrap-Around Grid [W]",
                                 "Generate Random Seed [R]",
                                 "Clear [C]",
+                                "Open Database [D]",
+                                "Save [A]",
                                 "Toggle Menu [M]",
                                 "Toggle Status [S]",
                                 "Toggle Grid [G]"};
@@ -190,7 +200,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int pY = AppDriver.HEIGHT - boxHeight - border;
 
         //box for menu background
-        Shape menuBackground = new Rectangle(pX, pY, 200, boxHeight);
+        Shape menuBackground = new Rectangle(pX, pY, boxWidth, boxHeight);
         g2.setColor(Color.black);
         g2.fill(menuBackground);
         //OPT: menu border
@@ -214,7 +224,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             g2.drawString(item, pX + 5, pY + d);
             pY += d + 2;
         }
-
     }
 
     /**
@@ -391,6 +400,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             Cell.gridEnabled = !Cell.gridEnabled;
             repaint();
         }
+        if (e.getKeyCode() == KeyEvent.VK_A) {
+            database.add(matrix.toMatrixData());
+            if(showDatabase) {
+                repaint();
+            }
+        }
         if (e.getKeyCode() == KeyEvent.VK_S) {
             //toggles status on 'S'
             showStatus = !showStatus;
@@ -399,6 +414,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if (e.getKeyCode() == KeyEvent.VK_M) {
             //toggles menu on 'M'
             showMenu = !showMenu;
+            repaint();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_D) {
+            showDatabase = !showDatabase;
             repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_W) {
