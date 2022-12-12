@@ -25,6 +25,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     //Animation Variables
     public static Color mainColor = new Color((int)(Math.random() * 0x1000000));
+    public static final Font mainFont = new Font("SansSerif", Font.PLAIN, 10);
     private final Timer timer;
     private int numTicks = 0;
     private int delay = 100;
@@ -110,12 +111,15 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         matrix.drawMatrix(g);
         if (showStatus) {
             paintStatus(g);
+            g.setFont(mainFont);
         }
         if(showMenu) {
             paintMenu(g);
+            g.setFont(mainFont);
         }
         if (showDatabase) {
             database.paintDatabase(g, indexDatabase);
+            g.setFont(mainFont);
         }
     }
 
@@ -146,24 +150,31 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
 
         g2.fill(status);
+        g2.setColor(Color.white);
 
         if (!wrapEnabled) {
-            g2.setColor(Color.white);
             g2.draw(tickBox);
         }
 
         String digits = String.valueOf(numTicks);
+        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, boxHeight / 2));
+
         if (digits.length() > 4) {
             digits = digits.substring(0, digits.length() - 4) + "K";
         }
         while (digits.length() < 4) {
             digits = "0" + digits;
         }
-        FontMetrics metrics = getFontMetrics(this.getFont());
-        int dy = metrics.getAscent() - 24; //MODIFY
-        int dx = metrics.stringWidth(digits);
-        g2.setColor(Color.white);
-        g2.drawString(digits, (pX + ((boxWidth - statusWidth - dx) / 2)), pY + ((boxHeight - dy) / 2));
+        FontMetrics metrics = getFontMetrics(g2.getFont());
+        int dY = metrics.getAscent();
+        int dX = metrics.stringWidth(digits);
+        //centers text vertically
+        pY += boxHeight - ((boxHeight - dY) / 2) - 1;
+        //centers text horizontally
+        boxWidth = 2 * boxWidth / 3;
+        pX += ((boxWidth - dX) / 2);
+
+        g2.drawString(digits, pX, pY);
     }
 
     /** Displays the keycodes to
@@ -194,9 +205,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Toggle Status [R]"};
 
         //font defining aspects
-        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 10));
         FontMetrics metrics = getFontMetrics(g.getFont());
-
         //position and size variables
         int d = metrics.getAscent();
         int boxHeight = (d + 2) * menuItems.length + 10;
@@ -218,14 +227,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             if(item.equals(menuItems[0])) {
                 //if title
                 g2.setColor(mainColor);
-                g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 14));
+                g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, g2.getFont().getSize() + 4));
 
                 FontMetrics metricsTitle = getFontMetrics(g.getFont());
                 pY += (metricsTitle.getAscent() / 2) - 3;
             }
             else {
                 g2.setColor(Color.white);
-                g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 10));
+                g2.setFont(mainFont);
             }
             g2.drawString(item, pX + 5, pY + d);
             pY += d + 2;

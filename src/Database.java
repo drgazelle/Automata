@@ -75,6 +75,7 @@ public class Database extends JPanel {
                 //get live cells
                 ArrayList<int[]> cells = new ArrayList<>();
                 for(int i = 2; i < parts.length; i++) {
+                    //new splits String into parts and converts to ints
                     int[] cell = new int[2];
                     temp = parts[i].split(",");
                     cell[0] = Integer.parseInt(temp[0].trim());
@@ -164,7 +165,7 @@ public class Database extends JPanel {
         //list of menu items
 
         //font defining aspects
-        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 10));
+        g2.setFont(MainPanel.mainFont);
         FontMetrics metrics = getFontMetrics(g.getFont());
         int d = metrics.getAscent();
 
@@ -186,7 +187,7 @@ public class Database extends JPanel {
 
         //title
         g2.setColor(MainPanel.mainColor);
-        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 14));
+        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, g2.getFont().getSize() + 4));
 
         FontMetrics metricsTitle = getFontMetrics(g.getFont());
         pY += (metricsTitle.getAscent() / 2) - 3;
@@ -205,7 +206,7 @@ public class Database extends JPanel {
 
         //resets color
         g2.setColor(Color.white);
-        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 10));
+        g2.setFont(MainPanel.mainFont);
         for (MatrixData m : database) {
             //loops through items
             g2.drawString(m.getName(), pX + 5, pY + d);
