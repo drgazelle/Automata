@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -178,7 +179,7 @@ public class Database extends JPanel {
         int pY = border;
 
         //box for menu background
-        Shape menuBackground = new Rectangle(pX, pY, boxWidth, boxHeight);
+        Shape menuBackground = new RoundRectangle2D.Double(pX, pY, boxWidth, boxHeight,25,25);
         g2.setColor(Color.black);
         g2.fill(menuBackground);
         //OPT: menu border
@@ -199,7 +200,7 @@ public class Database extends JPanel {
         //draws index
         if (index > -1) {
             int highlightBorder = 4;
-            Shape highlightBox = new Rectangle(pX + highlightBorder, pY + (d + 2) * index + 2, boxWidth - 2 * highlightBorder, d);
+            Shape highlightBox = new RoundRectangle2D.Double(pX + highlightBorder, pY + (d + 2) * index + 2, boxWidth - 2 * highlightBorder, d, 10,10);
             g2.setColor(Color.darkGray);
             g2.fill(highlightBox);
         }

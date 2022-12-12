@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
 
 /** MainPanel class renders a CellMatrix
  *  representing Conway's Game of Life.
@@ -131,6 +132,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     public void paintStatus(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         //initial conditions
         int boxHeight = 25;
         int boxWidth = 75;
@@ -139,11 +142,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int pX = AppDriver.WIDTH - boxWidth - border;
         int pY = border;
 
-        Shape tickBox = new Rectangle(pX, pY, boxWidth, boxHeight);
+        Shape tickBox = new RoundRectangle2D.Double(pX, pY, boxWidth, boxHeight, 25, 25);
         g2.setColor(Color.black);
         g2.fill(tickBox);
 
-        Shape status = new Rectangle(pX + (2 * statusWidth), pY, statusWidth, boxHeight);
+        Shape status = new RoundRectangle2D.Double(pX + (2 * statusWidth), pY, statusWidth, boxHeight,25,25);
         g2.setColor(Color.RED);
         if (timer.isRunning()) {
             g2.setColor(Color.GREEN);
@@ -215,7 +218,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int pY = AppDriver.HEIGHT - boxHeight - border;
 
         //box for menu background
-        Shape menuBackground = new Rectangle(pX, pY, boxWidth, boxHeight);
+        Shape menuBackground = new RoundRectangle2D.Double(pX, pY, boxWidth, boxHeight, 25, 25);
         g2.setColor(Color.black);
         g2.fill(menuBackground);
         //OPT: menu border
