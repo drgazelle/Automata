@@ -24,8 +24,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private final Database database;
 
     //Animation Variables
-    public static Color mainColor = new Color((int)(Math.random() * 0x1000000));
-    public static final Font mainFont = new Font("SansSerif", Font.PLAIN, 10);
+    public static final Color mainColor = new Color((int)(Math.random() * 0x1000000));
+    public static final Font mainFont = new Font("SansSerif", Font.PLAIN, 11);
     private final Timer timer;
     private int numTicks = 0;
     private int delay = 100;
@@ -227,10 +227,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             if(item.equals(menuItems[0])) {
                 //if title
                 g2.setColor(mainColor);
-                g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, g2.getFont().getSize() + 4));
+                g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 4 * g2.getFont().getSize() / 3));
 
                 FontMetrics metricsTitle = getFontMetrics(g.getFont());
-                pY += (metricsTitle.getAscent() / 2) - 3;
+                pY += 4;
             }
             else {
                 g2.setColor(Color.white);

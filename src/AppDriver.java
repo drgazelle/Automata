@@ -14,8 +14,8 @@ import java.lang.reflect.WildcardType;
  */
 public class AppDriver {
     //window dimensions
-    public static int WIDTH = 600;
-    public static int HEIGHT = 600;
+    public static int WIDTH = 700;
+    public static int HEIGHT = 700;
 
     private static JFrame frame;
 
@@ -33,6 +33,7 @@ public class AppDriver {
         frame.setResizable(true);
         frame.setVisible(true);
         frame.setBackground(Color.black);
+
         //Exports Database on Close
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {

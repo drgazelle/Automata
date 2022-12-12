@@ -187,7 +187,7 @@ public class Database extends JPanel {
 
         //title
         g2.setColor(MainPanel.mainColor);
-        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, g2.getFont().getSize() + 4));
+        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 3 * g2.getFont().getSize() / 2));
 
         FontMetrics metricsTitle = getFontMetrics(g.getFont());
         pY += (metricsTitle.getAscent() / 2) - 3;
