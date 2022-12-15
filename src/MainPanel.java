@@ -1,9 +1,13 @@
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
 
 /** MainPanel class renders a CellMatrix
- *  representing Conway's Game of Life.
+ *  representing an interactive version
+ *  of Conway's Game of Life.
  *
  * @author RMizelle
  */
@@ -20,12 +24,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private final double maxP = 0.30;
     private final int increment = 5;
 
-
+    //Database Variables
     private final Database database;
+    private int indexDatabase = -1;
 
     //Animation Variables
     public static final Color mainColor = new Color((int)(Math.random() * 0x1000000));
-    public static final Font mainFont = new Font("SansSerif", Font.PLAIN, 11);
+    public static final Font mainFont = new Font("SansSerif", Font.PLAIN, 10);
     private final Timer timer;
     private int numTicks = 0;
     private int delay = 100;
@@ -33,7 +38,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showMenu = true;
     private boolean wrapEnabled = true;
     private boolean showDatabase = false;
-    private int indexDatabase = -1;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -108,6 +112,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      * @param g graphics
      */
     public void paintComponent(Graphics g) {
+        g.setFont(mainFont);
         matrix.drawMatrix(g);
         if (showStatus) {
             paintStatus(g);
@@ -200,6 +205,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Navigate Database [U/N]",
                                 "Rename Selected [H]",
                                 "Remove Selected [K]",
+                                "Regenerates Selection [M]",
                                 "Wipe Database [L]",
                                 "Toggle Menu [T]",
                                 "Toggle Status [R]"};
@@ -371,7 +377,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             //toggles simulation on space-bar
             if(timer.isRunning()) {
                 timer.stop();
-                repaint();
             }
             else {
                 timer.start();
@@ -386,7 +391,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 delay -= 1;
             }
             timer.setDelay(delay);
-            repaint();
 
         }
         if (e.getKeyCode() == KeyEvent.VK_A && timer.getDelay() < 5000) {
@@ -398,7 +402,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 delay += 1;
             }
             timer.setDelay(delay);
-            repaint();
         }
         if(e.getKeyCode() == KeyEvent.VK_E) {
             //increases grid size on 'E'
@@ -407,7 +410,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 changeGrid(increment);
                 matrix.randomSeed(maxP);
             }
-            repaint();
         }
         if(e.getKeyCode() == KeyEvent.VK_Q) {
             //decreases grid size on 'Q'
@@ -416,35 +418,28 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 changeGrid(-1 * increment);
                 matrix.randomSeed(maxP);
             }
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_X) {
             //turns grid on and off on 'X'
             Cell.gridEnabled = !Cell.gridEnabled;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_Z) {
             // Saves Cell Matrix on 'Z'
             database.add(matrix.toMatrixData());
-            if(showDatabase) {
-                repaint();
-            }
+
         }
         if (e.getKeyCode() == KeyEvent.VK_R) {
             //toggles status on 'R'
             showStatus = !showStatus;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_T) {
             //toggles menu on 'T'
             showMenu = !showMenu;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_J) {
             // toggles database and resets index 0n 'J'
             showDatabase = !showDatabase;
             indexDatabase = -1;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_W) {
             //toggles wrap around on 'W'
@@ -456,13 +451,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             matrix.genocide();
             matrix.randomSeed(maxP);
             numTicks = 0;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_C) {
             //kills all cells on 'C'
             matrix.genocide();
             numTicks = 0;
-            repaint();
         }
         if (showDatabase && database.databaseSize() > 0) {
             //if database is visible and not empty
@@ -509,7 +502,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     if (s != null) {
                         //if name changed
                         m.setName(s);
-                        repaint();
                     }
                 }
                 if(e.getKeyCode() == KeyEvent.VK_K) {
@@ -519,17 +511,19 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     if (indexDatabase == database.databaseSize()) {
                         indexDatabase--;
                     }
-                    repaint();
                 }
             }
-
             if(e.getKeyCode() == KeyEvent.VK_L) {
                 //wipes database on 'L'
                 database.wipe();
                 indexDatabase = -1;
-                repaint();
+            }
+            if(e.getKeyCode() == KeyEvent.VK_M) {
+                //Re-Selects MatrixData at index
+                importFromDatabase();
             }
         }
+        repaint();
     }
 
     /** Accesses MatrixData from internal index and
@@ -540,6 +534,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int[] size = m.getSize();
         numRows = size[0];
         numColumns = size[1];
+        numTicks = 0;
         matrix = m.toCellMatrix();
         repaint();
     }
