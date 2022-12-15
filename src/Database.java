@@ -1,4 +1,4 @@
-import javax.swing.*;
+import javax.swing.JPanel;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,6 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/** Database Class imports and exports
+ *  MatrixData from a text document.
+ *  Additionally, renders the database
+ *  graphically.
+ *
+ * @author RMizelle
+ */
 public class Database extends JPanel {
     private final ArrayList<MatrixData> database;
     private File data;

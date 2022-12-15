@@ -27,7 +27,6 @@ public class CellMatrix {
         }
     }
 
-
     /** Accessor Method for Cell.
      *
      * @param pX position x
