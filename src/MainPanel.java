@@ -512,15 +512,15 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                         indexDatabase--;
                     }
                 }
+                if(e.getKeyCode() == KeyEvent.VK_M) {
+                    //Re-Selects MatrixData at index
+                    importFromDatabase();
+                }
             }
             if(e.getKeyCode() == KeyEvent.VK_L) {
                 //wipes database on 'L'
                 database.wipe();
                 indexDatabase = -1;
-            }
-            if(e.getKeyCode() == KeyEvent.VK_M) {
-                //Re-Selects MatrixData at index
-                importFromDatabase();
             }
         }
         repaint();

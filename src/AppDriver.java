@@ -30,7 +30,7 @@ public class AppDriver {
         frame.setSize(WIDTH + 17, HEIGHT + 40);
         frame.setLocation(50, 50);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(true);
+        frame.setResizable(false);
         frame.setVisible(true);
         frame.setBackground(Color.black);
 
