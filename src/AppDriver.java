@@ -44,8 +44,8 @@ public class AppDriver {
         });
         //frame.addComponentListener(new ComponentAdapter() {
         //    public void componentResized(ComponentEvent componentEvent) {
-        //        HEIGHT = frame.getHeight();
-        //        WIDTH = frame.getWidth();
+        //        HEIGHT = frame.getNumCols();
+        //        WIDTH = frame.getNumRows();
         //        panel.repaint();
         //    }
         //});
