@@ -9,24 +9,25 @@ import java.util.ArrayList;
  */
 public class CellMatrix {
     private final Cell[][] matrix;
-    private final int width;
-    private final int height;
+    private final int numRows;
+    private final int numCols;
     private int size;
 
-    /** 2-arg constructor instantiates a 2D matrix
-     *  of Cell objects of size numRows by Num Columns.
+    /**
+     * 2-arg constructor instantiates a 2D matrix
+     * of Cell objects of size numRows by NumCols.
      *
-     * @param numRows Matrix length
-     * @param numColumns Matrix height
+     * @param numR Matrix length
+     * @param numC Matrix numCols
      */
-    public CellMatrix(int numRows, int numColumns) {
-        width = numRows;
-        height = numColumns;
+    public CellMatrix(int numR, int numC) {
+        numRows = numR;
+        numCols = numC;
 
-        matrix = new Cell[width][height];
-        double size = ((double) AppDriver.WIDTH) / numRows;
-        for (int x = 0; x < numRows; x++) {
-            for (int y = 0; y < numColumns; y++) {
+        matrix = new Cell[numRows][numCols];
+        double size = ((double) AppDriver.WIDTH) / numR;
+        for (int x = 0; x < numR; x++) {
+            for (int y = 0; y < numC; y++) {
                 matrix[x][y] = new Cell(x * size, y * size, size);
             }
         }
@@ -229,25 +230,13 @@ public class CellMatrix {
      * @param cm matrix to be placed
      */
     public boolean placeCellMatrix(int pX, int pY, CellMatrix cm) {
-        //if out-of-bounds
-        if(cm.width >= width || cm.height >= height) {
+        //Adjusts for bounds
+        int[] coords = adjustToBounds(pX, pY, cm);
+        if(coords == null) {
             return false;
         }
-        //adjusts x position
-        while (pX + cm.width >= width) {
-            pX--;
-        }
-        while (pX < 0) {
-            pX++;
-        }
-
-        //adjust y position
-        while (pY + cm.height >= height) {
-            pY--;
-        }
-        while (pY < 0) {
-            pY++;
-        }
+        pX = coords[0];
+        pY = coords[1];
 
         for (int x = pX; x < cm.matrix.length + pX; x++) {
             for (int y = pY; y < cm.matrix[0].length + pY; y++) {
@@ -269,25 +258,12 @@ public class CellMatrix {
      * @param cm matrix to spotlight
      */
     public boolean spotlightPlacement(int pX, int pY, CellMatrix cm) {
-        //if out-of-bounds
-        if(cm.width >= width || cm.height >= height) {
+        int[] coords = adjustToBounds(pX, pY, cm);
+        if(coords == null) {
             return false;
         }
-        //adjusts x position
-        while (pX + cm.width >= width) {
-            pX--;
-        }
-        while (pX < 0) {
-            pX++;
-        }
-
-        //adjust y position
-        while (pY + cm.height >= height) {
-            pY--;
-        }
-        while (pY < 0) {
-            pY++;
-        }
+        pX = coords[0];
+        pY = coords[1];
 
         //loops through cell matrix and spotlights living cells
         for (int x = pX; x < cm.matrix.length + pX; x++) {
@@ -295,10 +271,40 @@ public class CellMatrix {
                 if(cm.matrix[x - pX][y - pY].isAlive()) {
                     matrix[x][y].spotlight();
                 }
-
             }
         }
         return true;
+    }
+
+    /** Adjusts position to fit within matrix, returns null if exceeds
+     *  bounds.
+     * @param pX horizontal position
+     * @param pY vertical position
+     * @param cm CellMatrix to adjust
+     * @return adjusted coordinates [x, y], null if too large
+     */
+    private int[] adjustToBounds(int pX, int pY, CellMatrix cm) {
+        //if out-of-bounds
+        if(cm.numRows >= numRows || cm.numCols >= numCols) {
+            return null;
+        }
+        //adjusts x position
+        while (pX + cm.numRows > numRows) {
+            pX--;
+        }
+        while (pX < 0) {
+            pX++;
+        }
+
+        //adjust y position
+        while (pY + cm.numCols > numCols) {
+            pY--;
+        }
+        while (pY < 0) {
+            pY++;
+        }
+        int[] temp = {pX, pY};
+        return temp;
     }
 
     /** Randomly generates starter seed with given
@@ -358,11 +364,11 @@ public class CellMatrix {
         return new MatrixData(size, cells);
     }
 
-    public int getWidth() {
-        return width;
+    public int getNumRows() {
+        return numRows;
     }
 
-    public int getHeight() {
-        return height;
+    public int getNumCols() {
+        return numCols;
     }
 }
