@@ -17,10 +17,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private int mouseY;
 
 
-    //Grid Variables
+    //Matrix Variables
     private CellMatrix matrix;
     private CellMatrix cm;
-
     private final double maxP;
     private final int increment;
 
@@ -556,7 +555,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     if (e.getKeyCode() == KeyEvent.VK_H) {
                         //Renames on 'H'
                         MatrixData m = database.get(indexDB);
-                        String name = m.getName();
+                        String name = m.getTitle();
 
                         //Prompts User for new Name
                         String s = (String) JOptionPane.showInputDialog(
@@ -564,7 +563,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 JOptionPane.PLAIN_MESSAGE, null, null, name);
                         if (s != null) {
                             //if name changed
-                            m.setName(s);
+                            m.setTitle(s);
                         }
                     }
                     if (e.getKeyCode() == KeyEvent.VK_K) {
