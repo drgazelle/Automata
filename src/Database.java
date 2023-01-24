@@ -1,10 +1,6 @@
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import kong.unirest.*;
 
 import javax.swing.JPanel;
 import java.awt.*;
@@ -12,7 +8,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import java.util.Collection;
 import java.util.Scanner;
 
 /** Database Class imports and exports
@@ -224,7 +223,7 @@ public class Database extends JPanel {
         g2.setFont(MainPanel.mainFont);
         for (MatrixData m : database) {
             //loops through items
-            g2.drawString(m.getName(), pX + 5, pY + d);
+            g2.drawString(m.getTitle(), pX + 5, pY + d);
             pY += d + 2;
         }
     }
@@ -236,15 +235,23 @@ public class Database extends JPanel {
      * @param s search term
      */
     public void addFromSearch(String s) {
-        HttpResponse<JsonNode> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/patterns?select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%5D&count=1")
+
+        HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%2C%22date%22%5D&count=1")
                 .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
                 .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
-                .asJson();
+                .asString();
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jp = new JsonParser();
-        JsonElement je = jp.parse(response.getBody().toString());
-        String prettyJsonString = gson.toJson(je);
-        System.out.println(prettyJsonString);
+        Gson gson = new Gson();
+        JsonArray elements = JsonParser.parseString(response.getBody()).getAsJsonArray();
+        for(JsonElement e : elements) {
+            database.add(gson.fromJson(e.getAsJsonObject(), MatrixData.class));
+        }
+    }
+}
+
+class DatabaseTester {
+    public static void main(String[] args) {
+        Database database = new Database();
+        database.addFromSearch("gun");
     }
 }

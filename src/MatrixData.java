@@ -1,54 +1,59 @@
 import java.util.ArrayList;
 
-/** MatrixData class assigns a name to
+/** MatrixData class assigns a title to
  *  a CellMatrix's and stores the size
  *  and living cells contents.
  *
  * @author RMizelle
  */
 public class MatrixData {
-    private String name;
-    private int[] size;
+    private String _id;
+    private String author;
+    private String title;
+    private String[] description;
+    private String rleString;
+    private String date;
+    private Size size;
     private ArrayList<int[]> cells;
 
-    /** 3-arg constructor instantiates name, size, and cells.
+    /** 3-arg constructor instantiates title, size, and cells.
      *
-     * @param name matrix name
+     * @param name matrix title
      * @param size grid size [x,y]
      * @param cells Arraylist of Living Cell Coordinates [x,y]
      */
     public MatrixData(String name, int[] size, ArrayList<int[]> cells) {
-        this.name = name;
-        this.size = size;
+        this.title = name;
+        this.size = new Size(size[0], size[1]);
         this.cells = cells;
     }
 
     /** 2-arg Constructor instantiates size and cells with
-     *  default name of "CellMatrix_(W*H)"
+     *  default title of "CellMatrix_(W*H)"
      *
      * @param size grid size [x,y]
      * @param cells Arraylist of Living Cell Coordinates [x,y]
      */
     public MatrixData(int[] size, ArrayList<int[]> cells) {
-        this.name = "CellMatrix_(" + size[0] + "x" + size[1] + ")";
-        this.size = size;
+        this.title = "CellMatrix_(" + size[0] + "x" + size[1] + ")";
+        this.size = new Size(size[0], size[1]);
         this.cells = cells;
     }
 
     /** Setter Method for Name
      *
-     * @param name to be assigned
+     * @param title to be assigned
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /** Accessor Method for Name
      *
      * @return Name of Matrix
      */
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     /** Accessor Method for Size
@@ -56,7 +61,8 @@ public class MatrixData {
      * @return Grid Size [x,y]
      */
     public int[] getSize() {
-        return size;
+        int[] temp = {size.getX(), size.getY()};
+        return temp;
     }
 
     /** Accessor Method for Cells Arraylist
@@ -72,7 +78,7 @@ public class MatrixData {
      * @return CellMatrix of size with all cells revived
      */
     public CellMatrix toCellMatrix() {
-        CellMatrix temp = new CellMatrix(size[0], size[1]);
+        CellMatrix temp = new CellMatrix(size.getX(), size.getY());
         for (int[] cell : cells) {
             temp.getCell(cell[0], cell[1]).revive();
         }
@@ -81,11 +87,37 @@ public class MatrixData {
 
     @Override
     public String toString() {
-        String temp = "\"" + name + "\"";
-        temp += "##(" + size[0] + "x" + size[1] + ")";
+        String temp = "\"" + title + "\"";
+        temp += "##(" + size.getX() + "x" + size.getY() + ")";
         for (int[] cell : cells) {
             temp += "##[" + cell[0] + "," + cell[1] + "]";
         }
         return temp;
+    }
+}
+
+/** Size object for API integration */
+class Size {
+    private int x;
+    private int y;
+
+    /** 2-arg constructor instantiates width and height
+     *
+     * @param x width
+     * @param y height
+     */
+    public Size(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    //// Accessor Methods ////
+
+    public int getY() {
+        return y;
+    }
+
+    public int getX() {
+        return x;
     }
 }
