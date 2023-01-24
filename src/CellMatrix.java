@@ -8,7 +8,9 @@ import java.util.ArrayList;
  * @author RMizelle
  */
 public class CellMatrix {
-    private Cell[][] matrix;
+    private final Cell[][] matrix;
+    private final int width;
+    private final int height;
     private int size;
 
     /** 2-arg constructor instantiates a 2D matrix
@@ -18,7 +20,10 @@ public class CellMatrix {
      * @param numColumns Matrix height
      */
     public CellMatrix(int numRows, int numColumns) {
-        matrix = new Cell[numRows][numColumns];
+        width = numRows;
+        height = numColumns;
+
+        matrix = new Cell[width][height];
         double size = ((double) AppDriver.WIDTH) / numRows;
         for (int x = 0; x < numRows; x++) {
             for (int y = 0; y < numColumns; y++) {
@@ -200,6 +205,102 @@ public class CellMatrix {
         return null;
     }
 
+    /** Finds (x,y) coordinates of a given Cell
+     *
+     * @param cell to be located
+     * @return coordinates of cell object as int[]
+     */
+    public int[] getCellCoordinates(Cell cell) {
+        for (int x = 0; x < matrix.length; x++) {
+            for(int y = 0; y <matrix[0].length; y++) {
+                if (matrix[x][y].equals(cell)) {
+                    int[] coords = {x, y};
+                    return coords;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Places cell matrix at given coordinate
+     *
+     * @param pX x position
+     * @param pY y position
+     * @param cm matrix to be placed
+     */
+    public boolean placeCellMatrix(int pX, int pY, CellMatrix cm) {
+        //if out-of-bounds
+        if(cm.width >= width || cm.height >= height) {
+            return false;
+        }
+        //adjusts x position
+        while (pX + cm.width >= width) {
+            pX--;
+        }
+        while (pX < 0) {
+            pX++;
+        }
+
+        //adjust y position
+        while (pY + cm.height >= height) {
+            pY--;
+        }
+        while (pY < 0) {
+            pY++;
+        }
+
+        for (int x = pX; x < cm.matrix.length + pX; x++) {
+            for (int y = pY; y < cm.matrix[0].length + pY; y++) {
+                if(cm.matrix[x - pX][y - pY].isAlive()) {
+                    matrix[x][y].revive();
+                }
+                else {
+                    matrix[x][y].kill();
+                }
+            }
+        }
+        return true;
+    }
+
+    /** spotlights cell matrix at coordinate
+     *
+     * @param pX x position
+     * @param pY y position
+     * @param cm matrix to spotlight
+     */
+    public boolean spotlightPlacement(int pX, int pY, CellMatrix cm) {
+        //if out-of-bounds
+        if(cm.width >= width || cm.height >= height) {
+            return false;
+        }
+        //adjusts x position
+        while (pX + cm.width >= width) {
+            pX--;
+        }
+        while (pX < 0) {
+            pX++;
+        }
+
+        //adjust y position
+        while (pY + cm.height >= height) {
+            pY--;
+        }
+        while (pY < 0) {
+            pY++;
+        }
+
+        //loops through cell matrix and spotlights living cells
+        for (int x = pX; x < cm.matrix.length + pX; x++) {
+            for (int y = pY; y < cm.matrix[0].length + pY; y++) {
+                if(cm.matrix[x - pX][y - pY].isAlive()) {
+                    matrix[x][y].spotlight();
+                }
+
+            }
+        }
+        return true;
+    }
+
     /** Randomly generates starter seed with given
      *  probability.
      *
@@ -255,5 +356,13 @@ public class CellMatrix {
             }
         }
         return new MatrixData(size, cells);
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

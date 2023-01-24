@@ -1,10 +1,13 @@
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
 
 /** MainPanel class renders a CellMatrix
- *  representing Conway's Game of Life.
+ *  representing an interactive version
+ *  of Conway's Game of Life.
  *
  * @author RMizelle
  */
@@ -12,21 +15,24 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     //Mouse Positions
     private int mouseX;
     private int mouseY;
+    private int[] coords;
 
 
     //Grid Variables
     private CellMatrix matrix;
-    private int numRows = 100;
-    private int numColumns = 100;
+    private CellMatrix cm;
+    private int numRows = 105;
+    private int numColumns = 105;
     private final double maxP = 0.30;
-    private final int increment = 5;
+    private final int increment = 10;
 
-
+    //Database Variables
     private final Database database;
+    private int indexDatabase = -1;
 
     //Animation Variables
     public static final Color mainColor = new Color((int)(Math.random() * 0x1000000));
-    public static final Font mainFont = new Font("SansSerif", Font.PLAIN, 11);
+    public static final Font mainFont = new Font("SansSerif", Font.PLAIN, 10);
     private final Timer timer;
     private int numTicks = 0;
     private int delay = 100;
@@ -34,7 +40,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showMenu = true;
     private boolean wrapEnabled = true;
     private boolean showDatabase = false;
-    private int indexDatabase = -1;
+    private boolean showPlacement = false;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -52,6 +58,20 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         timer = new Timer(delay, this);
         //database variables
         database = new Database();
+
+        //Sets JOptionPane theme
+        UIManager UI = new UIManager();
+        UI.put("OptionPane.messageForeground", mainColor);
+        UI.put("OptionPane.background", Color.BLACK);
+        UI.put("Panel.background", Color.BLACK);
+        UI.put("Button.background", Color.BLACK);
+        UI.put("Button.foreground", Color.WHITE);
+        UI.put("Button.highlight", Color.WHITE);
+        UI.put("TextField.background", Color.BLACK);
+        UI.put("TextField.selectionBackground", mainColor);
+        UI.put("TextField.foreground", Color.WHITE);
+        UI.put("TextField.selectionForeground", Color.BLACK);
+
         repaint();
     }
 
@@ -100,15 +120,18 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         numColumns += i;
         numRows += i;
         matrix = new CellMatrix(numRows, numColumns);
+        matrix.randomSeed(maxP);
     }
 
     @Override
+
     /** Paint method for MainPanel that draws
      *  the CellMatrix, status, and menu.
      *
      * @param g graphics
      */
     public void paintComponent(Graphics g) {
+        g.setFont(mainFont);
         matrix.drawMatrix(g);
         if (showStatus) {
             paintStatus(g);
@@ -132,8 +155,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     public void paintStatus(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
         //initial conditions
         int boxHeight = 25;
         int boxWidth = 75;
@@ -142,11 +163,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int pX = AppDriver.WIDTH - boxWidth - border;
         int pY = border;
 
-        Shape tickBox = new RoundRectangle2D.Double(pX, pY, boxWidth, boxHeight, 25, 25);
+        Shape tickBox = new Rectangle(pX, pY, boxWidth, boxHeight);
         g2.setColor(Color.black);
         g2.fill(tickBox);
 
-        Shape status = new RoundRectangle2D.Double(pX + (2 * statusWidth), pY, statusWidth, boxHeight,25,25);
+        Shape status = new Rectangle(pX + (2 * statusWidth), pY, statusWidth, boxHeight);
         g2.setColor(Color.RED);
         if (timer.isRunning()) {
             g2.setColor(Color.GREEN);
@@ -187,10 +208,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     public void paintMenu(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
-        //list of menu items
-        String[] menuItems = {"Automata"
-                                    + " (" + numRows + "x" + numColumns + ") "
-                                    + "(" + delay + "ms)",
+        //list of menu items + current status
+        String[] menuItems = {"Automata"                                       //title
+                                    + " (" + numRows + "x" + numColumns + ") " //size
+                                    + "(" + delay + "ms)",                     //speed
                                 "Toggle Simulation [SPACE]",
                                 "Resize Grid [Q/E]",
                                 "Change Speed [A/D]",
@@ -200,9 +221,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Toggle Grid [X]",
                                 "Clear [C]",
                                 "Open Database [J]",
+                                "Search wikicollections [;]",
                                 "Navigate Database [U/N]",
                                 "Rename Selected [H]",
                                 "Remove Selected [K]",
+                                "Regenerates Selection [M]",
                                 "Wipe Database [L]",
                                 "Toggle Menu [T]",
                                 "Toggle Status [R]"};
@@ -218,7 +241,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int pY = AppDriver.HEIGHT - boxHeight - border;
 
         //box for menu background
-        Shape menuBackground = new RoundRectangle2D.Double(pX, pY, boxWidth, boxHeight, 25, 25);
+        Shape menuBackground = new Rectangle(pX, pY, boxWidth, boxHeight);
         g2.setColor(Color.black);
         g2.fill(menuBackground);
         //OPT: menu border
@@ -272,7 +295,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int button = e.getButton();
         if(button == MouseEvent.BUTTON1) {
             Cell cell = matrix.findCellAt(mouseX, mouseY);
-            if (cell != null) cell.flip();
+            if(showPlacement && cm != null && cell != null) {
+                coords = matrix.getCellCoordinates(cell);
+                //centers placement
+                coords[0] -= cm.getWidth() / 2;
+                coords[1] -= cm.getHeight() / 2;
+                matrix.placeCellMatrix(coords[0], coords[1], cm);
+            }
+            else if (cell != null) cell.flip();
         }
         repaint();
     }
@@ -336,7 +366,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         mouseY = e.getY();
         matrix.clearSpotlight();
         Cell cell = matrix.findCellAt(mouseX, mouseY);
-        if (cell != null) cell.spotlight();
+        if (showPlacement && cm != null && cell != null) {
+            int[] coords = matrix.getCellCoordinates(cell);
+            coords[0] -= cm.getWidth() / 2;
+            coords[1] -= cm.getHeight() / 2;
+            matrix.spotlightPlacement(coords[0], coords[1], cm);
+        }
+        else if (cell != null) cell.spotlight();
         repaint();
     }
 
@@ -374,7 +410,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             //toggles simulation on space-bar
             if(timer.isRunning()) {
                 timer.stop();
-                repaint();
             }
             else {
                 timer.start();
@@ -389,7 +424,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 delay -= 1;
             }
             timer.setDelay(delay);
-            repaint();
 
         }
         if (e.getKeyCode() == KeyEvent.VK_A && timer.getDelay() < 5000) {
@@ -401,53 +435,43 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 delay += 1;
             }
             timer.setDelay(delay);
-            repaint();
         }
         if(e.getKeyCode() == KeyEvent.VK_E) {
             //increases grid size on 'E'
             if (numRows < AppDriver.WIDTH / 3) {
                 numTicks = 0;
                 changeGrid(increment);
-                matrix.randomSeed(maxP);
             }
-            repaint();
         }
         if(e.getKeyCode() == KeyEvent.VK_Q) {
             //decreases grid size on 'Q'
             if (numRows > increment) {
                 numTicks = 0;
                 changeGrid(-1 * increment);
-                matrix.randomSeed(maxP);
             }
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_X) {
             //turns grid on and off on 'X'
             Cell.gridEnabled = !Cell.gridEnabled;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_Z) {
             // Saves Cell Matrix on 'Z'
             database.add(matrix.toMatrixData());
-            if(showDatabase) {
-                repaint();
-            }
+
         }
         if (e.getKeyCode() == KeyEvent.VK_R) {
             //toggles status on 'R'
             showStatus = !showStatus;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_T) {
             //toggles menu on 'T'
             showMenu = !showMenu;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_J) {
             // toggles database and resets index 0n 'J'
             showDatabase = !showDatabase;
             indexDatabase = -1;
-            repaint();
+            showPlacement = !showPlacement;
         }
         if (e.getKeyCode() == KeyEvent.VK_W) {
             //toggles wrap around on 'W'
@@ -459,80 +483,78 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             matrix.genocide();
             matrix.randomSeed(maxP);
             numTicks = 0;
-            repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_C) {
             //kills all cells on 'C'
             matrix.genocide();
             numTicks = 0;
-            repaint();
         }
-        if (showDatabase && database.databaseSize() > 0) {
-            //if database is visible and not empty
-            if(e.getKeyCode() == KeyEvent.VK_U) {
-                //if database showing and exists, navigate down and update on 'U'
-                indexDatabase--;
-                if (indexDatabase < 0) {
-                    indexDatabase = database.databaseSize() - 1;
-                }
-                importFromDatabase();
-            }
-            if(e.getKeyCode() == KeyEvent.VK_N) {
-                //if database showing and exists, navigate down and update on 'M'
-                indexDatabase++;
-                if (indexDatabase >= database.databaseSize()) {
-                    indexDatabase = 0;
-                }
-                importFromDatabase();
-            }
-            if (indexDatabase > -1) {
-                //if item selected
-                if(e.getKeyCode() == KeyEvent.VK_H) {
-                    //Renames on 'H'
-                    MatrixData m = database.get(indexDatabase);
-                    String name = m.getName();
 
-                    //Sets JOptionPane theme
-                    UIManager UI = new UIManager();
-                    UI.put("OptionPane.messageForeground", mainColor);
-                    UI.put("OptionPane.background", Color.BLACK);
-                    UI.put("Panel.background", Color.BLACK);
-                    UI.put("Button.background", Color.BLACK);
-                    UI.put("Button.foreground", Color.WHITE);
-                    UI.put("Button.highlight", Color.WHITE);
-                    UI.put("TextField.background", Color.BLACK);
-                    UI.put("TextField.selectionBackground", mainColor);
-                    UI.put("TextField.foreground", Color.WHITE);
-                    UI.put("TextField.selectionForeground", Color.BLACK);
+        if (showDatabase)
+            if(e.getKeyCode() == KeyEvent.VK_SEMICOLON) {
+                //Prompts User for search term
+                String s = (String) JOptionPane.showInputDialog(
+                        this, "Search wikicollection:", "Database",
+                        JOptionPane.PLAIN_MESSAGE, null, null, "Enter Search Here");
+                if (s != null) {
+                    //if name changed
+                    database.addFromSearch(s);
+                }
+            }
+            if (database.databaseSize() > 0) {
+                //if database is visible and not empty
+                if (e.getKeyCode() == KeyEvent.VK_U) {
+                    //if database showing and exists, navigate down and update on 'U'
+                    indexDatabase--;
+                    if (indexDatabase < 0) {
+                        indexDatabase = database.databaseSize() - 1;
+                    }
+                    importFromDatabase();
+                }
+                if (e.getKeyCode() == KeyEvent.VK_N) {
+                    //if database showing and exists, navigate down and update on 'M'
+                    indexDatabase++;
+                    if (indexDatabase >= database.databaseSize()) {
+                        indexDatabase = 0;
+                    }
+                    importFromDatabase();
+                }
+                if (indexDatabase > -1) {
+                    //if item selected
+                    if (e.getKeyCode() == KeyEvent.VK_H) {
+                        //Renames on 'H'
+                        MatrixData m = database.get(indexDatabase);
+                        String name = m.getName();
 
-                    //Prompts User for new Name
-                    String s = (String) JOptionPane.showInputDialog(
-                            this, "Modify Matrix Name Below:", "Database",
-                            JOptionPane.PLAIN_MESSAGE, null, null, name);
-                    if (s != null) {
-                        //if name changed
-                        m.setName(s);
-                        repaint();
+                        //Prompts User for new Name
+                        String s = (String) JOptionPane.showInputDialog(
+                                this, "Modify Matrix Name Below:", "Database",
+                                JOptionPane.PLAIN_MESSAGE, null, null, name);
+                        if (s != null) {
+                            //if name changed
+                            m.setName(s);
+                        }
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_K) {
+                        //removes CellMatrix at Index
+                        database.removeAtIndex(indexDatabase);
+                        //moves up if at bottom of list
+                        if (indexDatabase == database.databaseSize()) {
+                            indexDatabase--;
+                        }
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_M) {
+                        //Re-Selects MatrixData at index
+                        importFromDatabase();
                     }
                 }
-                if(e.getKeyCode() == KeyEvent.VK_K) {
-                    //removes CellMatrix at Index
-                    database.removeAtIndex(indexDatabase);
-                    //moves up if at bottom of list
-                    if (indexDatabase == database.databaseSize()) {
-                        indexDatabase--;
-                    }
-                    repaint();
+                if (e.getKeyCode() == KeyEvent.VK_L) {
+                    //wipes database on 'L'
+                    database.wipe();
+                    indexDatabase = -1;
                 }
             }
-
-            if(e.getKeyCode() == KeyEvent.VK_L) {
-                //wipes database on 'L'
-                database.wipe();
-                indexDatabase = -1;
-                repaint();
-            }
-        }
+        repaint();
     }
 
     /** Accesses MatrixData from internal index and
@@ -541,9 +563,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private void importFromDatabase() {
         MatrixData m = database.get(indexDatabase);
         int[] size = m.getSize();
-        numRows = size[0];
-        numColumns = size[1];
-        matrix = m.toCellMatrix();
+        //numRows = size[0];
+        //numColumns = size[1];
+        numTicks = 0;
+        cm = m.toCellMatrix();
         repaint();
     }
 
