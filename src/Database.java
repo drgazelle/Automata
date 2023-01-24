@@ -1,6 +1,13 @@
-import javax.swing.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
+
+import javax.swing.JPanel;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -8,6 +15,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/** Database Class imports and exports
+ *  MatrixData from a text document.
+ *  Additionally, renders the database
+ *  graphically.
+ *
+ * @author RMizelle
+ */
 public class Database extends JPanel {
     private final ArrayList<MatrixData> database;
     private File data;
@@ -179,7 +193,7 @@ public class Database extends JPanel {
         int pY = border;
 
         //box for menu background
-        Shape menuBackground = new RoundRectangle2D.Double(pX, pY, boxWidth, boxHeight,25,25);
+        Shape menuBackground = new Rectangle(pX, pY, boxWidth, boxHeight);
         g2.setColor(Color.black);
         g2.fill(menuBackground);
         //OPT: menu border
@@ -200,7 +214,7 @@ public class Database extends JPanel {
         //draws index
         if (index > -1) {
             int highlightBorder = 4;
-            Shape highlightBox = new RoundRectangle2D.Double(pX + highlightBorder, pY + (d + 2) * index + 2, boxWidth - 2 * highlightBorder, d, 10,10);
+            Shape highlightBox = new Rectangle(pX + highlightBorder, pY + (d + 2) * index + 2, boxWidth - 2 * highlightBorder, d);
             g2.setColor(Color.darkGray);
             g2.fill(highlightBox);
         }
@@ -213,5 +227,24 @@ public class Database extends JPanel {
             g2.drawString(m.getName(), pX + 5, pY + d);
             pY += d + 2;
         }
+    }
+
+    /** Accesses wikicollections api for patterns based of search term
+     *
+     * <p> https://rapidapi.com/timjacksonm-1jw8F2hFW3d/api/the-game-of-life </p>
+     *
+     * @param s search term
+     */
+    public void addFromSearch(String s) {
+        HttpResponse<JsonNode> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/patterns?select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%5D&count=1")
+                .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
+                .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
+                .asJson();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jp = new JsonParser();
+        JsonElement je = jp.parse(response.getBody().toString());
+        String prettyJsonString = gson.toJson(je);
+        System.out.println(prettyJsonString);
     }
 }
