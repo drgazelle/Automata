@@ -62,6 +62,11 @@ public class Cell {
         alive = !alive;
     }
 
+    /** Returns true if spotlit, false otherwise */
+    public boolean isSpotlit() {
+        return spotlit;
+    }
+
     /** Spotlights cell */
     public void spotlight() {
         spotlit = true;

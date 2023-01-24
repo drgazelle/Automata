@@ -105,6 +105,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     //isolation or previously dead
                     g2.getCell(x, y).kill();
                 }
+                if(c.isSpotlit()) {
+                    //if cell is spotlit
+                    g2.getCell(x, y).spotlight();
+                }
             }
         }
         //migrates previous to current generation
@@ -124,7 +128,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     @Override
-
     /** Paint method for MainPanel that draws
      *  the CellMatrix, status, and menu.
      *
