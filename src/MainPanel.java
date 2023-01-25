@@ -15,6 +15,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     //Mouse Positions
     private int mouseX;
     private int mouseY;
+    private Point startPoint;
+    private Point endPoint;
 
 
     //Matrix Variables
@@ -39,6 +41,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showMenu;
     private boolean wrapEnabled;
     private boolean showDatabase;
+    private boolean showHighlight;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -74,6 +77,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showStatus = true;
         showMenu = true;
         showDatabase = false;
+        showHighlight = false;
 
         //Sets JOptionPane theme
         UIManager UI = new UIManager();
@@ -330,6 +334,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
             else if (cell != null) cell.flip();
         }
+        else if(button == MouseEvent.BUTTON3) {
+            startPoint = new Point(mouseX, mouseY);
+            if (endPoint == null) {
+                endPoint = new Point(mouseX, mouseY);
+            }
+            showHighlight = true;
+        }
         repaint();
     }
 
@@ -379,7 +390,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void mouseDragged(MouseEvent e) {
+        if(showHighlight) {
+            mouseX = e.getX();
+            mouseY = e.getY();
 
+            endPoint = new Point(mouseX, mouseY);
+            Rectangle rect = new Rectangle();
+            rect.setFrameFromDiagonal(endPoint, startPoint);
+            matrix.spotlightAll(rect);
+            repaint();
+        }
     }
 
     /**
@@ -401,6 +421,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             matrix.spotlightPlacement(coords[0], coords[1], cm);
         }
         else if (cell != null) cell.spotlight();
+        if(showHighlight) {
+            //resets spotlight
+            showHighlight = false;
+        }
         repaint();
     }
 
@@ -469,7 +493,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if(e.getKeyCode() == KeyEvent.VK_E) {
             //increases grid size on 'E'
-            if (numRows < AppDriver.WIDTH / 3) {
+            if (numRows < AppDriver.WIDTH / 4) {
                 numTicks = 0;
                 changeGrid(increment);
             }
@@ -487,6 +511,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if (e.getKeyCode() == KeyEvent.VK_Z) {
             // Saves Cell Matrix on 'Z'
+            if (showHighlight) {
+
+            }
             database.add(matrix.toMatrixData());
 
         }

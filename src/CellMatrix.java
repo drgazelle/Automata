@@ -1,4 +1,5 @@
-import java.awt.Graphics;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 /** CellMatrix class generates and
@@ -370,5 +371,18 @@ public class CellMatrix {
 
     public int getNumCols() {
         return numCols;
+    }
+
+    public void spotlightAll(Rectangle rect) {
+        for (Cell[] row : matrix) {
+            for (Cell c : row) {
+                if (rect.intersects((Rectangle2D) c.getGridCell())) {
+                    c.spotlight();
+                }
+                else {
+                    c.unspotlight();
+                }
+            }
+        }
     }
 }
