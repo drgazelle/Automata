@@ -11,7 +11,7 @@ import java.awt.event.*;
  *
  * @author RMizelle
  */
-public class MainPanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener, ActionListener {
+public class MainPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, ActionListener {
     //Mouse Positions
     private int mouseX;
     private int mouseY;
@@ -50,6 +50,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //adds listeners
         addMouseListener(this);
         addMouseMotionListener(this);
+        addMouseWheelListener(this);
         addKeyListener(this);
         this.setFocusable(true);
 
@@ -159,6 +160,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     public void paintComponent(Graphics g) {
         g.setFont(mainFont);
+        if(showHighlight) {
+            Rectangle rect = new Rectangle();
+            rect.setFrameFromDiagonal(endPoint, startPoint);
+            matrix.spotlightAll(rect);
+        }
         matrix.drawMatrix(g);
         if (showStatus) {
             paintStatus(g);
@@ -393,11 +399,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if(showHighlight) {
             mouseX = e.getX();
             mouseY = e.getY();
-
             endPoint = new Point(mouseX, mouseY);
-            Rectangle rect = new Rectangle();
-            rect.setFrameFromDiagonal(endPoint, startPoint);
-            matrix.spotlightAll(rect);
             repaint();
         }
     }
@@ -512,7 +514,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if (e.getKeyCode() == KeyEvent.VK_Z) {
             // Saves Cell Matrix on 'Z'
             if (showHighlight) {
-
+                //TO-DO
             }
             database.add(matrix.toMatrixData());
 
@@ -636,5 +638,29 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void keyReleased(KeyEvent e) {
 
+    }
+
+    /**
+     * Invoked when the mouse wheel is rotated.
+     *
+     * @param e the event to be processed
+     * @see MouseWheelEvent
+     */
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int notches = e.getWheelRotation();
+        if (notches > 0) {
+            if (matrix.getNumRows() < AppDriver.WIDTH / 4) {
+                numTicks = 0;
+                changeGrid(increment);
+            }
+        }
+        else {
+            if (matrix.getNumRows() > increment) {
+                numTicks = 0;
+                changeGrid(-1 * increment);
+            }
+        }
+        repaint();
     }
 }
