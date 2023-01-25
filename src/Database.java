@@ -236,15 +236,34 @@ public class Database extends JPanel {
      */
     public void addFromSearch(String s) {
 
-        HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%2C%22date%22%5D&count=1")
+        int count = 5;
+
+        HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%2C%22date%22%5D&count=" + count)
                 .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
                 .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
                 .asString();
 
+        //error checks connection
+        if(response.getStatus() != 200) {
+            System.out.println("ERROR: Failed to Access WikiCollections API [Code" + response.getStatus() + "]");
+            Unirest.shutDown();
+            return;
+        }
+        System.out.println("Successful Connection [Code " + response.getStatus() + "]");
+        Unirest.shutDown();
+
+        ArrayList<MatrixData> results = new ArrayList<>();
+
         Gson gson = new Gson();
         JsonArray elements = JsonParser.parseString(response.getBody()).getAsJsonArray();
+
         for(JsonElement e : elements) {
-            database.add(gson.fromJson(e.getAsJsonObject(), MatrixData.class));
+            results.add(gson.fromJson(e.getAsJsonObject(), MatrixData.class)); //ARCHIVED UNTIL FUNCTIONAL
+        }
+        for (int i = 0; i < results.size(); i++) {
+            if(results.get(i).convertFromRle()) {
+                database.add(results.get(i));
+            }
         }
     }
 }
@@ -252,6 +271,7 @@ public class Database extends JPanel {
 class DatabaseTester {
     public static void main(String[] args) {
         Database database = new Database();
-        database.addFromSearch("gun");
+        database.addFromSearch("Cloverleaf Interchange");
+        System.out.println(database.get(database.databaseSize() - 1));
     }
 }

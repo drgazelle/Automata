@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /** MatrixData class assigns a title to
  *  a CellMatrix's and stores the size
@@ -80,7 +81,7 @@ public class MatrixData {
     public CellMatrix toCellMatrix() {
         CellMatrix temp = new CellMatrix(size.getX(), size.getY());
         for (int[] cell : cells) {
-            temp.getCell(cell[0], cell[1]).revive();
+            temp.getCell(cell[1], cell[0]).revive();
         }
         return temp;
     }
@@ -93,6 +94,64 @@ public class MatrixData {
             temp += "##[" + cell[0] + "," + cell[1] + "]";
         }
         return temp;
+    }
+
+    /** Converts internal rleString into an array of Cell coordinates
+     *
+     * @return true if valid rle, false otherwise
+     */
+    public boolean convertFromRle() {
+        if (rleString == null || rleString.isEmpty()) {
+            return false;
+        }
+        cells = new ArrayList<>();
+        String[] lines = rleString.substring(0, rleString.length() - 1).trim().split(Pattern.quote("$"));
+        //loops through lines
+        for(int x = 0; x < lines.length; x++) {
+            char[] line = lines[x].toCharArray();
+            String rangeStr = "";
+            int rangeNum;
+            int y = 0;
+            for(int i = 0; i < line.length; i++) {
+                //loops through line
+                if(line[i] == 'b' || line[i] == 'o') {
+                    if(rangeStr.isEmpty()) {
+                        //if no digits
+                        rangeNum = 1;
+                    }
+                    else {
+                        //adds digits
+                        rangeNum = Integer.valueOf(rangeStr);
+                    }
+
+                    if(line[i] == 'o') {
+                        //if alive
+                        addRange(rangeNum, x, y);
+                    }
+                    y += rangeNum;
+                    //adds distance
+                    rangeStr = "";
+                    //resets range
+                }
+                else {
+                    rangeStr += line[i];
+                }
+            }
+        }
+        return true;
+    }
+
+    /** Adds range of cell at a given x and y coordinate
+     *
+     * @param r range
+     * @param x start position
+     * @param y start postion
+     */
+    private void addRange(int r, int x, int y) {
+        for (int i = 0; i < r; i++) {
+            int[] coords = {x, y + i};
+            cells.add(coords);
+        }
     }
 }
 
