@@ -35,3 +35,4 @@ A lightweight simulation Conway's Game of Life
 
 - [ ] Optimization/Efficency
 - [ ] Statistics for Simulations
+- [ ] Export Statistics with Analysis
