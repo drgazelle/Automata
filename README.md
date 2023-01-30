@@ -16,7 +16,8 @@ A lightweight simulation Conway's Game of Life
 #### Placement
 
 - [ ] Save Matrix from Selection
-- [*] Center to Cursor
+- [x] Center to Cursor
+- [x] Highlight Selection
 
 #### Database
 
@@ -26,8 +27,9 @@ A lightweight simulation Conway's Game of Life
 - [ ] Migrate Search to Dedicated Window
 - [ ] Upload Matrices to customcollections
 - [ ] Dynamic Width for Database Menu
-- [*] Import from Wikicollections
-- [*] Implement Search Functionality
+- [x] Import from Wikicollections
+- [x] Implement Search Functionality
+- [x] Show Placement
 
 #### Simulation
 
