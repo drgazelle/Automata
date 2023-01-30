@@ -8,5 +8,13 @@ A lightweight simulation Conway's Game of Life
 - Adjustable Speed
 - Wrap-around Edge
 - Database
-  - Stores matricies
+  - Store and saves matricies
   - Imports from WikiCollection API
+
+## Current Development
+
+[ ] Save Matrix from Selection
+[ ] Dedicated Search Window
+[ ] Dynamic width for Database menu
+[ ] Statistics for Simulations
+[ ] Optimization/Efficency
