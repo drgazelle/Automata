@@ -13,8 +13,8 @@ A lightweight simulation Conway's Game of Life
 
 ## Current Development
 
-[ ] Save Matrix from Selection
-[ ] Dedicated Search Window
-[ ] Dynamic width for Database menu
-[ ] Statistics for Simulations
-[ ] Optimization/Efficency
+- [ ] Save Matrix from Selection
+- [ ] Dedicated Search Window
+- [ ] Dynamic width for Database menu
+- [ ] Statistics for Simulations
+- [ ] Optimization/Efficency
