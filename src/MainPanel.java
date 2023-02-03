@@ -55,10 +55,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         this.setFocusable(true);
 
         //instantiates matrix
-        matrix = new CellMatrix(105, 105);
+        matrix = new CellMatrix(100, 100);
 
         //configuration
-        increment = 10;
+        increment = 5;
         wrapEnabled = true;
 
         //randomizes seed
@@ -66,9 +66,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         matrix.randomSeed(maxP);
 
         //instantiates timer
-        timer = new Timer(delay, this);
-        numTicks = 0;
         delay = 100;
+        numTicks = 0;
+        timer = new Timer(delay, this);
 
         //database variables
         database = new Database();
@@ -79,6 +79,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showMenu = true;
         showDatabase = false;
         showHighlight = false;
+        Cell.gridEnabled = true;
 
         //Sets JOptionPane theme
         UIManager UI = new UIManager();
@@ -474,14 +475,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if (e.getKeyCode() == KeyEvent.VK_D && timer.getDelay() > 1) {
             //speeds up timer on 'D'
-            if (delay >= 100) {
+            if (delay > 100) {
                 delay -= 10;
             }
             else {
                 delay -= 1;
             }
             timer.setDelay(delay);
-
         }
         if (e.getKeyCode() == KeyEvent.VK_A && timer.getDelay() < 5000) {
             //slows down timer on up 'A'

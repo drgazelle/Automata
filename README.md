@@ -15,7 +15,7 @@ A lightweight simulation Conway's Game of Life
 
 #### Placement
 
-- [ ] Save Matrix from Selection
+- [x] Save Matrix from Selection
 - [x] Center to Cursor
 - [x] Highlight Selection
 
