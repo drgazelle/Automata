@@ -179,9 +179,7 @@ public class CellMatrix {
         }
     }
 
-    /** removes spotlight from all Cells
-     *
-     */
+    /** removes spotlight from all Cells */
     public void clearSpotlight() {
         for (Cell[] row : matrix) {
             for(Cell c : row) {
@@ -373,6 +371,10 @@ public class CellMatrix {
         return numCols;
     }
 
+    /** Spotlights are cells within a Rectangle Shape
+     *
+     * @param rect to search
+     */
     public void spotlightAll(Rectangle rect) {
         for (Cell[] row : matrix) {
             for (Cell c : row) {
