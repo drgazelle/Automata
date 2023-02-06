@@ -284,7 +284,7 @@ public class CellMatrix {
      */
     private int[] adjustToBounds(int pX, int pY, CellMatrix cm) {
         //if out-of-bounds
-        if(cm.numRows >= numRows || cm.numCols >= numCols) {
+        if(cm.numRows > numRows || cm.numCols > numCols) {
             return null;
         }
         //adjusts x position
@@ -355,7 +355,7 @@ public class CellMatrix {
         for (int x = 0; x < matrix.length; x++) {
             for (int y = 0; y < matrix[0].length; y++) {
                 if(matrix[x][y].isAlive()) {
-                    int[] cell = {x, y};
+                    int[] cell = {y, x};
                     cells.add(cell);
                 }
             }
@@ -386,5 +386,62 @@ public class CellMatrix {
                 }
             }
         }
+    }
+
+    public CellMatrix fromSpotlight() {
+        int startX = 0;
+        int endX = 0;
+        int startY = 0;
+        int endY = 0;
+
+        for (int x = 0; x < matrix.length; x++) {
+            for (int y = 0; y < matrix[0].length; y++) {
+                if(getCell(x, y).isSpotlit()) {
+                    startX = x;
+                    startY = y;
+                    break;
+                }
+            }
+        }
+
+        for (int x = matrix.length - 1; x >= 0; x--) {
+            for (int y = matrix[0].length - 1; y >= 0; y--) {
+                if(getCell(x, y).isSpotlit()) {
+                    endX = x;
+                    endY = y;
+                    break;
+                }
+            }
+        }
+
+        if(endX < startX) {
+            int temp = endX;
+            endX = startX;
+            startX = temp;
+        }
+
+        if(endY < startY) {
+            int temp = endY;
+            endY = startY;
+            startY = temp;
+        }
+
+        int width = Math.abs(endX - startX);
+        int height = Math.abs(endY - startY);
+
+        if (width == 0 || height == 0) {
+            return null;
+        }
+
+        CellMatrix cm = new CellMatrix(width + 1, height + 1);
+
+        for(int x = startX; x <= endX; x++) {
+            for (int y = startY; y <= endY; y++) {
+                if(getCell(x, y).isAlive()) {
+                    cm.getCell(x - startX, y - startY).revive();
+                }
+            }
+        }
+        return cm;
     }
 }
