@@ -66,7 +66,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         matrix.randomSeed(maxP);
 
         //instantiates timer
-        delay = 100;
+        delay = 20;
         numTicks = 0;
         timer = new Timer(delay, this);
 
@@ -257,7 +257,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Save [Z]",
                                 "Toggle Grid [X]",
                                 "Clear [C]",
-                                "Open Database [J]",
+                                "Open Database [J]"};
+
+        String[] databaseItems = {"Automata"                                   //title
+                                    + " (" + numRows + "x" + numColumns + ") " //size
+                                    + "(" + delay + "ms)",                     //speed
+                                "Close Database [J]",
                                 "Search wikicollections [;]",
                                 "Navigate Database [U/N]",
                                 "Rename Selected [H]",
@@ -284,10 +289,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //OPT: menu border
         //g2.setColor(Color.white);
         //g2.draw(menuBackground);
-
-        for (String item : menuItems) {
+        String[] displayItems = menuItems;
+        if (showDatabase) {
+            displayItems = databaseItems;
+        }
+        for (String item : displayItems) {
             //loops through menu items
-            if(item.equals(menuItems[0])) {
+            if(item.equals(displayItems[0])) {
                 //if title
                 g2.setColor(mainColor);
                 g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 4 * g2.getFont().getSize() / 3));
@@ -341,7 +349,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
             else if (cell != null) cell.flip();
         }
-        else if(button == MouseEvent.BUTTON3) {
+        else if (button == MouseEvent.BUTTON3) {
             startPoint = new Point(mouseX, mouseY);
             if (endPoint == null) {
                 endPoint = new Point(mouseX, mouseY);
@@ -513,11 +521,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if (e.getKeyCode() == KeyEvent.VK_Z) {
             // Saves Cell Matrix on 'Z'
+            MatrixData md;
             if (showHighlight) {
-                //TO-DO
+                md = matrix.fromSpotlight().toMatrixData();
             }
-            database.add(matrix.toMatrixData());
-
+            else {
+                md = matrix.toMatrixData();
+            }
+            if(md != null) {
+                database.add(md);
+            }
         }
         if (e.getKeyCode() == KeyEvent.VK_R) {
             //toggles status on 'R'

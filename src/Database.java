@@ -176,7 +176,6 @@ public class Database extends JPanel {
      */
     public void paintDatabase(Graphics g, int index) {
         Graphics2D g2 = (Graphics2D) g;
-        //list of menu items
 
         //font defining aspects
         g2.setFont(MainPanel.mainFont);
@@ -186,8 +185,15 @@ public class Database extends JPanel {
         //position and size variables
         int border = 10;
         int boxHeight = (d + 2) * database.size() + 22; //dynamic box height
-        //int boxHeight = AppDriver.HEIGHT - (border * 2); //static box height
-        int boxWidth = 125;
+
+        //dynamically adjusts box width
+        int boxWidth = 80;
+        for (int i = 0; i < database.size(); i++) {
+            String text = database.get(i).getTitle();
+            boxWidth = Math.max(boxWidth, g.getFontMetrics().stringWidth(text));
+        }
+        boxWidth += 10;
+
         int pX = border;
         int pY = border;
 
@@ -237,11 +243,15 @@ public class Database extends JPanel {
     public void addFromSearch(String s) {
 
         int count = 5;
-
-        HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%2C%22date%22%5D&count=" + count)
+        HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=gun&select=%5B%22title%22%2C%22size%22%2C%22rleString%22%5D")
                 .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
                 .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
                 .asString();
+
+        //HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%2C%22date%22%5D&count=" + count)
+        //        .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
+        //        .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
+        //        .asString();
 
         //error checks connection
         if(response.getStatus() != 200) {
