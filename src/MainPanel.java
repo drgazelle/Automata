@@ -196,9 +196,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     public void paintStatus(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         //initial conditions
-        int boxHeight = 25;
-        int boxWidth = 75;
-        int statusWidth = boxWidth / 3;
+        int boxHeight = (int) (mainFont.getSize() * 2.5);
+        int boxWidth = boxHeight * 3;
+        int statusWidth = boxHeight;
         int border = 10;
         int pX = AppDriver.WIDTH - boxWidth - border;
         int pY = border;
@@ -229,14 +229,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         while (digits.length() < 4) {
             digits = "0" + digits;
         }
-        FontMetrics metrics = getFontMetrics(g2.getFont());
+        FontMetrics metrics = getFontMetrics(mainFont);
         int dY = metrics.getAscent();
         int dX = metrics.stringWidth(digits);
         //centers text vertically
-        pY += boxHeight - ((boxHeight - dY) / 2) - 1;
+        pY += (boxHeight + dY) / 2;
         //centers text horizontally
-        boxWidth = 2 * boxWidth / 3;
-        pX += ((boxWidth - dX) / 2);
+        pX += boxHeight / 2;
 
         g2.drawString(digits, pX, pY);
     }
