@@ -4,6 +4,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
+import java.security.Key;
 
 /** MainPanel class renders a CellMatrix
  *  representing an interactive version
@@ -31,7 +32,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     //Animation Variables
     public static final Color mainColor = new Color((int)(Math.random() * 0x1000000));
-    public static final Font mainFont = new Font("SansSerif", Font.PLAIN, 10);
+    public static Font mainFont = new Font("SansSerif", Font.PLAIN, 10);
+    public static Font titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
 
     private final Timer timer;
     private int numTicks;
@@ -160,6 +162,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      * @param g graphics
      */
     public void paintComponent(Graphics g) {
+        DynamicMenu.setTitleColor(mainColor);
+        DynamicMenu.setMainFont(mainFont);
+        DynamicMenu.setTitleFont(titleFont);
+
         g.setFont(mainFont);
         if(showHighlight) {
             Rectangle rect = new Rectangle();
@@ -245,11 +251,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //list of menu items + current status
         int numRows = matrix.getNumRows();
         int numColumns = matrix.getNumCols();
-
-        String[] menuItems = {"Automata"                                       //title
-                                    + " (" + numRows + "x" + numColumns + ") " //size
-                                    + "(" + delay + "ms)",                     //speed
-                                "Toggle Simulation [SPACE]",
+        String title = "Automata" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
+        String[] menuItems = {"Toggle Simulation [SPACE]",
                                 "Resize Grid [Q/E]",
                                 "Change Speed [A/D]",
                                 "Wrap-Around Grid [W]",
@@ -259,10 +262,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Clear [C]",
                                 "Open Database [J]"};
 
-        String[] databaseItems = {"Automata"                                   //title
-                                    + " (" + numRows + "x" + numColumns + ") " //size
-                                    + "(" + delay + "ms)",                     //speed
-                                "Close Database [J]",
+        String[] databaseItems = {"Close Database [J]",
                                 "Search wikicollections [;]",
                                 "Navigate Database [U/N]",
                                 "Rename Selected [H]",
@@ -272,44 +272,15 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Toggle Menu [T]",
                                 "Toggle Status [R]"};
 
-        //font defining aspects
-        FontMetrics metrics = getFontMetrics(g.getFont());
-        //position and size variables
-        int d = metrics.getAscent();
-        int boxHeight = (d + 2) * menuItems.length + 10;
-        int boxWidth = 200;
-        int border = 10;
-        int pX = AppDriver.WIDTH - boxWidth - border;
-        int pY = AppDriver.HEIGHT - boxHeight - border;
-
-        //box for menu background
-        Shape menuBackground = new Rectangle(pX, pY, boxWidth, boxHeight);
-        g2.setColor(Color.black);
-        g2.fill(menuBackground);
-        //OPT: menu border
-        //g2.setColor(Color.white);
-        //g2.draw(menuBackground);
         String[] displayItems = menuItems;
         if (showDatabase) {
             displayItems = databaseItems;
         }
-        for (String item : displayItems) {
-            //loops through menu items
-            if(item.equals(displayItems[0])) {
-                //if title
-                g2.setColor(mainColor);
-                g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 4 * g2.getFont().getSize() / 3));
 
-                FontMetrics metricsTitle = getFontMetrics(g.getFont());
-                pY += 4;
-            }
-            else {
-                g2.setColor(Color.white);
-                g2.setFont(mainFont);
-            }
-            g2.drawString(item, pX + 5, pY + d);
-            pY += d + 2;
-        }
+        DynamicMenu mainMenu = new DynamicMenu(title, displayItems);
+        int pX = AppDriver.WIDTH - 10 - mainMenu.getBoxWidth();
+        int pY = AppDriver.HEIGHT - 10 - mainMenu.getBoxHeight();
+        mainMenu.paintMenu(g, pX, pY);
     }
 
     /** Accessor Method for Database
@@ -341,6 +312,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if(button == MouseEvent.BUTTON1) {
             Cell cell = matrix.findCellAt(mouseX, mouseY);
             if(cm != null && cell != null) {
+                //places cell at coords
                 int[] coords = matrix.getCellCoordinates(cell);
                 //centers placement
                 coords[0] -= cm.getNumRows() / 2;
@@ -426,15 +398,21 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         matrix.clearSpotlight();
         Cell cell = matrix.findCellAt(mouseX, mouseY);
         if (cm != null && cell != null) {
+            //if moving spotlight
             int[] coords = matrix.getCellCoordinates(cell);
+            //adjusts placement from center to corner;
             coords[0] -= cm.getNumRows() / 2;
             coords[1] -= cm.getNumCols() / 2;
             matrix.spotlightPlacement(coords[0], coords[1], cm);
         }
         else if (cell != null) cell.spotlight();
+
         if(showHighlight) {
             //resets spotlight
             showHighlight = false;
+            //resets points
+            startPoint = null;
+            endPoint = null;
         }
         repaint();
     }
@@ -562,6 +540,20 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             matrix.genocide();
             numTicks = 0;
         }
+        if(e.getKeyCode() == KeyEvent.VK_B) {
+            if(mainFont.getSize() < 20) {
+                //increases font size if less than 50
+                mainFont = new Font(mainFont.getFontName(), Font.PLAIN, mainFont.getSize() + 2);
+                titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
+            }
+        }
+        if(e.getKeyCode() == KeyEvent.VK_V) {
+            if(mainFont.getSize() > 10) {
+                //decreases font size if greater than 14
+                mainFont = new Font(mainFont.getFontName(), Font.PLAIN, mainFont.getSize() - 2);
+                titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
+            }
+        }
 
         if (showDatabase)
             if(e.getKeyCode() == KeyEvent.VK_SEMICOLON) {
@@ -574,20 +566,20 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     database.addFromSearch(s);
                 }
             }
-            if (database.databaseSize() > 0) {
+            if (database.sizeDB() > 0) {
                 //if database is visible and not empty
                 if (e.getKeyCode() == KeyEvent.VK_U) {
                     //if database showing and exists, navigate down and update on 'U'
                     indexDB--;
                     if (indexDB < 0) {
-                        indexDB = database.databaseSize() - 1;
+                        indexDB = database.sizeDB() - 1;
                     }
                     importFromDB();
                 }
                 if (e.getKeyCode() == KeyEvent.VK_N) {
                     //if database showing and exists, navigate down and update on 'M'
                     indexDB++;
-                    if (indexDB >= database.databaseSize()) {
+                    if (indexDB >= database.sizeDB()) {
                         indexDB = 0;
                     }
                     importFromDB();
@@ -612,7 +604,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                         //removes CellMatrix at Index
                         database.removeAtIndex(indexDB);
                         //moves up if at bottom of list
-                        if (indexDB == database.databaseSize()) {
+                        if (indexDB == database.sizeDB()) {
                             indexDB--;
                         }
                     }
@@ -662,13 +654,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         int notches = e.getWheelRotation();
+        //
         if (notches > 0) {
+            //expands grid
             if (matrix.getNumRows() < AppDriver.WIDTH / 4) {
                 numTicks = 0;
                 changeGrid(increment);
             }
         }
         else {
+            //contracts grid
             if (matrix.getNumRows() > increment) {
                 numTicks = 0;
                 changeGrid(-1 * increment);

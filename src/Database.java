@@ -1,5 +1,4 @@
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import kong.unirest.*;
 
 import javax.swing.JPanel;
@@ -8,10 +7,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import java.util.Collection;
 import java.util.Scanner;
 
 /** Database Class imports and exports
@@ -111,6 +108,7 @@ public class Database extends JPanel {
 
     /** exportData method takes existing
      *  Database and implements data.txt
+     *
      *  @return true if successful, false if error
      */
     public boolean exportDatabase() {
@@ -145,9 +143,7 @@ public class Database extends JPanel {
         return database.remove(index);
     }
 
-    /** Empties internal Database
-     *
-     */
+    /** Empties internal Database */
     public void wipe() {
         database.clear();
     }
@@ -165,7 +161,7 @@ public class Database extends JPanel {
      *
      * @return size of database
      */
-    public int databaseSize() {
+    public int sizeDB() {
         return database.size();
     }
 
@@ -176,62 +172,12 @@ public class Database extends JPanel {
      */
     public void paintDatabase(Graphics g, int index) {
         Graphics2D g2 = (Graphics2D) g;
-
-        //font defining aspects
-        g2.setFont(MainPanel.mainFont);
-        FontMetrics metrics = getFontMetrics(g.getFont());
-        int d = metrics.getAscent();
-
-        //position and size variables
-        int border = 10;
-        int boxHeight = (d + 2) * database.size() + 22; //dynamic box height
-
-        //dynamically adjusts box width
-        int boxWidth = 80;
+        String[] items = new String[database.size()];
         for (int i = 0; i < database.size(); i++) {
-            String text = database.get(i).getTitle();
-            boxWidth = Math.max(boxWidth, g.getFontMetrics().stringWidth(text));
+            items[i] = database.get(i).getTitle();
         }
-        boxWidth += 10;
-
-        int pX = border;
-        int pY = border;
-
-        //box for menu background
-        Shape menuBackground = new Rectangle(pX, pY, boxWidth, boxHeight);
-        g2.setColor(Color.black);
-        g2.fill(menuBackground);
-        //OPT: menu border
-        //g2.setColor(Color.white);
-        //g2.draw(menuBackground);
-
-        //title
-        g2.setColor(MainPanel.mainColor);
-        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, 3 * g2.getFont().getSize() / 2));
-
-        FontMetrics metricsTitle = getFontMetrics(g.getFont());
-        pY += (metricsTitle.getAscent() / 2) - 3;
-
-        g2.drawString("Database", pX + 5, pY + d);
-        pY += (metricsTitle.getAscent() / 2) - 3 + 10;
-
-
-        //draws index
-        if (index > -1) {
-            int highlightBorder = 4;
-            Shape highlightBox = new Rectangle(pX + highlightBorder, pY + (d + 2) * index + 2, boxWidth - 2 * highlightBorder, d);
-            g2.setColor(Color.darkGray);
-            g2.fill(highlightBox);
-        }
-
-        //resets color
-        g2.setColor(Color.white);
-        g2.setFont(MainPanel.mainFont);
-        for (MatrixData m : database) {
-            //loops through items
-            g2.drawString(m.getTitle(), pX + 5, pY + d);
-            pY += d + 2;
-        }
+        DynamicMenu databaseMenu = new DynamicMenu("Database", items, index);
+        databaseMenu.paintMenu(g2, 10, 10);
     }
 
     /** Accesses wikicollections api for patterns based of search term
@@ -243,11 +189,12 @@ public class Database extends JPanel {
     public void addFromSearch(String s) {
 
         int count = 5;
-        HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=gun&select=%5B%22title%22%2C%22size%22%2C%22rleString%22%5D")
+        HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22title%22%2C%22size%22%2C%22rleString%22%5D")
                 .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
                 .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
                 .asString();
 
+        //Access all Aspects
         //HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%2C%22date%22%5D&count=" + count)
         //        .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
         //        .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
@@ -282,6 +229,6 @@ class DatabaseTester {
     public static void main(String[] args) {
         Database database = new Database();
         database.addFromSearch("Cloverleaf Interchange");
-        System.out.println(database.get(database.databaseSize() - 1));
+        System.out.println(database.get(database.sizeDB() - 1));
     }
 }
