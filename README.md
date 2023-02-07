@@ -26,7 +26,7 @@ A lightweight simulation Conway's Game of Life
 - [ ] Display New Searched Terms
 - [ ] Migrate Search to Dedicated Window
 - [ ] Upload Matrices to customcollections
-- [ ] Dynamic Width for Database Menu
+- [X] Dynamic Menus and Status
 - [x] Import from Wikicollections
 - [x] Implement Search Functionality
 - [x] Show Placement
