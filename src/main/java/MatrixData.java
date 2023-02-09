@@ -149,8 +149,7 @@ public class MatrixData {
      */
     private void addRange(int r, int x, int y) {
         for (int i = 0; i < r; i++) {
-            int[] coords = {x, y + i};
-            cells.add(coords);
+            cells.add(new int[]{x, y + i});
         }
     }
 }

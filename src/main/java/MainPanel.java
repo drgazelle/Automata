@@ -4,7 +4,6 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
-import java.security.Key;
 
 /** MainPanel class renders a CellMatrix
  *  representing an interactive version
@@ -12,7 +11,9 @@ import java.security.Key;
  *
  * @author RMizelle
  */
-public class MainPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, ActionListener {
+public class MainPanel extends JPanel implements MouseListener, MouseMotionListener,
+                                            MouseWheelListener, KeyListener, ActionListener {
+
     //Mouse Positions
     private int mouseX;
     private int mouseY;
@@ -84,17 +85,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         Cell.gridEnabled = true;
 
         //Sets JOptionPane theme
-        UIManager UI = new UIManager();
-        UI.put("OptionPane.messageForeground", mainColor);
-        UI.put("OptionPane.background", Color.BLACK);
-        UI.put("Panel.background", Color.BLACK);
-        UI.put("Button.background", Color.BLACK);
-        UI.put("Button.foreground", Color.WHITE);
-        UI.put("Button.highlight", Color.WHITE);
-        UI.put("TextField.background", Color.BLACK);
-        UI.put("TextField.selectionBackground", mainColor);
-        UI.put("TextField.foreground", Color.WHITE);
-        UI.put("TextField.selectionForeground", Color.BLACK);
+        UIManager.put("OptionPane.messageForeground", mainColor);
+        UIManager.put("OptionPane.background", Color.BLACK);
+        UIManager.put("Panel.background", Color.BLACK);
+        UIManager.put("Button.background", Color.BLACK);
+        UIManager.put("Button.foreground", Color.WHITE);
+        UIManager.put("Button.highlight", Color.WHITE);
+        UIManager.put("TextField.background", Color.BLACK);
+        UIManager.put("TextField.selectionBackground", mainColor);
+        UIManager.put("TextField.foreground", Color.WHITE);
+        UIManager.put("TextField.selectionForeground", Color.BLACK);
 
         repaint();
     }
@@ -155,12 +155,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         matrix.randomSeed(maxP);
     }
 
-    @Override
     /** Paint method for MainPanel that draws
      *  the CellMatrix, status, and menu.
      *
      * @param g graphics
      */
+    @Override
     public void paintComponent(Graphics g) {
         DynamicMenu.setTitleColor(mainColor);
         DynamicMenu.setMainFont(mainFont);
@@ -198,7 +198,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //initial conditions
         int boxHeight = (int) (mainFont.getSize() * 2.5);
         int boxWidth = boxHeight * 3;
-        int statusWidth = boxHeight;
         int border = 10;
         int pX = AppDriver.WIDTH - boxWidth - border;
         int pY = border;
@@ -207,13 +206,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         g2.setColor(Color.black);
         g2.fill(tickBox);
 
-        Shape status = new Rectangle(pX + (2 * statusWidth), pY, statusWidth, boxHeight);
+        Shape indicator = new Rectangle(pX + (2 * boxHeight), pY, boxWidth / 3, boxHeight);
         g2.setColor(Color.RED);
         if (timer.isRunning()) {
             g2.setColor(Color.GREEN);
         }
 
-        g2.fill(status);
+        g2.fill(indicator);
         g2.setColor(Color.white);
 
         if (!wrapEnabled) {
@@ -221,7 +220,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
 
         String digits = String.valueOf(numTicks);
-        g2.setFont(new Font(g2.getFont().getFontName(), Font.PLAIN, boxHeight / 2));
+        g2.setFont(titleFont);
 
         if (digits.length() > 4) {
             digits = digits.substring(0, digits.length() - 4) + "K";
@@ -229,9 +228,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         while (digits.length() < 4) {
             digits = "0" + digits;
         }
+
         FontMetrics metrics = getFontMetrics(mainFont);
         int dY = metrics.getAscent();
-        int dX = metrics.stringWidth(digits);
         //centers text vertically
         pY += (boxHeight + dY) / 2;
         //centers text horizontally
@@ -246,7 +245,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      * @param g graphics
      */
     public void paintMenu(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
         //list of menu items + current status
         int numRows = matrix.getNumRows();
         int numColumns = matrix.getNumCols();
@@ -262,7 +260,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Open Database [J]"};
 
         String[] databaseItems = {"Close Database [J]",
-                                "Search wikicollections [;]",
+                                "Search wiki-collections [;]",
                                 "Navigate Database [U/N]",
                                 "Rename Selected [H]",
                                 "Remove Selected [K]",
@@ -554,8 +552,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
         }
 
-        if (showDatabase)
-            if(e.getKeyCode() == KeyEvent.VK_SEMICOLON) {
+        if (showDatabase) {
+            if (e.getKeyCode() == KeyEvent.VK_SEMICOLON) {
                 //Prompts User for search term
                 String s = (String) JOptionPane.showInputDialog(
                         this, "Search wikicollection:", "Database",
@@ -619,6 +617,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     indexDB = -1;
                 }
             }
+        }
         repaint();
     }
 
@@ -627,8 +626,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     private void importFromDB() {
         MatrixData m = database.get(indexDB);
-        int[] size = m.getSize();
-        numTicks = 0;
         cm = m.toCellMatrix();
     }
 

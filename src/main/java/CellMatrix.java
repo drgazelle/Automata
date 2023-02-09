@@ -34,6 +34,18 @@ public class CellMatrix {
         }
     }
 
+    public CellMatrix(int num) {
+        double size = Math.sqrt(AppDriver.WIDTH * AppDriver.HEIGHT / num);
+        numRows = (int) Math.round(AppDriver.WIDTH / size);
+        numCols = (int) Math.round(AppDriver.HEIGHT / size);
+        matrix = new Cell[numRows][numCols];
+        for (int x = 0; x < numRows; x++) {
+            for (int y = 0; y < numCols; y++) {
+                matrix[x][y] = new Cell(x * size, y * size, size);
+            }
+        }
+    }
+
 
     /** Accessor Method for Cell.
      *

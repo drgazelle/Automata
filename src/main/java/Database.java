@@ -29,14 +29,14 @@ public class Database extends JPanel {
         database = new ArrayList<>();
 
         //creates resource folder if necessary
-        File directory = new File("resources");
+        File directory = new File("src/main/resources");
         if (!directory.exists()) {
             System.out.println("New Resources Directory Generated");
             directory.mkdir();
         }
         //checks for data.txt
         try {
-            data = new File("resources/data.txt");
+            data = new File("src/main/resources/data.txt");
             //if data.txt does not exist, instantiates empty Database
             if (data.createNewFile()) {
                 System.out.println("New Data File Generated");
@@ -182,23 +182,30 @@ public class Database extends JPanel {
 
     /** Accesses wikicollections api for patterns based of search term
      *
-     * <p> https://rapidapi.com/timjacksonm-1jw8F2hFW3d/api/the-game-of-life </p>
+     * <p> Link to API <a href="https://https://rapidapi.com/timjacksonm-1jw8F2hFW3d/api/the-game-of-life">...</a> </p>
      *
      * @param s search term
      */
     public void addFromSearch(String s) {
-
+        System.out.println("\nAccessing RapidAPI...");
         int count = 5;
-        HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22title%22%2C%22size%22%2C%22rleString%22%5D")
-                .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
-                .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
-                .asString();
+        HttpResponse<String> response;
+        try {
+            response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22title%22%2C%22size%22%2C%22rleString%22%5D")
+                    .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
+                    .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
+                    .asString();
 
-        //Access all Aspects
-        //HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%2C%22date%22%5D&count=" + count)
-        //        .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
-        //        .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
-        //        .asString();
+            //Access all Aspects
+            //HttpResponse<String> response = Unirest.get("https://the-game-of-life.p.rapidapi.com/wikicollection/search/title?value=" + s + "&select=%5B%22author%22%2C%22title%22%2C%22description%22%2C%22size%22%2C%22rleString%22%2C%22date%22%5D&count=" + count)
+            //        .header("X-RapidAPI-Key", "4ce993ab37mshadac634a5fbad3ep1a4c4fjsn041896a40067")
+            //        .header("X-RapidAPI-Host", "the-game-of-life.p.rapidapi.com")
+            //        .asString();
+
+        } catch (UnirestException e) {
+            System.out.println("ERROR: Couldn't Access RapidAPI");
+            return;
+        }
 
         //error checks connection
         if(response.getStatus() != 200) {
@@ -206,6 +213,7 @@ public class Database extends JPanel {
             Unirest.shutDown();
             return;
         }
+
         System.out.println("Successful Connection [Code " + response.getStatus() + "]");
         Unirest.shutDown();
 
@@ -215,20 +223,12 @@ public class Database extends JPanel {
         JsonArray elements = JsonParser.parseString(response.getBody()).getAsJsonArray();
 
         for(JsonElement e : elements) {
-            results.add(gson.fromJson(e.getAsJsonObject(), MatrixData.class)); //ARCHIVED UNTIL FUNCTIONAL
+            results.add(gson.fromJson(e.getAsJsonObject(), MatrixData.class));
         }
-        for (int i = 0; i < results.size(); i++) {
-            if(results.get(i).convertFromRle()) {
-                database.add(results.get(i));
+        for (MatrixData result : results) {
+            if (result.convertFromRle()) {
+                database.add(result);
             }
         }
-    }
-}
-
-class DatabaseTester {
-    public static void main(String[] args) {
-        Database database = new Database();
-        database.addFromSearch("Cloverleaf Interchange");
-        System.out.println(database.get(database.sizeDB() - 1));
     }
 }
