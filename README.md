@@ -7,7 +7,7 @@ A lightweight simulation Conway's Game of Life
 - Resizeable Grid
 - Adjustable Speed
 - Wrap-around Edge
-- Database
+- main.Database
   - Store and saves matricies
   - Imports from WikiCollection API
 
@@ -19,7 +19,7 @@ A lightweight simulation Conway's Game of Life
 - [x] Center to Cursor
 - [x] Highlight Selection
 
-#### Database
+#### main.Database
 
 - [ ] Convert to RLE
 - [ ] Update Storage
