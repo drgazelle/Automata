@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
-/** Cell Class renders a selectable cell
+/** main.Cell Class renders a selectable cell
  *  that is either alive or dead.
  *
  * @author RMizelle
@@ -15,7 +15,7 @@ public class Cell {
     private boolean spotlit;
     public static boolean gridEnabled;
 
-    /** 3-arg constructor that instantiates a default Cell.
+    /** 3-arg constructor that instantiates a default main.Cell.
      *
      * @param pX position X
      * @param pY position Y
@@ -25,9 +25,9 @@ public class Cell {
         gridCell = new Rectangle2D.Double(pX, pY, size, size);
     }
 
-    /** Returns Mortality of Cell.
+    /** Returns Mortality of main.Cell.
      *
-     * @return true if Cell is living, false otherwise
+     * @return true if main.Cell is living, false otherwise
      */
     public boolean isAlive() {
         return alive;

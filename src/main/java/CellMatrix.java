@@ -2,8 +2,8 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
-/** CellMatrix class generates and
- *  modifies a 2D array of Cell
+/** main.CellMatrix class generates and
+ *  modifies a 2D array of main.Cell
  *  Objects that can generate and modify.
  *
  * @author RMizelle
@@ -16,7 +16,7 @@ public class CellMatrix {
 
     /**
      * 2-arg constructor instantiates a 2D matrix
-     * of Cell objects of size numRows by NumCols.
+     * of main.Cell objects of size numRows by NumCols.
      *
      * @param numR Matrix length
      * @param numC Matrix numCols
@@ -34,12 +34,24 @@ public class CellMatrix {
         }
     }
 
+    public CellMatrix(int num) {
+        double size = Math.sqrt(AppDriver.WIDTH * AppDriver.HEIGHT / num);
+        numRows = (int) Math.round(AppDriver.WIDTH / size);
+        numCols = (int) Math.round(AppDriver.HEIGHT / size);
+        matrix = new Cell[numRows][numCols];
+        for (int x = 0; x < numRows; x++) {
+            for (int y = 0; y < numCols; y++) {
+                matrix[x][y] = new Cell(x * size, y * size, size);
+            }
+        }
+    }
 
-    /** Accessor Method for Cell.
+
+    /** Accessor Method for main.Cell.
      *
      * @param pX position x
      * @param pY position y
-     * @return Cell at position
+     * @return main.Cell at position
      */
     public Cell getCell(int pX, int pY) {
         return matrix[pX][pY];
@@ -167,7 +179,7 @@ public class CellMatrix {
     }
 
     /** Passes through paintComponent and
-     *  draws Cell Matrix.
+     *  draws main.Cell Matrix.
      *
      * @param g graphics
      */
@@ -188,11 +200,11 @@ public class CellMatrix {
         }
     }
 
-    /** Finds Cell at given mouse location.
+    /** Finds main.Cell at given mouse location.
      *
      * @param mouseX mouse horizontal position
      * @param mouseY mouse vertical position
-     * @return Cell at mouseX, MouseY, null if not found
+     * @return main.Cell at mouseX, MouseY, null if not found
      */
     public Cell findCellAt(int mouseX, int mouseY) {
         for (Cell[] row : matrix) {
@@ -205,7 +217,7 @@ public class CellMatrix {
         return null;
     }
 
-    /** Finds (x,y) coordinates of a given Cell
+    /** Finds (x,y) coordinates of a given main.Cell
      *
      * @param cell to be located
      * @return coordinates of cell object as int[]
@@ -279,7 +291,7 @@ public class CellMatrix {
      *  bounds.
      * @param pX horizontal position
      * @param pY vertical position
-     * @param cm CellMatrix to adjust
+     * @param cm main.CellMatrix to adjust
      * @return adjusted coordinates [x, y], null if too large
      */
     private int[] adjustToBounds(int pX, int pY, CellMatrix cm) {
@@ -330,7 +342,7 @@ public class CellMatrix {
         }
     }
 
-    /** String representation of CellMatrix
+    /** String representation of main.CellMatrix
      * @return (W*H)[x,y][x,y]...[x,y]
      */
     public String toString() {
@@ -345,9 +357,9 @@ public class CellMatrix {
         return temp;
     }
 
-    /** Converts Matrix to MatrixData
+    /** Converts Matrix to main.MatrixData
      *
-     * @return MatrixData representation of CellMatrix
+     * @return main.MatrixData representation of main.CellMatrix
      */
     public MatrixData toMatrixData() {
         int[] size = {matrix.length, matrix[0].length};

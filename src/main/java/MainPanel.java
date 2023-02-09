@@ -4,15 +4,16 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
-import java.security.Key;
 
-/** MainPanel class renders a CellMatrix
+/** main.MainPanel class renders a main.CellMatrix
  *  representing an interactive version
  *  of Conway's Game of Life.
  *
  * @author RMizelle
  */
-public class MainPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, ActionListener {
+public class MainPanel extends JPanel implements MouseListener, MouseMotionListener,
+                                            MouseWheelListener, KeyListener, ActionListener {
+
     //Mouse Positions
     private int mouseX;
     private int mouseY;
@@ -26,7 +27,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private final double maxP;
     private final int increment;
 
-    //Database Variables
+    //main.Database Variables
     private final Database database;
     private int indexDB;
 
@@ -112,7 +113,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         for (int x = 0; x < numRows; x++) {
             //navigates grid vertically
             for (int y = 0; y < numColumns; y++) {
-                //Gen 1 Cell at index
+                //Gen 1 main.Cell at index
                 Cell c = matrix.getCell(x, y);
                 //num of living neighbors
                 int numLiving = matrix.numLivingNeighbors(x, y, wrapEnabled);
@@ -156,8 +157,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     @Override
-    /** Paint method for MainPanel that draws
-     *  the CellMatrix, status, and menu.
+    /** Paint method for main.MainPanel that draws
+     *  the main.CellMatrix, status, and menu.
      *
      * @param g graphics
      */
@@ -259,15 +260,15 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Save [Z]",
                                 "Toggle Grid [X]",
                                 "Clear [C]",
-                                "Open Database [J]"};
+                                "Open main.Database [J]"};
 
-        String[] databaseItems = {"Close Database [J]",
+        String[] databaseItems = {"Close main.Database [J]",
                                 "Search wikicollections [;]",
-                                "Navigate Database [U/N]",
+                                "Navigate main.Database [U/N]",
                                 "Rename Selected [H]",
                                 "Remove Selected [K]",
                                 "Clear Selection [M]",
-                                "Wipe Database [L]",
+                                "Wipe main.Database [L]",
                                 "Toggle Menu [T]",
                                 "Toggle Status [R]"};
 
@@ -282,7 +283,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         mainMenu.paintMenu(g, pX, pY);
     }
 
-    /** Accessor Method for Database
+    /** Accessor Method for main.Database
      *
      * @return database
      */
@@ -385,7 +386,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     /**
-     * Spotlights Cell on hover.
+     * Spotlights main.Cell on hover.
      *
      * @param e the event to be processed
      */
@@ -417,7 +418,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     /**
-     * Ticks CellMatrix and repaints.
+     * Ticks main.CellMatrix and repaints.
      *
      * @param e the event to be processed
      */
@@ -497,7 +498,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             Cell.gridEnabled = !Cell.gridEnabled;
         }
         if (e.getKeyCode() == KeyEvent.VK_Z) {
-            // Saves Cell Matrix on 'Z'
+            // Saves main.Cell Matrix on 'Z'
             MatrixData md;
             if (showHighlight) {
                 md = matrix.fromSpotlight().toMatrixData();
@@ -558,7 +559,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             if(e.getKeyCode() == KeyEvent.VK_SEMICOLON) {
                 //Prompts User for search term
                 String s = (String) JOptionPane.showInputDialog(
-                        this, "Search wikicollection:", "Database",
+                        this, "Search wikicollection:", "main.Database",
                         JOptionPane.PLAIN_MESSAGE, null, null, "Enter Search Here");
                 if (s != null) {
                     //if name changed
@@ -592,7 +593,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
                         //Prompts User for new Name
                         String s = (String) JOptionPane.showInputDialog(
-                                this, "Modify Matrix Name Below:", "Database",
+                                this, "Modify Matrix Name Below:", "main.Database",
                                 JOptionPane.PLAIN_MESSAGE, null, null, name);
                         if (s != null) {
                             //if name changed
@@ -600,7 +601,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                         }
                     }
                     if (e.getKeyCode() == KeyEvent.VK_K) {
-                        //removes CellMatrix at Index
+                        //removes main.CellMatrix at Index
                         database.removeAtIndex(indexDB);
                         //moves up if at bottom of list
                         if (indexDB == database.sizeDB()) {
@@ -622,7 +623,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         repaint();
     }
 
-    /** Accesses MatrixData from internal index and
+    /** Accesses main.MatrixData from internal index and
      *  updates numRows, numColumns and matrix
      */
     private void importFromDB() {

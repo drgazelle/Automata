@@ -1,8 +1,8 @@
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-/** MatrixData class assigns a title to
- *  a CellMatrix's and stores the size
+/** main.MatrixData class assigns a title to
+ *  a main.CellMatrix's and stores the size
  *  and living cells contents.
  *
  * @author RMizelle
@@ -21,7 +21,7 @@ public class MatrixData {
      *
      * @param name matrix title
      * @param size grid size [x,y]
-     * @param cells Arraylist of Living Cell Coordinates [x,y]
+     * @param cells Arraylist of Living main.Cell Coordinates [x,y]
      */
     public MatrixData(String name, int[] size, ArrayList<int[]> cells) {
         this.title = name;
@@ -33,7 +33,7 @@ public class MatrixData {
      *  default title of "CellMatrix_(W*H)"
      *
      * @param size grid size [x,y]
-     * @param cells Arraylist of Living Cell Coordinates [x,y]
+     * @param cells Arraylist of Living main.Cell Coordinates [x,y]
      */
     public MatrixData(int[] size, ArrayList<int[]> cells) {
         this.title = "CellMatrix_(" + size[0] + "x" + size[1] + ")";
@@ -57,9 +57,9 @@ public class MatrixData {
         return title;
     }
 
-    /** Accessor Method for Size
+    /** Accessor Method for main.Size
      *
-     * @return Grid Size [x,y]
+     * @return Grid main.Size [x,y]
      */
     public int[] getSize() {
         int[] temp = {size.getX(), size.getY()};
@@ -74,9 +74,9 @@ public class MatrixData {
         return cells;
     }
 
-    /** Converts Matrix Data to CellMatrix
+    /** Converts Matrix Data to main.CellMatrix
      *
-     * @return CellMatrix of size with all cells revived
+     * @return main.CellMatrix of size with all cells revived
      */
     public CellMatrix toCellMatrix() {
         CellMatrix temp = new CellMatrix(size.getX(), size.getY());
@@ -96,7 +96,7 @@ public class MatrixData {
         return temp;
     }
 
-    /** Converts internal rleString into an array of Cell coordinates
+    /** Converts internal rleString into an array of main.Cell coordinates
      *
      * @return true if valid rle, false otherwise
      */
@@ -149,13 +149,12 @@ public class MatrixData {
      */
     private void addRange(int r, int x, int y) {
         for (int i = 0; i < r; i++) {
-            int[] coords = {x, y + i};
-            cells.add(coords);
+            cells.add(new int[]{x, y + i});
         }
     }
 }
 
-/** Size object for API integration */
+/** main.Size object for API integration */
 class Size {
     private int x;
     private int y;

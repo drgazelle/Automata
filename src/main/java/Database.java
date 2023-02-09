@@ -11,8 +11,8 @@ import java.util.ArrayList;
 
 import java.util.Scanner;
 
-/** Database Class imports and exports
- *  MatrixData from a text document.
+/** main.Database Class imports and exports
+ *  main.MatrixData from a text document.
  *  Additionally, renders the database
  *  graphically.
  *
@@ -37,7 +37,7 @@ public class Database extends JPanel {
         //checks for data.txt
         try {
             data = new File("resources/data.txt");
-            //if data.txt does not exist, instantiates empty Database
+            //if data.txt does not exist, instantiates empty main.Database
             if (data.createNewFile()) {
                 System.out.println("New Data File Generated");
             }
@@ -53,8 +53,8 @@ public class Database extends JPanel {
             }
         }
         catch (IOException e) {
-            //Error when generating Database
-            System.out.println("ERROR: Could not generate Database");
+            //Error when generating main.Database
+            System.out.println("ERROR: Could not generate main.Database");
             e.printStackTrace();
         }
     }
@@ -93,7 +93,7 @@ public class Database extends JPanel {
                     cell[1] = Integer.parseInt(temp[1].trim());
                     cells.add(cell);
                 }
-                //adds new MatrixData to database
+                //adds new main.MatrixData to database
                 database.add(new MatrixData(name, size, cells));
             }
             //closes scanner
@@ -107,7 +107,7 @@ public class Database extends JPanel {
     }
 
     /** exportData method takes existing
-     *  Database and implements data.txt
+     *  main.Database and implements data.txt
      *
      *  @return true if successful, false if error
      */
@@ -127,15 +127,15 @@ public class Database extends JPanel {
         return true;
     }
 
-    /** Adds MatrixData to internal database
+    /** Adds main.MatrixData to internal database
      *
-     * @param m CellMatrix to be Added
+     * @param m main.CellMatrix to be Added
      */
     public void add(MatrixData m) {
         database.add(m);
     }
 
-    /** Removes MatrixData from internal database
+    /** Removes main.MatrixData from internal database
      *
      * @param index to be removed
      */
@@ -143,15 +143,15 @@ public class Database extends JPanel {
         return database.remove(index);
     }
 
-    /** Empties internal Database */
+    /** Empties internal main.Database */
     public void wipe() {
         database.clear();
     }
 
-    /** Retrieves MatrixData at index
+    /** Retrieves main.MatrixData at index
      *
      * @param index selected
-     * @return MatrixData at index
+     * @return main.MatrixData at index
      */
     public MatrixData get(int index) {
         return database.get(index);
@@ -165,7 +165,7 @@ public class Database extends JPanel {
         return database.size();
     }
 
-    /** Paints Database with Title and dynamic list of elements
+    /** Paints main.Database with Title and dynamic list of elements
      *
      * @param g graphics
      * @param index index of selection
@@ -176,7 +176,7 @@ public class Database extends JPanel {
         for (int i = 0; i < database.size(); i++) {
             items[i] = database.get(i).getTitle();
         }
-        DynamicMenu databaseMenu = new DynamicMenu("Database", items, index);
+        DynamicMenu databaseMenu = new DynamicMenu("main.Database", items, index);
         databaseMenu.paintMenu(g2, 10, 10);
     }
 
@@ -222,13 +222,5 @@ public class Database extends JPanel {
                 database.add(results.get(i));
             }
         }
-    }
-}
-
-class DatabaseTester {
-    public static void main(String[] args) {
-        Database database = new Database();
-        database.addFromSearch("Cloverleaf Interchange");
-        System.out.println(database.get(database.sizeDB() - 1));
     }
 }
