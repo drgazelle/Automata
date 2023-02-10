@@ -3,6 +3,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
+import java.security.Key;
 
 /** MainPanel class renders a CellMatrix
  *  representing an interactive version
@@ -192,6 +193,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         String[] menuItems = {"Toggle Simulation [SPACE]",
                                 "Resize Grid [Q/E]",
                                 "Change Speed [A/D]",
+                                "Single Tick [F]",
                                 "Wrap-Around Grid [W]",
                                 "Generate Random Seed [S]",
                                 "Toggle Status [R]",
@@ -343,6 +345,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             else {
                 timer.start();
             }
+        }
+        if(e.getKeyCode() == KeyEvent.VK_F) {
+            //Singular tick
+            matrix.tick(wrapEnabled);
+            numTicks++;
         }
         if (e.getKeyCode() == KeyEvent.VK_D && timer.getDelay() > 1) {
             //speeds up timer on 'D'

@@ -264,71 +264,11 @@ public class CellMatrix {
         for (int x = 0; x < matrix.length; x++) {
             for(int y = 0; y <matrix[0].length; y++) {
                 if (matrix[x][y].equals(cell)) {
-                    int[] coords = {x, y};
-                    return coords;
+                    return new int[]{x, y};
                 }
             }
         }
         return null;
-    }
-
-    /** Places cell matrix at given coordinate
-     *
-     * @param pX x position
-     * @param pY y position
-     * @param cm matrix to be placed
-     */
-    public boolean placeCellMatrix(int pX, int pY, CellMatrix cm) {
-        //Adjusts for bounds
-        int[] coords = adjustToBounds(pX, pY, cm);
-        if(coords == null) {
-            return false;
-        }
-        pX = coords[0];
-        pY = coords[1];
-
-        for (int x = pX; x < cm.matrix.length + pX; x++) {
-            for (int y = pY; y < cm.matrix[0].length + pY; y++) {
-                if(cm.matrix[x - pX][y - pY].isAlive()) {
-                    matrix[x][y].revive();
-                }
-                else {
-                    matrix[x][y].kill();
-                }
-            }
-        }
-        return true;
-    }
-
-    /** Adjusts position to fit within matrix, returns null if exceeds
-     *  bounds.
-     * @param pX horizontal position
-     * @param pY vertical position
-     * @param cm CellMatrix to adjust
-     * @return adjusted coordinates [x, y], null if too large
-     */
-    private int[] adjustToBounds(int pX, int pY, CellMatrix cm) {
-        //if out-of-bounds
-        if(cm.numRows > numRows || cm.numCols > numCols) {
-            return null;
-        }
-        //adjusts x position
-        while (pX + cm.numRows > numRows) {
-            pX--;
-        }
-        while (pX < 0) {
-            pX++;
-        }
-
-        //adjust y position
-        while (pY + cm.numCols > numCols) {
-            pY--;
-        }
-        while (pY < 0) {
-            pY++;
-        }
-        int[] temp = {pX, pY};
-        return temp;
     }
 
     /** Randomly generates starter seed with given
