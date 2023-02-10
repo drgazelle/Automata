@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @author RMizelle
  */
 public class CellMatrix {
-    private final Cell[][] matrix;
+    private Cell[][] matrix;
     private final int numRows;
     private final int numCols;
     private int size;
@@ -34,16 +34,12 @@ public class CellMatrix {
         }
     }
 
-    public CellMatrix(int num) {
-        double size = Math.sqrt(AppDriver.WIDTH * AppDriver.HEIGHT / num);
-        numRows = (int) Math.round(AppDriver.WIDTH / size);
-        numCols = (int) Math.round(AppDriver.HEIGHT / size);
-        matrix = new Cell[numRows][numCols];
-        for (int x = 0; x < numRows; x++) {
-            for (int y = 0; y < numCols; y++) {
-                matrix[x][y] = new Cell(x * size, y * size, size);
-            }
-        }
+    public int getNumRows() {
+        return numRows;
+    }
+
+    public int getNumCols() {
+        return numCols;
     }
 
 
@@ -55,6 +51,47 @@ public class CellMatrix {
      */
     public Cell getCell(int pX, int pY) {
         return matrix[pX][pY];
+    }
+
+    /** Ticks matrix to next generation according to the
+     *  rules of the Conway's Game of Life.
+     */
+    public void tick(Boolean wrapEnabled) {
+
+        //next generation matrix
+        CellMatrix g2 = new CellMatrix(numRows, numCols);
+        //navigates grid horizontally
+        for (int x = 0; x < numRows; x++) {
+            //navigates grid vertically
+            for (int y = 0; y < numCols; y++) {
+                //Gen 1 Cell at index
+                Cell c = matrix[x][y];
+                //num of living neighbors
+                int numLiving = numLivingNeighbors(x, y, wrapEnabled);
+                if (!c.isAlive() && numLiving == 3) {
+                    //reproduction
+                    g2.matrix[x][y].revive();
+                }
+                else if (c.isAlive() && (numLiving < 2 || numLiving > 3)) {
+                    //over or under population
+                    g2.matrix[x][y].kill();
+                }
+                else if (c.isAlive()) {
+                    //if previously alive
+                    g2.matrix[x][y].revive();
+                }
+                else {
+                    //isolation or previously dead
+                    g2.matrix[x][y].kill();
+                }
+                if(c.isSpotlit()) {
+                    //if cell is spotlit
+                    g2.matrix[x][y].spotlight();
+                }
+            }
+        }
+        //migrates previous to current generation
+        matrix = g2.matrix;
     }
 
     /** Counts the number of neighbors that are living.
@@ -103,6 +140,7 @@ public class CellMatrix {
         }
 
         if(wrapEnabled) {
+            //position of sides
             int sideL = 0;
             int sideR = matrix.length - 1;
             int sideT = 0;
@@ -262,31 +300,6 @@ public class CellMatrix {
         return true;
     }
 
-    /** spotlights cell matrix at coordinate
-     *
-     * @param pX x position
-     * @param pY y position
-     * @param cm matrix to spotlight
-     */
-    public boolean spotlightPlacement(int pX, int pY, CellMatrix cm) {
-        int[] coords = adjustToBounds(pX, pY, cm);
-        if(coords == null) {
-            return false;
-        }
-        pX = coords[0];
-        pY = coords[1];
-
-        //loops through cell matrix and spotlights living cells
-        for (int x = pX; x < cm.matrix.length + pX; x++) {
-            for (int y = pY; y < cm.matrix[0].length + pY; y++) {
-                if(cm.matrix[x - pX][y - pY].isAlive()) {
-                    matrix[x][y].spotlight();
-                }
-            }
-        }
-        return true;
-    }
-
     /** Adjusts position to fit within matrix, returns null if exceeds
      *  bounds.
      * @param pX horizontal position
@@ -355,105 +368,5 @@ public class CellMatrix {
             }
         }
         return temp;
-    }
-
-    /** Converts Matrix to MatrixData
-     *
-     * @return MatrixData representation of CellMatrix
-     */
-    public MatrixData toMatrixData() {
-        int[] size = {matrix.length, matrix[0].length};
-        ArrayList<int[]> cells = new ArrayList<>();
-        for (int x = 0; x < matrix.length; x++) {
-            for (int y = 0; y < matrix[0].length; y++) {
-                if(matrix[x][y].isAlive()) {
-                    int[] cell = {y, x};
-                    cells.add(cell);
-                }
-            }
-        }
-        return new MatrixData(size, cells);
-    }
-
-    public int getNumRows() {
-        return numRows;
-    }
-
-    public int getNumCols() {
-        return numCols;
-    }
-
-    /** Spotlights are cells within a Rectangle Shape
-     *
-     * @param rect to search
-     */
-    public void spotlightAll(Rectangle rect) {
-        for (Cell[] row : matrix) {
-            for (Cell c : row) {
-                if (rect.intersects((Rectangle2D) c.getGridCell())) {
-                    c.spotlight();
-                }
-                else {
-                    c.unspotlight();
-                }
-            }
-        }
-    }
-
-    public CellMatrix fromSpotlight() {
-        int startX = 0;
-        int endX = 0;
-        int startY = 0;
-        int endY = 0;
-
-        for (int x = 0; x < matrix.length; x++) {
-            for (int y = 0; y < matrix[0].length; y++) {
-                if(getCell(x, y).isSpotlit()) {
-                    startX = x;
-                    startY = y;
-                    break;
-                }
-            }
-        }
-
-        for (int x = matrix.length - 1; x >= 0; x--) {
-            for (int y = matrix[0].length - 1; y >= 0; y--) {
-                if(getCell(x, y).isSpotlit()) {
-                    endX = x;
-                    endY = y;
-                    break;
-                }
-            }
-        }
-
-        if(endX < startX) {
-            int temp = endX;
-            endX = startX;
-            startX = temp;
-        }
-
-        if(endY < startY) {
-            int temp = endY;
-            endY = startY;
-            startY = temp;
-        }
-
-        int width = Math.abs(endX - startX);
-        int height = Math.abs(endY - startY);
-
-        if (width == 0 || height == 0) {
-            return null;
-        }
-
-        CellMatrix cm = new CellMatrix(width + 1, height + 1);
-
-        for(int x = startX; x <= endX; x++) {
-            for (int y = startY; y <= endY; y++) {
-                if(getCell(x, y).isAlive()) {
-                    cm.getCell(x - startX, y - startY).revive();
-                }
-            }
-        }
-        return cm;
     }
 }
