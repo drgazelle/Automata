@@ -407,6 +407,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             matrix.randomSeed(maxP);
             numTicks = 0;
         }
+        if (e.getKeyCode() == KeyEvent.VK_G) {
+            //Prints RLE String
+            System.out.println(matrix.toString());
+        }
         if (e.getKeyCode() == KeyEvent.VK_C) {
             //kills all cells on 'C'
             matrix.genocide();

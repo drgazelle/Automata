@@ -42,7 +42,6 @@ public class CellMatrix {
         return numCols;
     }
 
-
     /** Accessor Method for Cell.
      *
      * @param pX position x
@@ -98,9 +97,11 @@ public class CellMatrix {
      *
      * @param pX position X
      * @param pY position Y
+     * @param wrapEnabled edge condition
+     *
      * @return number of living neighbors
      */
-    public int numLivingNeighbors(int pX, int pY, boolean wrapEnabled) {
+    private int numLivingNeighbors(int pX, int pY, boolean wrapEnabled) {
         //sets bounds for X
         int startX = pX - 1;
         int endX = pX + 1;
@@ -255,22 +256,6 @@ public class CellMatrix {
         return null;
     }
 
-    /** Finds (x,y) coordinates of a given Cell
-     *
-     * @param cell to be located
-     * @return coordinates of cell object as int[]
-     */
-    public int[] getCellCoordinates(Cell cell) {
-        for (int x = 0; x < matrix.length; x++) {
-            for(int y = 0; y <matrix[0].length; y++) {
-                if (matrix[x][y].equals(cell)) {
-                    return new int[]{x, y};
-                }
-            }
-        }
-        return null;
-    }
-
     /** Randomly generates starter seed with given
      *  probability.
      *
@@ -295,18 +280,66 @@ public class CellMatrix {
         }
     }
 
-    /** String representation of CellMatrix
+    /** String representation of CellMatrix in RLE format
      * @return (W*H)[x,y][x,y]...[x,y]
      */
     public String toString() {
-        String temp = "(" + matrix.length + "x" + matrix[0].length + ")";
-        for (int x = 0; x < matrix.length; x++) {
-            for (int y = 0; y < matrix[0].length; y++) {
-                if(matrix[x][y].isAlive()) {
-                    temp += "[" + x + "," + y + "]";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(" + numRows + "x" + numCols + ")");
+        for(int c = 0; c < matrix.length; c++) {
+            for(int r = 0; r <= endIndex(c); r++) {
+                if(endIndex(c) == -1) {
+                    //if empty line
+                    break;
+                }
+                int i = 1;
+                if (matrix[r][c].isAlive()) {
+                    //if living cell
+                    while (r < numRows - 1 && matrix[r + 1][c].isAlive()) {
+                        //adds range of living cells
+                        r++;
+                        i++;
+                    }
+                    if(i > 1) {
+                        //adds quantity if more than one
+                        sb.append(i);
+                    }
+                    //labels as living
+                    sb.append("o");
+                }
+                else {
+                    //if dead cell
+                    while (r < numRows - 1 && !matrix[r + 1][c].isAlive()) {
+                        //adds range of dead cells
+                        r++;
+                        i++;
+                    }
+                    if(i > 1) {
+                        //adds quantity if more than one
+                        sb.append(i);
+                    }
+                    //labels as dead
+                    sb.append("b");
                 }
             }
+            //end line
+            sb.append("$");
         }
-        return temp;
+        //end of matrix
+        sb.append("!");
+        return sb.toString();
+    }
+
+    /** Finds last index of living cell in a row
+     *
+     * @param c roll of cells
+     * @return index of living cell
+     */
+    private int endIndex(int c) {
+        for(int r = matrix.length - 1; r >= 0; r--) {
+            if(matrix[r][c].isAlive())
+                return r;
+        }
+        return -1;
     }
 }
