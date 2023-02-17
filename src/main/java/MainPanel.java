@@ -1,6 +1,4 @@
-import javax.swing.JPanel;
-import javax.swing.Timer;
-import javax.swing.UIManager;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.security.Key;
@@ -80,12 +78,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         Color textColor = Color.white;
 
         UIManager.put("OptionPane.messageForeground", mainColor);
-        UIManager.put("OptionPane.background", backColor);
-        UIManager.put("Panel.background", backColor);
-        UIManager.put("Button.background", backColor);
-        UIManager.put("Button.foreground", textColor);
-        UIManager.put("Button.highlight", textColor);
-        UIManager.put("TextField.background", backColor);
+        UIManager.put("OptionPane.background", Color.BLACK);
+        UIManager.put("Panel.background", Color.BLACK);
+        UIManager.put("Button.background", Color.BLACK);
+        UIManager.put("Button.foreground", Color.WHITE);
+        UIManager.put("Button.highlight", Color.WHITE);
+        UIManager.put("TextField.background", Color.BLACK);
         UIManager.put("TextField.selectionBackground", mainColor);
         UIManager.put("TextField.foreground", textColor);
         UIManager.put("TextField.selectionForeground", backColor);
@@ -408,8 +406,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             numTicks = 0;
         }
         if (e.getKeyCode() == KeyEvent.VK_G) {
-            //Prints RLE String
-            System.out.println(matrix.toString());
+            //displays RLE String on 'G'
+            String rleString = matrix.toString();
+
+            //Prompts User for new Name
+            String s = (String) JOptionPane.showInputDialog(
+                    this, "Modify RLE Below:", "Database",
+                    JOptionPane.PLAIN_MESSAGE, null, null, rleString);
+            if (s != null) {
+                matrix.fromRLE(s);
+            }
         }
         if (e.getKeyCode() == KeyEvent.VK_C) {
             //kills all cells on 'C'

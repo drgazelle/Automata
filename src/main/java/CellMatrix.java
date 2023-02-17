@@ -1,6 +1,4 @@
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 
 /** CellMatrix class generates and
  *  modifies a 2D array of Cell
@@ -281,12 +279,11 @@ public class CellMatrix {
     }
 
     /** String representation of CellMatrix in RLE format
-     * @return (W*H)[x,y][x,y]...[x,y]
+     * @return (W*H)bo$2bo$3o!
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("(" + numRows + "x" + numCols + ")");
-        for(int c = 0; c < matrix.length; c++) {
+        for(int c = 0; c < matrix[0].length; c++) {
             for(int r = 0; r <= endIndex(c); r++) {
                 if(endIndex(c) == -1) {
                     //if empty line
@@ -322,8 +319,10 @@ public class CellMatrix {
                     sb.append("b");
                 }
             }
-            //end line
-            sb.append("$");
+            if(c < matrix[0].length - 1) {
+                //end line
+                sb.append("$");
+            }
         }
         //end of matrix
         sb.append("!");
@@ -341,5 +340,57 @@ public class CellMatrix {
                 return r;
         }
         return -1;
+    }
+
+    /** Converts RLE to CellMatrix */
+    public void fromRLE(String rleString) {
+        genocide();
+
+        //position variables
+        int x = 0;
+        int y = 0;
+
+        //Navigates RLE
+        char[] rleArr = rleString.toCharArray();
+        for(int i = 0; rleArr[i] != '!'; i++) {
+            //Finds numerical quantity
+            StringBuilder num = new StringBuilder();
+            while (Character.isDigit(rleArr[i])) {
+                num.append(rleArr[i]);
+                i++;
+            }
+
+            if (rleArr[i] == '$') {
+                //new line
+                x = 0;
+                y++;
+            }
+            else if (rleArr[i] == 'b') {
+                //if dead cell
+                if (num.length() == 0) {
+                    //if single dead cell
+                    x++;
+                } else {
+                    //else multiple dead cells
+                    x += Integer.parseInt(num.toString());
+                }
+            }
+            else if (rleArr[i] == 'o') {
+                //else if alive
+                if (num.length() == 0) {
+                    //if single dead cell
+                    matrix[x][y].revive();
+                    x++;
+                }
+                else {
+                    //else multiple dead cells
+                    int range = x + Integer.parseInt(num.toString());
+                    while (x < range) {
+                        matrix[x][y].revive();
+                        x++;
+                    }
+                }
+            }
+        }
     }
 }
