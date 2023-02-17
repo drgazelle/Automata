@@ -37,6 +37,11 @@ public class DynamicMenu extends JPanel {
         setDefaultBorder();
     }
 
+    /** Accessor Method for Title */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     /** Setter Method for main font.
      *
      * @param f font to be used
@@ -124,6 +129,7 @@ public class DynamicMenu extends JPanel {
     public void paintMenu(Graphics g, int pX, int pY) {
         Graphics2D g2 = (Graphics2D) g;
 
+        //fonts
         FontMetrics mainMetrics = getFontMetrics(mainFont);
         FontMetrics titleMetrics = getFontMetrics(titleFont);
 
