@@ -99,50 +99,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         repaint();
     }
 
-    /** Ticks matrix to next generation according to the
-     *  rules of the Conway's Game of Life.
-     */
-    public void tick() {
-        int numRows = matrix.getNumRows();
-        int numColumns = matrix.getNumCols();
-
-        //next generation matrix
-        CellMatrix g2 = new CellMatrix(numRows, numColumns);
-        //navigates grid horizontally
-        for (int x = 0; x < numRows; x++) {
-            //navigates grid vertically
-            for (int y = 0; y < numColumns; y++) {
-                //Gen 1 Cell at index
-                Cell c = matrix.getCell(x, y);
-                //num of living neighbors
-                int numLiving = matrix.numLivingNeighbors(x, y, wrapEnabled);
-                if (!c.isAlive() && numLiving == 3) {
-                    //reproduction
-                    g2.getCell(x, y).revive();
-                }
-                else if (c.isAlive() && (numLiving < 2 || numLiving > 3)) {
-                    //over or under population
-                    g2.getCell(x, y).kill();
-                }
-                else if (c.isAlive()) {
-                    //if previously alive
-                    g2.getCell(x, y).revive();
-                }
-                else {
-                    //isolation or previously dead
-                    g2.getCell(x, y).kill();
-                }
-                if(c.isSpotlit()) {
-                    //if cell is spotlit
-                    g2.getCell(x, y).spotlight();
-                }
-            }
-        }
-        //migrates previous to current generation
-        matrix = g2;
-        numTicks++;
-    }
-
     /** Resizes grid with given increment.
      *
      * @param i increment size
@@ -250,6 +206,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int numColumns = matrix.getNumCols();
         String title = "Automata" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
         String[] menuItems = {"Toggle Simulation [SPACE]",
+                                "Single Tick [F]",
                                 "Resize Grid [Q/E]",
                                 "Change Speed [A/D]",
                                 "Wrap-Around Grid [W]",
@@ -262,6 +219,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
                                 "Navigate Database [U/N]",
+                                "Print RLE [H]",
                                 "Rename Selected [H]",
                                 "Remove Selected [K]",
                                 "Clear Selection [M]",
@@ -421,7 +379,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        tick();
+        matrix.tick(wrapEnabled);
+        numTicks++;
         repaint();
     }
 
@@ -455,6 +414,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             else {
                 timer.start();
             }
+        }
+        if(e.getKeyCode() == KeyEvent.VK_F) {
+            //Singular tick
+            matrix.tick(wrapEnabled);
+            numTicks++;
         }
         if (e.getKeyCode() == KeyEvent.VK_D && timer.getDelay() > 1) {
             //speeds up timer on 'D'
@@ -603,6 +567,21 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                         //moves up if at bottom of list
                         if (indexDB == database.sizeDB()) {
                             indexDB--;
+                        }
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_G) {
+                        //displays RLE String on 'G'
+                        MatrixData m = database.get(indexDB);
+                        String rleString = m.getRleString();
+
+                        //Prompts User for new Name
+                        String s = (String) JOptionPane.showInputDialog(
+                                this, "Modify RLE Below:", "Database",
+                                JOptionPane.PLAIN_MESSAGE, null, null, rleString);
+                        if (s != null) {
+                            //if name changed
+                            m.setRleString(s);
+                            importFromDB();
                         }
                     }
                     if (e.getKeyCode() == KeyEvent.VK_M) {

@@ -68,33 +68,13 @@ public class Database extends JPanel {
             Scanner input = new Scanner(data);
             while (input.hasNextLine()) {
                 String line = input.nextLine();
-                //splits up data fields
-                String[] parts = line.split("##");
-                //removes brackets from data fields
-                for(int i = 0; i < parts.length; i++) {
-                    parts[i] = parts[i].substring(1, parts[i].length() - 1).trim();
-                }
-                //gets name
-                String name = parts[0];
-
-                //get size
-                String[] temp = parts[1].split("x");
-                int[] size = new int[2];
-                size[0] = Integer.parseInt(temp[0].trim());
-                size[1] = Integer.parseInt(temp[1].trim());
-
-                //get live cells
-                ArrayList<int[]> cells = new ArrayList<>();
-                for(int i = 2; i < parts.length; i++) {
-                    //new splits String into parts and converts to ints
-                    int[] cell = new int[2];
-                    temp = parts[i].split(",");
-                    cell[0] = Integer.parseInt(temp[0].trim());
-                    cell[1] = Integer.parseInt(temp[1].trim());
-                    cells.add(cell);
-                }
+                String[] parts = line.split("////");
+                String name = removeShell(parts[0]).trim();
+                String[] dimensions = removeShell(parts[1]).split("x");
+                int[] size = new int[]{Integer.parseInt(dimensions[0]), Integer.parseInt(dimensions[1])};
+                String rleString = removeShell(parts[2]);
                 //adds new MatrixData to database
-                database.add(new MatrixData(name, size, cells));
+                database.add(new MatrixData(name, size, rleString));
             }
             //closes scanner
             input.close();
@@ -104,6 +84,10 @@ public class Database extends JPanel {
             return false;
         }
         return true;
+    }
+
+    private String removeShell(String s) {
+        return s.substring(1, s.length() - 1);
     }
 
     /** exportData method takes existing
@@ -217,18 +201,11 @@ public class Database extends JPanel {
         System.out.println("Successful Connection [Code " + response.getStatus() + "]");
         Unirest.shutDown();
 
-        ArrayList<MatrixData> results = new ArrayList<>();
-
         Gson gson = new Gson();
         JsonArray elements = JsonParser.parseString(response.getBody()).getAsJsonArray();
 
         for(JsonElement e : elements) {
-            results.add(gson.fromJson(e.getAsJsonObject(), MatrixData.class));
-        }
-        for (MatrixData result : results) {
-            if (result.convertFromRle()) {
-                database.add(result);
-            }
+            database.add(gson.fromJson(e.getAsJsonObject(), MatrixData.class));
         }
     }
 }

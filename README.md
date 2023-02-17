@@ -21,8 +21,8 @@ A lightweight simulation Conway's Game of Life
 
 #### Database
 
-- [ ] Convert to RLE
-- [ ] Update Storage
+- [x] Convert to RLE
+- [x] Update Storage
 - [ ] Display New Searched Terms
 - [ ] Migrate Search to Dedicated Window
 - [ ] Upload Matrices to customcollections

@@ -1,6 +1,3 @@
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-
 /** MatrixData class assigns a title to
  *  a CellMatrix's and stores the size
  *  and living cells contents.
@@ -15,30 +12,29 @@ public class MatrixData {
     private String rleString;
     private String date;
     private Size size;
-    private ArrayList<int[]> cells;
 
     /** 3-arg constructor instantiates title, size, and cells.
      *
      * @param name matrix title
      * @param size grid size [x,y]
-     * @param cells Arraylist of Living Cell Coordinates [x,y]
+     * @param rleString Encoded Cell Coordinates
      */
-    public MatrixData(String name, int[] size, ArrayList<int[]> cells) {
+    public MatrixData(String name, int[] size, String rleString) {
         this.title = name;
         this.size = new Size(size[0], size[1]);
-        this.cells = cells;
+        this.rleString = rleString;
     }
 
     /** 2-arg Constructor instantiates size and cells with
      *  default title of "CellMatrix_(W*H)"
      *
      * @param size grid size [x,y]
-     * @param cells Arraylist of Living Cell Coordinates [x,y]
+     * @param rleString encoded Cell Coordinates
      */
-    public MatrixData(int[] size, ArrayList<int[]> cells) {
+    public MatrixData(int[] size, String rleString) {
         this.title = "CellMatrix_(" + size[0] + "x" + size[1] + ")";
         this.size = new Size(size[0], size[1]);
-        this.cells = cells;
+        this.rleString = rleString;
     }
 
     /** Setter Method for Name
@@ -62,16 +58,7 @@ public class MatrixData {
      * @return Grid Size [x,y]
      */
     public int[] getSize() {
-        int[] temp = {size.getX(), size.getY()};
-        return temp;
-    }
-
-    /** Accessor Method for Cells Arraylist
-     *
-     * @return ArrayList of living Cells coordinates
-     */
-    public ArrayList<int[]> getCells() {
-        return cells;
+        return new int[]{size.getX(), size.getY()};
     }
 
     /** Converts Matrix Data to CellMatrix
@@ -79,78 +66,73 @@ public class MatrixData {
      * @return CellMatrix of size with all cells revived
      */
     public CellMatrix toCellMatrix() {
-        CellMatrix temp = new CellMatrix(size.getX(), size.getY());
-        for (int[] cell : cells) {
-            temp.getCell(cell[1], cell[0]).revive();
+        CellMatrix matrix = new CellMatrix(size.getX(), size.getY());
+
+        //position variables
+        int x = 0;
+        int y = 0;
+
+        //Navigates RLE
+        char[] rleArr = rleString.toCharArray();
+        for(int i = 0; rleArr[i] != '!'; i++) {
+            //Finds numerical quantity
+            StringBuilder num = new StringBuilder();
+            while (Character.isDigit(rleArr[i])) {
+                num.append(rleArr[i]);
+                i++;
+            }
+
+            if (rleArr[i] == '$') {
+                //new line
+                x = 0;
+                y++;
+            }
+            else if (rleArr[i] == 'b') {
+                //if dead cell
+                if (num.length() == 0) {
+                    //if single dead cell
+                    x++;
+                } else {
+                    //else multiple dead cells
+                    x += Integer.parseInt(num.toString());
+                }
+            }
+            else if (rleArr[i] == 'o') {
+                //else if alive
+                if (num.length() == 0) {
+                    //if single dead cell
+                    matrix.getCell(x, y).revive();
+                    x++;
+                }
+                else {
+                    //else multiple dead cells
+                    int range = x + Integer.parseInt(num.toString());
+                    while (x < range) {
+                        matrix.getCell(x, y).revive();
+                        x++;
+                    }
+                }
+            }
         }
-        return temp;
+        return matrix;
     }
 
     @Override
     public String toString() {
         String temp = "\"" + title + "\"";
-        temp += "##(" + size.getX() + "x" + size.getY() + ")";
-        for (int[] cell : cells) {
-            temp += "##[" + cell[0] + "," + cell[1] + "]";
-        }
+        temp += "////";
+        temp += "(" + size.getX() + "x" + size.getY() + ")";
+        temp += "////";
+        temp += "[" + rleString + "]";
         return temp;
     }
 
-    /** Converts internal rleString into an array of Cell coordinates
-     *
-     * @return true if valid rle, false otherwise
-     */
-    public boolean convertFromRle() {
-        if (rleString == null || rleString.isEmpty()) {
-            return false;
-        }
-        cells = new ArrayList<>();
-        String[] lines = rleString.substring(0, rleString.length() - 1).trim().split(Pattern.quote("$"));
-        //loops through lines
-        for(int x = 0; x < lines.length; x++) {
-            char[] line = lines[x].toCharArray();
-            String rangeStr = "";
-            int rangeNum;
-            int y = 0;
-            for(int i = 0; i < line.length; i++) {
-                //loops through line
-                if(line[i] == 'b' || line[i] == 'o') {
-                    if(rangeStr.isEmpty()) {
-                        //if no digits
-                        rangeNum = 1;
-                    }
-                    else {
-                        //adds digits
-                        rangeNum = Integer.valueOf(rangeStr);
-                    }
-
-                    if(line[i] == 'o') {
-                        //if alive
-                        addRange(rangeNum, x, y);
-                    }
-                    y += rangeNum;
-                    //adds distance
-                    rangeStr = "";
-                    //resets range
-                }
-                else {
-                    rangeStr += line[i];
-                }
-            }
-        }
-        return true;
+    public String getRleString() {
+        return rleString;
     }
 
-    /** Adds range of cell at a given x and y coordinate
-     *
-     * @param r range
-     * @param x start position
-     * @param y start postion
-     */
-    private void addRange(int r, int x, int y) {
-        for (int i = 0; i < r; i++) {
-            cells.add(new int[]{x, y + i});
-        }
+    public void setRleString(String rle) {
+        rleString = rle;
     }
 }
 
@@ -177,5 +159,10 @@ class Size {
 
     public int getX() {
         return x;
+    }
+
+    @Override
+    public String toString() {
+        return "X:" + x + "\tY: " + y;
     }
 }
