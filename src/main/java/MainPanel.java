@@ -1,7 +1,9 @@
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
-import java.security.Key;
 
 /** MainPanel class renders a CellMatrix
  *  representing an interactive version
@@ -37,6 +39,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showMenu;
     private boolean wrapEnabled;
 
+    //Menu Object
+    private final DynamicMenu mainMenu;
+
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
      */
@@ -70,13 +75,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         Cell.gridEnabled = true;
 
         //Sets Application Theme
-        mainColor = new Color((int)(Math.random() * 0x1000000));
+        mainColor = new Color((int) (Math.random() * 0x1000000));
         mainFont = new Font("SansSerif", Font.PLAIN, 10);
         titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
 
         Color backColor = Color.black;
         Color textColor = Color.white;
 
+        //JOptionPane theme
         UIManager.put("OptionPane.messageForeground", mainColor);
         UIManager.put("OptionPane.background", Color.BLACK);
         UIManager.put("Panel.background", Color.BLACK);
@@ -87,7 +93,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         UIManager.put("TextField.selectionBackground", mainColor);
         UIManager.put("TextField.foreground", textColor);
         UIManager.put("TextField.selectionForeground", backColor);
-
+        mainMenu = generateMenu();
         repaint();
     }
 
@@ -121,8 +127,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             g.setFont(mainFont);
         }
         if(showMenu) {
-            paintMenu(g);
-            g.setFont(mainFont);
+            mainMenu.setTitle("Automata Lite"
+                    + " (" + matrix.getNumRows() + "x" + matrix.getNumCols() + ")"
+                    + " (" + delay + "ms)");
+            int pX = AppDriver.WIDTH - 10 - mainMenu.getBoxWidth();
+            int pY = AppDriver.HEIGHT - 10 - mainMenu.getBoxHeight();
+            mainMenu.paintMenu(g, pX, pY);
         }
     }
 
@@ -181,12 +191,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     /** Displays the keycodes to
      *  manipulate simulation.
      *
-     * @param g graphics
+     * @return DynamicMenu with list of controls
      */
-    public void paintMenu(Graphics g) {
+    private DynamicMenu generateMenu() {
         //list of menu items + current status
         int numRows = matrix.getNumRows();
         int numColumns = matrix.getNumCols();
+
         String title = "Automata Lite" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
         String[] menuItems = {"Toggle Simulation [SPACE]",
                                 "Resize Grid [Q/E]",
@@ -194,17 +205,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Single Tick [F]",
                                 "Wrap-Around Grid [W]",
                                 "Generate Random Seed [S]",
+                                "Modify RLE [G]",
                                 "Toggle Status [R]",
                                 "Toggle Menu [T]",
                                 "Resize UI [V/B]",
                                 "Toggle Grid [X]",
                                 "Clear [C]"};
-
-        //places in bottom left corner
-        DynamicMenu mainMenu = new DynamicMenu(title, menuItems);
-        int pX = AppDriver.WIDTH - 10 - mainMenu.getBoxWidth();
-        int pY = AppDriver.HEIGHT - 10 - mainMenu.getBoxHeight();
-        mainMenu.paintMenu(g, pX, pY);
+        return new DynamicMenu(title, menuItems);
     }
 
     /**
@@ -415,6 +422,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     JOptionPane.PLAIN_MESSAGE, null, null, rleString);
             if (s != null) {
                 matrix.fromRLE(s);
+                numTicks = 0;
             }
         }
         if (e.getKeyCode() == KeyEvent.VK_C) {
@@ -468,12 +476,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 changeGrid(increment);
             }
         }
-        else {
+        else if (matrix.getNumRows() > increment) {
             //contracts grid
-            if (matrix.getNumRows() > increment) {
-                numTicks = 0;
-                changeGrid(-1 * increment);
-            }
+            numTicks = 0;
+            changeGrid(-1 * increment);
         }
         repaint();
     }

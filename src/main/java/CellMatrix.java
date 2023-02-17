@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.awt.Graphics;
 
 /** CellMatrix class generates and
  *  modifies a 2D array of Cell
@@ -10,7 +10,6 @@ public class CellMatrix {
     private Cell[][] matrix;
     private final int numRows;
     private final int numCols;
-    private int size;
 
     /**
      * 2-arg constructor instantiates a 2D matrix
@@ -38,16 +37,6 @@ public class CellMatrix {
 
     public int getNumCols() {
         return numCols;
-    }
-
-    /** Accessor Method for Cell.
-     *
-     * @param pX position x
-     * @param pY position y
-     * @return Cell at position
-     */
-    public Cell getCell(int pX, int pY) {
-        return matrix[pX][pY];
     }
 
     /** Ticks matrix to next generation according to the
@@ -260,10 +249,10 @@ public class CellMatrix {
      * @param probability % chance for cell to be alive
      */
     public void randomSeed(double probability) {
-        for (int x = 0; x < matrix.length; x++) {
-            for (int y = 0; y < matrix[0].length; y++) {
+        for (Cell[] cells : matrix) {
+            for (Cell c : cells) {
                 if (Math.random() < probability) {
-                    matrix[x][y].revive();
+                    c.revive();
                 }
             }
         }
@@ -271,16 +260,18 @@ public class CellMatrix {
 
     /** Kills all cells. */
     public void genocide() {
-        for (int x = 0; x < matrix.length; x++) {
-            for (int y = 0; y < matrix[0].length; y++) {
-                matrix[x][y].kill();
+        for (Cell[] cells : matrix) {
+            for (Cell c : cells) {
+                c.kill();
             }
         }
     }
 
     /** String representation of CellMatrix in RLE format
-     * @return (W*H)bo$2bo$3o!
+     *
+     * @return RLE string (i.e. bo$2bo$3o!)
      */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for(int c = 0; c < matrix[0].length; c++) {
@@ -344,6 +335,7 @@ public class CellMatrix {
 
     /** Converts RLE to CellMatrix */
     public void fromRLE(String rleString) {
+        //reset matrix
         genocide();
 
         //position variables
@@ -359,7 +351,6 @@ public class CellMatrix {
                 num.append(rleArr[i]);
                 i++;
             }
-
             if (rleArr[i] == '$') {
                 //new line
                 x = 0;
@@ -390,6 +381,13 @@ public class CellMatrix {
                         x++;
                     }
                 }
+            }
+            else {
+                //if incorrectly formatted
+                genocide();
+                System.out.println("ERROR: Failed to import RLE");
+                System.out.println("Input Mismatch at (" + x + ", " + y + ") with Character '" + rleArr[i] + "'");
+                return;
             }
         }
     }
