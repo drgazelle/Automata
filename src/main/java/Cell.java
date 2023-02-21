@@ -56,7 +56,7 @@ public class Cell {
         return spotlit;
     }
 
-    /** Spotlights cell */
+    /** Spotlights cell. */
     public void spotlight() {
         spotlit = true;
     }
@@ -97,7 +97,7 @@ public class Cell {
         g2.setColor(Color.getHSBColor(hsbVal[0], hsbVal[1], hsbVal[2]));
         //fills gridCell
         g2.fill(gridCell);
-        //adds border
+        //adds border if enabled
         if (gridEnabled) {
             g2.setColor(Color.black);
             g2.draw(gridCell);
