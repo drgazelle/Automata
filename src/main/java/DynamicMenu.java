@@ -1,6 +1,11 @@
 import javax.swing.JPanel;
 import java.awt.*;
 
+/** DynamicMenu renders a list of strings with
+ *  a title that adjusts to the given input
+ *
+ * @author RMizelle
+ */
 public class DynamicMenu extends JPanel {
     private int index;
     private int border;
@@ -8,6 +13,7 @@ public class DynamicMenu extends JPanel {
     private String title;
     private String[] items;
     private static Color titleColor, mainColor, backgroundColor;
+    private Color indexColor;
     private static Font mainFont, titleFont;
 
     /** 2-arg constructor instantiates menu with no index
@@ -53,12 +59,21 @@ public class DynamicMenu extends JPanel {
         titleFont = f;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setItems(String[] items) {
+        this.items = items;
+    }
+
     /** Sets default for background and text colors
      *
      */
     public void setDefaultColors() {
         mainColor = Color.WHITE;
         backgroundColor = Color.BLACK;
+        indexColor = Color.darkGray;
     }
 
     /** Sets default menu border and gap */
@@ -81,6 +96,18 @@ public class DynamicMenu extends JPanel {
      */
     public static void setTextColor(Color c) {
         mainColor = c;
+    }
+
+    /** Sets index color
+     *
+     * @param c index color
+     */
+    public void setIndexColor(Color c) {
+        indexColor = c;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     /** Sets background color.
@@ -161,7 +188,7 @@ public class DynamicMenu extends JPanel {
                 int iX = pX - (border / 2);
                 int iY = pY - mainMetrics.getAscent() + gap;
                 Shape highlightBox = new Rectangle(iX, iY, boxWidth - border, mainMetrics.getAscent());
-                g2.setColor(Color.darkGray);
+                g2.setColor(indexColor);
                 g2.fill(highlightBox);
                 //resets color
                 g2.setColor(mainColor);

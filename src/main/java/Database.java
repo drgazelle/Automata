@@ -21,12 +21,14 @@ import java.util.Scanner;
 public class Database extends JPanel {
     private final ArrayList<MatrixData> database;
     private File data;
+    private final DynamicMenu databaseMenu;
 
     /** 0-arg constructor implements ArrayList of SparseMatrices
      *  of Cells objects from a text document.
      */
     public Database() {
         database = new ArrayList<>();
+        databaseMenu = new DynamicMenu("Database", null, -1);
 
         //creates resource folder if necessary
         File directory = new File("src/main/resources");
@@ -160,8 +162,14 @@ public class Database extends JPanel {
         for (int i = 0; i < database.size(); i++) {
             items[i] = database.get(i).getTitle();
         }
-        DynamicMenu databaseMenu = new DynamicMenu("Database", items, index);
+        //updates menu
+        databaseMenu.setItems(items);
+        databaseMenu.setIndex(index);
         databaseMenu.paintMenu(g2, 10, 10);
+    }
+
+    public void setIndexColor(Color c) {
+        databaseMenu.setIndexColor(c);
     }
 
     /** Accesses wikicollections api for patterns based of search term

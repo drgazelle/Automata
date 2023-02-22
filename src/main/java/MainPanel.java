@@ -32,9 +32,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private int indexDB;
 
     //Animation Variables
-    public static final Color mainColor = new Color((int)(Math.random() * 0x1000000));
-    public static Font mainFont = new Font("SansSerif", Font.PLAIN, 10);
-    public static Font titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
+    public static Color mainColor;
+    public static Font mainFont;
+    public static Font titleFont;
 
     private final Timer timer;
     private int numTicks;
@@ -42,9 +42,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     private boolean showStatus;
     private boolean showMenu;
-    private boolean wrapEnabled;
     private boolean showDatabase;
     private boolean showHighlight;
+    private boolean wrapEnabled;
+
+    //Menu Object
+    private final DynamicMenu mainMenu;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -84,17 +87,29 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showHighlight = false;
         Cell.gridEnabled = true;
 
-        //Sets JOptionPane theme
+        //Sets Application Theme
+        mainColor = new Color((int) (Math.random() * 0x1000000));
+        mainFont = new Font("SansSerif", Font.PLAIN, 10);
+        titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
+
+        Color backColor = Color.black;
+        Color textColor = Color.white;
+
+        //JOptionPane theme
         UIManager.put("OptionPane.messageForeground", mainColor);
-        UIManager.put("OptionPane.background", Color.BLACK);
-        UIManager.put("Panel.background", Color.BLACK);
-        UIManager.put("Button.background", Color.BLACK);
-        UIManager.put("Button.foreground", Color.WHITE);
-        UIManager.put("Button.highlight", Color.WHITE);
-        UIManager.put("TextField.background", Color.BLACK);
+        UIManager.put("OptionPane.background", backColor);
+        UIManager.put("Panel.background", backColor);
+        UIManager.put("Button.background", backColor);
+        UIManager.put("Button.foreground", textColor);
+        UIManager.put("Button.highlight", textColor);
+        UIManager.put("TextField.background", backColor);
         UIManager.put("TextField.selectionBackground", mainColor);
-        UIManager.put("TextField.foreground", Color.WHITE);
-        UIManager.put("TextField.selectionForeground", Color.BLACK);
+        UIManager.put("TextField.foreground", textColor);
+        UIManager.put("TextField.selectionForeground", backColor);
+
+        DynamicMenu.setTextColor(mainColor);
+        mainMenu = new DynamicMenu(null, null);
+        updateMenu();
 
         repaint();
     }
@@ -134,8 +149,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             g.setFont(mainFont);
         }
         if(showMenu) {
-            paintMenu(g);
-            g.setFont(mainFont);
+            int pX = AppDriver.WIDTH - 10 - mainMenu.getBoxWidth();
+            int pY = AppDriver.HEIGHT - 10 - mainMenu.getBoxHeight();
+            mainMenu.paintMenu(g, pX, pY);
         }
         if (showDatabase) {
             database.paintDatabase(g, indexDB);
@@ -195,12 +211,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         g2.drawString(digits, pX, pY);
     }
 
-    /** Displays the keycodes to
-     *  manipulate simulation.
-     *
-     * @param g graphics
+    /** Updates the mainMenu to display
+     *  relevant keycodes and configuration
      */
-    public void paintMenu(Graphics g) {
+    private void updateMenu() {
         //list of menu items + current status
         int numRows = matrix.getNumRows();
         int numColumns = matrix.getNumCols();
@@ -213,9 +227,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Generate Random Seed [S]",
                                 "Save [Z]",
                                 "Toggle Grid [X]",
-                                "Clear [C]",
-                                "Open Database [J]"};
-
+                                "Clear [C]"};
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
                                 "Navigate Database [U/N]",
@@ -227,15 +239,15 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Toggle Menu [T]",
                                 "Toggle Status [R]"};
 
+        //displays correct information
         String[] displayItems = menuItems;
         if (showDatabase) {
             displayItems = databaseItems;
         }
 
-        DynamicMenu mainMenu = new DynamicMenu(title, displayItems);
-        int pX = AppDriver.WIDTH - 10 - mainMenu.getBoxWidth();
-        int pY = AppDriver.HEIGHT - 10 - mainMenu.getBoxHeight();
-        mainMenu.paintMenu(g, pX, pY);
+        //updates mainMenu
+        mainMenu.setItems(displayItems);
+        mainMenu.setTitle(title);
     }
 
     /** Accessor Method for Database
@@ -272,7 +284,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 //centers placement
                 coords[0] -= cm.getNumRows() / 2;
                 coords[1] -= cm.getNumCols() / 2;
-                matrix.placeCellMatrix(coords[0], coords[1], cm);
+                if(matrix.placeCellMatrix(coords[0], coords[1], cm)) {
+                    database.setIndexColor(new Color(34, 139, 34));
+                }
+                else {
+                    database.setIndexColor(Color.red);
+                }
             }
             else if (cell != null) cell.flip();
         }
@@ -358,7 +375,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             //adjusts placement from center to corner;
             coords[0] -= cm.getNumRows() / 2;
             coords[1] -= cm.getNumCols() / 2;
-            matrix.spotlightPlacement(coords[0], coords[1], cm);
+            if (matrix.spotlightPlacement(coords[0], coords[1], cm)) {
+                database.setIndexColor(Color.darkGray);
+            }
+            else {
+                database.setIndexColor(Color.red);
+            }
         }
         else if (cell != null) cell.spotlight();
 
@@ -597,6 +619,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 }
             }
         }
+        updateMenu();
         repaint();
     }
 
