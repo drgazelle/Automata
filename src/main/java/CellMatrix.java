@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 
 /** CellMatrix class generates and
  *  modifies a 2D array of Cell
@@ -12,7 +11,6 @@ public class CellMatrix {
     private Cell[][] matrix;
     private final int numRows;
     private final int numCols;
-    private int size;
 
     /**
      * 2-arg constructor instantiates a 2D matrix
@@ -50,6 +48,30 @@ public class CellMatrix {
      */
     public Cell getCell(int pX, int pY) {
         return matrix[pX][pY];
+    }
+
+    /** Randomly generates starter seed with given
+     *  probability.
+     *
+     * @param probability % chance for cell to be alive
+     */
+    public void randomSeed(double probability) {
+        for (Cell[] cells : matrix) {
+            for (Cell c : cells) {
+                if (Math.random() < probability) {
+                    c.revive();
+                }
+            }
+        }
+    }
+
+    /** Kills all cells. */
+    public void genocide() {
+        for (Cell[] cells : matrix) {
+            for (Cell c : cells) {
+                c.kill();
+            }
+        }
     }
 
     /** Ticks matrix to next generation according to the
@@ -265,8 +287,7 @@ public class CellMatrix {
         for (int x = 0; x < matrix.length; x++) {
             for(int y = 0; y <matrix[0].length; y++) {
                 if (matrix[x][y].equals(cell)) {
-                    int[] coords = {x, y};
-                    return coords;
+                    return new int[]{x, y};
                 }
             }
         }
@@ -353,96 +374,7 @@ public class CellMatrix {
         while (pY < 0) {
             pY++;
         }
-        int[] temp = {pX, pY};
-        return temp;
-    }
-
-    /** Randomly generates starter seed with given
-     *  probability.
-     *
-     * @param probability % chance for cell to be alive
-     */
-    public void randomSeed(double probability) {
-        for (int x = 0; x < matrix.length; x++) {
-            for (int y = 0; y < matrix[0].length; y++) {
-                if (Math.random() < probability) {
-                    matrix[x][y].revive();
-                }
-            }
-        }
-    }
-
-    /** Kills all cells. */
-    public void genocide() {
-        for (int x = 0; x < matrix.length; x++) {
-            for (int y = 0; y < matrix[0].length; y++) {
-                matrix[x][y].kill();
-            }
-        }
-    }
-
-    /** String representation of CellMatrix in RLE format
-     * @return (W*H)bo$2bo$3o!
-     */
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for(int c = 0; c < matrix[0].length; c++) {
-            for(int r = 0; r <= endIndex(c); r++) {
-                if(endIndex(c) == -1) {
-                    //if empty line
-                    break;
-                }
-                int i = 1;
-                if (matrix[r][c].isAlive()) {
-                    //if living cell
-                    while (r < numRows - 1 && matrix[r + 1][c].isAlive()) {
-                        //adds range of living cells
-                        r++;
-                        i++;
-                    }
-                    if(i > 1) {
-                        //adds quantity if more than one
-                        sb.append(i);
-                    }
-                    //labels as living
-                    sb.append("o");
-                }
-                else {
-                    //if dead cell
-                    while (r < numRows - 1 && !matrix[r + 1][c].isAlive()) {
-                        //adds range of dead cells
-                        r++;
-                        i++;
-                    }
-                    if(i > 1) {
-                        //adds quantity if more than one
-                        sb.append(i);
-                    }
-                    //labels as dead
-                    sb.append("b");
-                }
-            }
-            if(c < matrix[0].length -1) {
-                //end line
-                sb.append("$");
-            }
-        }
-        //end of matrix
-        sb.append("!");
-        return sb.toString();
-    }
-
-    /** Finds last index of living cell in a row
-     *
-     * @param c roll of cells
-     * @return index of living cell
-     */
-    private int endIndex(int c) {
-        for(int r = matrix.length - 1; r >= 0; r--) {
-            if(matrix[r][c].isAlive())
-                return r;
-        }
-        return -1;
+        return new int[]{pX, pY};
     }
 
     /** Converts Matrix to MatrixData
@@ -525,5 +457,70 @@ public class CellMatrix {
             }
         }
         return cm;
+    }
+
+    /** String representation of CellMatrix in RLE format
+     * @return (W*H)bo$2bo$3o!
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(int c = 0; c < matrix[0].length; c++) {
+            for(int r = 0; r <= endIndex(c); r++) {
+                if(endIndex(c) == -1) {
+                    //if empty line
+                    break;
+                }
+                int i = 1;
+                if (matrix[r][c].isAlive()) {
+                    //if living cell
+                    while (r < numRows - 1 && matrix[r + 1][c].isAlive()) {
+                        //adds range of living cells
+                        r++;
+                        i++;
+                    }
+                    if(i > 1) {
+                        //adds quantity if more than one
+                        sb.append(i);
+                    }
+                    //labels as living
+                    sb.append("o");
+                }
+                else {
+                    //if dead cell
+                    while (r < numRows - 1 && !matrix[r + 1][c].isAlive()) {
+                        //adds range of dead cells
+                        r++;
+                        i++;
+                    }
+                    if(i > 1) {
+                        //adds quantity if more than one
+                        sb.append(i);
+                    }
+                    //labels as dead
+                    sb.append("b");
+                }
+            }
+            if(c < matrix[0].length -1) {
+                //end line
+                sb.append("$");
+            }
+        }
+        //end of matrix
+        sb.append("!");
+        return sb.toString();
+    }
+
+    /** Finds last index of living cell in a row
+     *
+     * @param c roll of cells
+     * @return index of living cell
+     */
+    private int endIndex(int c) {
+        for(int r = matrix.length - 1; r >= 0; r--) {
+            if(matrix[r][c].isAlive())
+                return r;
+        }
+        return -1;
     }
 }
