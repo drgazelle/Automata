@@ -1,9 +1,12 @@
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 /** MainPanel class renders a CellMatrix
  *  representing an interactive version
@@ -206,12 +209,40 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Wrap-Around Grid [W]",
                                 "Generate Random Seed [S]",
                                 "Modify RLE [G]",
+                                "Print Image [H]",
                                 "Toggle Status [R]",
                                 "Toggle Menu [T]",
                                 "Resize UI [V/B]",
                                 "Toggle Grid [X]",
                                 "Clear [C]"};
         return new DynamicMenu(title, menuItems);
+    }
+
+    /** Prints CellMatrix to File */
+    private void printScreen() {
+        // creates new filename
+        File dir = new File("src/main/resources/images/");
+        String[] images = dir.list();
+        // if no new images, starts at 1.
+        int num = 1;
+        if (images != null) {
+            num = images.length + 1;
+        }
+        // paints graphic to image
+        BufferedImage matrixImage = new BufferedImage(AppDriver.WIDTH, AppDriver.HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = matrixImage.createGraphics();
+        showStatus = false;
+        showMenu = false;
+        matrix.clearSpotlight();
+        this.paint(g);
+        g.dispose();
+        // writes image to file
+        try {
+            ImageIO.write(matrixImage,"png", new File("src/main/resources/images/" + "matrix" + num + ".png"));
+        }
+        catch (Exception e) {
+            System.exit(0);
+        }
     }
 
     /**
@@ -424,6 +455,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 matrix.fromRLE(s);
                 numTicks = 0;
             }
+        }
+        if(e.getKeyCode() == KeyEvent.VK_H) {
+            //prints to file
+            printScreen();
         }
         if (e.getKeyCode() == KeyEvent.VK_C) {
             //kills all cells on 'C'

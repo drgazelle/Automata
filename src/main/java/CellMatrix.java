@@ -43,7 +43,6 @@ public class CellMatrix {
      *  rules of the Conway's Game of Life.
      */
     public void tick(Boolean wrapEnabled) {
-
         //next generation matrix
         CellMatrix g2 = new CellMatrix(numRows, numCols);
         //navigates grid horizontally

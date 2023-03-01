@@ -1,6 +1,11 @@
 import javax.swing.JPanel;
 import java.awt.*;
 
+/** DynamicMenu renders a list of strings with
+ *  a title that adjusts to the given input
+ *
+ * @author RMizelle
+ */
 public class DynamicMenu extends JPanel {
     private int index;
     private int border;
