@@ -209,7 +209,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Wrap-Around Grid [W]",
                                 "Generate Random Seed [S]",
                                 "Modify RLE [G]",
-                                "Print Image [H]",
+                                "Print Image [H]", // REMOVED FOR RELEASE
                                 "Toggle Status [R]",
                                 "Toggle Menu [T]",
                                 "Resize UI [V/B]",
@@ -219,7 +219,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     /** Prints CellMatrix to File */
-    private void printScreen() {
+    private void printScreen() { //REMOVED FOR RELEASE
         // creates new filename
         File dir = new File("src/main/resources/images/");
         String[] images = dir.list();
@@ -458,7 +458,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if(e.getKeyCode() == KeyEvent.VK_H) {
             //prints to file
-            printScreen();
+            printScreen(); //REMOVED FOR RELEASE
         }
         if (e.getKeyCode() == KeyEvent.VK_C) {
             //kills all cells on 'C'
