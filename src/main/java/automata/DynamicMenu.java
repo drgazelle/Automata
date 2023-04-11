@@ -1,3 +1,5 @@
+package automata;
+
 import javax.swing.JPanel;
 import java.awt.*;
 
@@ -27,6 +29,11 @@ public class DynamicMenu extends JPanel {
         this.index = -1;
         setDefaultColors();
         setDefaultBorder();
+        setDefaultFonts();
+    }
+
+    private void setDefaultFonts() {
+
     }
 
     /** 3-arg constructor instantiates menu with an index

@@ -1,3 +1,5 @@
+package automata;
+
 /** MatrixData class assigns a title to
  *  a CellMatrix's and stores the size
  *  and living cells contents.

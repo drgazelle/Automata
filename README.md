@@ -1,4 +1,4 @@
-# Automata
+# automata
 
 A lightweight simulation Conway's Game of Life
 
@@ -34,5 +34,5 @@ A lightweight simulation Conway's Game of Life
 #### Simulation
 
 - [ ] Optimization/Efficency
-- [ ] Statistics for Simulations
-- [ ] Export Statistics with Analysis
+- [ ] dynamicpanel.SimulationPanel for Simulations
+- [ ] Export dynamicpanel.SimulationPanel with Analysis

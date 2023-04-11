@@ -1,5 +1,8 @@
+package automata;
+
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 /** CellMatrix class generates and
  *  modifies a 2D array of Cell
@@ -11,6 +14,9 @@ public class CellMatrix {
     private Cell[][] matrix;
     private final int numRows;
     private final int numCols;
+
+    private final ArrayList<Cell[][]> buffer;
+    private static int bufferMax = 10;
 
     /**
      * 2-arg constructor instantiates a 2D matrix
@@ -30,6 +36,8 @@ public class CellMatrix {
                 matrix[x][y] = new Cell(x * size, y * size, size);
             }
         }
+        buffer = new ArrayList<>();
+        buffer.add(matrix);
     }
 
     public int getNumRows() {
@@ -56,6 +64,7 @@ public class CellMatrix {
      * @param probability % chance for cell to be alive
      */
     public void randomSeed(double probability) {
+        buffer.clear();
         for (Cell[] cells : matrix) {
             for (Cell c : cells) {
                 if (Math.random() < probability) {
@@ -63,22 +72,45 @@ public class CellMatrix {
                 }
             }
         }
+        buffer.add(matrix);
     }
 
     /** Kills all cells. */
     public void genocide() {
+        buffer.clear();
         for (Cell[] cells : matrix) {
             for (Cell c : cells) {
                 c.kill();
             }
         }
+        buffer.add(matrix);
+    }
+
+    public static void setBufferMax(int max) {
+        bufferMax = max;
+    }
+
+    public int getBufferIndex() {
+        return buffer.indexOf(matrix);
+    }
+
+    public int getBufferMax() {
+        return bufferMax;
+    }
+
+    public int getBufferSize() {
+        return buffer.size();
     }
 
     /** Ticks matrix to next generation according to the
      *  rules of the Conway's Game of Life.
      */
     public void tick(Boolean wrapEnabled) {
-
+        if(buffer.indexOf(matrix) < buffer.size() - 1) {
+            //if already ticked
+            matrix = buffer.get(buffer.indexOf(matrix) + 1);
+            return;
+        }
         //next generation matrix
         CellMatrix g2 = new CellMatrix(numRows, numCols);
         //navigates grid horizontally
@@ -111,8 +143,24 @@ public class CellMatrix {
                 }
             }
         }
+        if(buffer.size() == bufferMax) {
+            buffer.remove(0);
+        }
+        buffer.add(g2.matrix);
         //migrates previous to current generation
         matrix = g2.matrix;
+    }
+
+    /** Returns matrix to previous state within buffer
+     *
+     * @return true if within buffer, false otherwise
+     */
+    public boolean rollback() {
+        if(buffer.indexOf(matrix) > 0) {
+            matrix = buffer.get(buffer.indexOf(matrix) - 1);
+            return true;
+        }
+        return false;
     }
 
     /** Counts the number of neighbors that are living.
@@ -239,15 +287,17 @@ public class CellMatrix {
         return num;
     }
 
-    /** Passes through paintComponent and
-     *  draws Cell Matrix.
+    /**
+     * Passes through paintComponent and
+     * draws Cell Matrix.
      *
-     * @param g graphics
+     * @param g        graphics
+     * @param showGrid
      */
-    public void drawMatrix(Graphics g) {
+    public void drawMatrix(Graphics g, boolean showGrid) {
         for (Cell[] row : matrix) {
             for (Cell c : row) {
-                c.drawCell(g);
+                c.drawCell(g, showGrid);
             }
         }
     }
@@ -457,6 +507,22 @@ public class CellMatrix {
             }
         }
         return cm;
+    }
+
+    /** Number of Living Cells
+     *
+     * @return population
+     */
+    public int population() {
+        int population = 0;
+        for(Cell[] cells : matrix) {
+            for (Cell c : cells) {
+                if(c.isAlive()) {
+                    population++;
+                }
+            }
+        }
+        return population;
     }
 
     /** String representation of CellMatrix in RLE format

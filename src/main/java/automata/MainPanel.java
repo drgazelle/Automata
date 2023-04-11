@@ -1,12 +1,11 @@
-import javax.imageio.ImageIO;
+package automata;
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 
 /** MainPanel class renders a CellMatrix
  *  representing an interactive version
@@ -44,6 +43,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private int delay;
 
     private boolean showStatus;
+    private boolean showGrid;
     private boolean showMenu;
     private boolean showDatabase;
     private boolean showHighlight;
@@ -88,13 +88,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showMenu = true;
         showDatabase = false;
         showHighlight = false;
-        Cell.gridEnabled = true;
+        showGrid = true;
 
         //Sets Application Theme
         mainColor = new Color((int) (Math.random() * 0x1000000));
         mainFont = new Font("SansSerif", Font.PLAIN, 10);
         titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
-
         Color backColor = Color.black;
         Color textColor = Color.white;
 
@@ -113,7 +112,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         DynamicMenu.setTextColor(mainColor);
         mainMenu = new DynamicMenu(null, null);
         updateMenu();
-
         repaint();
     }
 
@@ -146,7 +144,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             rect.setFrameFromDiagonal(endPoint, startPoint);
             matrix.spotlightAll(rect);
         }
-        matrix.drawMatrix(g);
+        matrix.drawMatrix(g, showGrid);
         if (showStatus) {
             paintStatus(g);
             g.setFont(mainFont);
@@ -177,23 +175,38 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int pX = AppDriver.WIDTH - boxWidth - border;
         int pY = border;
 
+        //Background box
         Shape tickBox = new Rectangle(pX, pY, boxWidth, boxHeight);
         g2.setColor(Color.black);
         g2.fill(tickBox);
 
+        //Running indicator
         Shape indicator = new Rectangle(pX + (2 * boxHeight), pY, boxWidth / 3, boxHeight);
         g2.setColor(Color.RED);
         if (timer.isRunning()) {
             g2.setColor(Color.GREEN);
         }
-
         g2.fill(indicator);
-        g2.setColor(Color.white);
 
+        //wrap indicator
+        g2.setColor(Color.white);
         if (!wrapEnabled) {
             g2.draw(tickBox);
         }
+        if (matrix.getBufferSize() > 0) {
+            //Draws buffer progress
+            g2.setStroke(new BasicStroke(2));
+            //draws buffer size bar
+            g2.setColor(Color.darkGray);
+            int line_length = (int) (pX + ((double) boxWidth / matrix.getBufferMax() * matrix.getBufferSize()));
+            g2.drawLine(pX + 1, pY + boxHeight + 1, line_length - 1, pY + boxHeight + 1);
 
+            g2.setColor(Color.gray);
+            line_length = (int) (pX + ((double) boxWidth / matrix.getBufferMax() * (matrix.getBufferIndex() + 1)));
+            g2.drawLine(pX + 1, pY + boxHeight + 1, line_length - 1, pY + boxHeight + 1);
+        }
+
+        g2.setColor(Color.white);
         String digits = String.valueOf(numTicks);
         g2.setFont(titleFont);
 
@@ -221,7 +234,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //list of menu items + current status
         int numRows = matrix.getNumRows();
         int numColumns = matrix.getNumCols();
-        String title = "Automata" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
+        String title = "automata" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
         String[] menuItems = {"Toggle Simulation [SPACE]",
                                 "Single Tick [F]",
                                 "Resize Grid [Q/E]",
@@ -234,7 +247,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
                                 "Navigate Database [U/N]",
-                                "Print RLE [H]",
                                 "Rename Selected [H]",
                                 "Remove Selected [K]",
                                 "Clear Selection [M]",
@@ -259,33 +271,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     public Database getDatabase() {
         return database;
-    }
-
-    /** Prints CellMatrix to Image File */
-    private void printScreen() {
-        // creates new filename
-        File dir = new File("src/main/resources/images/");
-        String[] images = dir.list();
-        // if no new images, starts at 1.
-        int num = 1;
-        if (images != null) {
-            num = images.length + 1;
-        }
-        // paints graphic to image
-        BufferedImage matrixImage = new BufferedImage(AppDriver.WIDTH, AppDriver.HEIGHT, BufferedImage.TYPE_INT_ARGB);
-        Graphics g = matrixImage.createGraphics();
-        showStatus = false;
-        showMenu = false;
-        matrix.clearSpotlight();
-        this.paint(g);
-        g.dispose();
-        // writes image to file
-        try {
-            ImageIO.write(matrixImage,"png", new File("src/main/resources/images/" + "matrix" + num + ".png"));
-        }
-        catch (Exception e) {
-            System.exit(0);
-        }
     }
 
     /**
@@ -364,16 +349,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         repaint();
     }
 
-    /**
-     * Invoked when a mouse button is pressed on a component and then
-     * dragged.  {@code MOUSE_DRAGGED} events will continue to be
-     * delivered to the component where the drag originated until the
-     * mouse button is released (regardless of whether the mouse position
-     * is within the bounds of the component).
-     * <p>
-     * Due to platform-dependent Drag&amp;Drop implementations,
-     * {@code MOUSE_DRAGGED} events may not be delivered during a native
-     * Drag&amp;Drop operation.
+    /** Updates position of drag selection
      *
      * @param e the event to be processed
      */
@@ -467,11 +443,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 timer.start();
             }
         }
-        if(e.getKeyCode() == KeyEvent.VK_F) {
-            //Singular tick
-            matrix.tick(wrapEnabled);
-            numTicks++;
-        }
         if (e.getKeyCode() == KeyEvent.VK_D && timer.getDelay() > 1) {
             //speeds up timer on 'D'
             if (delay > 100) {
@@ -492,6 +463,20 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
             timer.setDelay(delay);
         }
+        if (!timer.isRunning()) {
+            //if paused
+            if(e.getKeyCode() == KeyEvent.VK_F) {
+                //Singular tick
+                matrix.tick(wrapEnabled);
+                numTicks++;
+            }
+            if(e.getKeyCode() == KeyEvent.VK_Y) {
+                //rewinds matrix
+                if (matrix.rollback()) {
+                    numTicks--;
+                }
+            }
+        }
         if(e.getKeyCode() == KeyEvent.VK_E) {
             //increases grid size on 'E'
             if (numRows < AppDriver.WIDTH / 4) {
@@ -508,7 +493,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if (e.getKeyCode() == KeyEvent.VK_X) {
             //turns grid on and off on 'X'
-            Cell.gridEnabled = !Cell.gridEnabled;
+            showGrid = !showGrid;
         }
         if (e.getKeyCode() == KeyEvent.VK_Z) {
             // Saves Cell Matrix on 'Z'

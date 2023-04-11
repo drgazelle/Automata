@@ -1,3 +1,5 @@
+package automata;
+
 import com.google.gson.*;
 import kong.unirest.*;
 

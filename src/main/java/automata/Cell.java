@@ -1,3 +1,5 @@
+package automata;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -13,7 +15,6 @@ public class Cell {
     private Rectangle2D gridCell;
     private boolean alive;
     private boolean spotlit;
-    public static boolean gridEnabled;
 
     /** 3-arg constructor that instantiates a default Cell.
      *
@@ -74,11 +75,13 @@ public class Cell {
         return gridCell;
     }
 
-    /** Draws cell depending on configuration.
+    /**
+     * Draws cell depending on configuration.
      *
-     * @param g graphics component
+     * @param g        graphics component
+     * @param showGrid
      */
-    public void drawCell(Graphics g) {
+    public void drawCell(Graphics g, boolean showGrid) {
         Graphics2D g2 = (Graphics2D) g;
         //generates respective color
         float[] hsbVal = Color.RGBtoHSB(200, 200, 200, null);
@@ -98,7 +101,7 @@ public class Cell {
         //fills gridCell
         g2.fill(gridCell);
         //adds border
-        if (gridEnabled) {
+        if (showGrid) {
             g2.setColor(Color.black);
             g2.draw(gridCell);
         }
