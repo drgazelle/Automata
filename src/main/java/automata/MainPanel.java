@@ -1,5 +1,9 @@
 package automata;
 
+import dynamicpanel.DynamicItem;
+import dynamicpanel.DynamicMenu;
+import dynamicpanel.ProgressBar;
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -93,7 +97,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //Sets Application Theme
         mainColor = new Color((int) (Math.random() * 0x1000000));
         mainFont = new Font("SansSerif", Font.PLAIN, 10);
-        titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
+        titleFont = new Font(mainFont.getFontName(), Font.BOLD, 4 * mainFont.getSize() / 3);
         Color backColor = Color.black;
         Color textColor = Color.white;
 
@@ -135,8 +139,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void paintComponent(Graphics g) {
         DynamicMenu.setTitleColor(mainColor);
-        DynamicMenu.setMainFont(mainFont);
-        DynamicMenu.setTitleFont(titleFont);
 
         g.setFont(mainFont);
         if(showHighlight) {
@@ -150,12 +152,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             g.setFont(mainFont);
         }
         if(showMenu) {
-            int pX = AppDriver.WIDTH - 10 - mainMenu.getBoxWidth();
-            int pY = AppDriver.HEIGHT - 10 - mainMenu.getBoxHeight();
-            mainMenu.paintMenu(g, pX, pY);
+            mainMenu.build();
+            int pX = AppDriver.WIDTH - 10 - mainMenu.getWidth();
+            int pY = AppDriver.HEIGHT - 10 - mainMenu.getHeight();
+            mainMenu.draw(g, pX, pY);
         }
         if (showDatabase) {
-            database.paintDatabase(g, indexDB);
+            database.paintDatabase(g, indexDB + 1);
             g.setFont(mainFont);
         }
     }
@@ -234,7 +237,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //list of menu items + current status
         int numRows = matrix.getNumRows();
         int numColumns = matrix.getNumCols();
-        String title = "automata" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
+        String title = "Automata" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
         String[] menuItems = {"Toggle Simulation [SPACE]",
                                 "Single Tick [F]",
                                 "Resize Grid [Q/E]",
@@ -291,7 +294,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void mousePressed(MouseEvent e) {
         int button = e.getButton();
-        if(button == MouseEvent.BUTTON1) {
+        if (button == MouseEvent.BUTTON1) {
             Cell cell = matrix.findCellAt(mouseX, mouseY);
             if(cm != null && cell != null) {
                 //places cell at coords
@@ -541,15 +544,15 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if(e.getKeyCode() == KeyEvent.VK_B) {
             if(mainFont.getSize() < 20) {
                 //increases font size if less than 50
-                mainFont = new Font(mainFont.getFontName(), Font.PLAIN, mainFont.getSize() + 2);
-                titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
+                mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() + 2);
+                titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
             }
         }
         if(e.getKeyCode() == KeyEvent.VK_V) {
             if(mainFont.getSize() > 10) {
                 //decreases font size if greater than 14
-                mainFont = new Font(mainFont.getFontName(), Font.PLAIN, mainFont.getSize() - 2);
-                titleFont = new Font(mainFont.getFontName(), Font.PLAIN, 4 * mainFont.getSize() / 3);
+                mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() - 2);
+                titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
             }
         }
 

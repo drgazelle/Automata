@@ -1,6 +1,7 @@
 package automata;
 
 import com.google.gson.*;
+import dynamicpanel.DynamicMenu;
 import kong.unirest.*;
 
 import javax.swing.JPanel;
@@ -167,7 +168,8 @@ public class Database extends JPanel {
         //updates menu
         databaseMenu.setItems(items);
         databaseMenu.setIndex(index);
-        databaseMenu.paintMenu(g2, 10, 10);
+        databaseMenu.build();
+        databaseMenu.draw(g2, 10, 10);
     }
 
     public void setIndexColor(Color c) {

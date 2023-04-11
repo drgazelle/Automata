@@ -16,7 +16,7 @@ public class CellMatrix {
     private final int numCols;
 
     private final ArrayList<Cell[][]> buffer;
-    private static int bufferMax = 10;
+    private static int bufferMax = 100;
 
     /**
      * 2-arg constructor instantiates a 2D matrix

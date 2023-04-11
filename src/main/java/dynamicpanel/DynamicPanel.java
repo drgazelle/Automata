@@ -6,9 +6,7 @@ import java.util.ArrayList;
 public class DynamicPanel {
     private int border;
     private int spacing;
-    private Color BackgroundColor;
-    private Color mainColor;
-    private Color altColor;
+    private static Color backColor;
     private ArrayList<DynamicItem> items;
 
     /** 0-arg constructor instantiates ArrayList of
@@ -21,11 +19,9 @@ public class DynamicPanel {
 
     /** Sets parameters to default */
     private void defaultSettings() {
-        border = 5;
+        border = 10;
         spacing = 5;
-        BackgroundColor = Color.black;
-        mainColor = Color.white;
-        altColor = Color.white;
+        backColor = Color.black;
     }
 
     /** Add Method for Items ArrayList
@@ -34,6 +30,36 @@ public class DynamicPanel {
      */
     public void add(DynamicItem i) {
         items.add(i);
+    }
+
+    public DynamicItem set(int index, DynamicItem i) {
+        return items.set(index, i);
+    }
+
+    public void clear() {
+        items.clear();
+    }
+    public void select(int i) {
+        if(i < 0) {
+            return;
+        }
+        items.get(i).setSelected(true);
+    }
+
+    public void clearSelection() {
+        for(DynamicItem i : items) {
+            i.setSelected(false);
+        }
+    }
+
+    public DynamicItem findItemAt(int mouseX, int mouseY) {
+        for(DynamicItem i : items) {
+            if(i.getDynamicItem().contains(mouseX, mouseY)) {
+                i.setSelected(true);
+                return i;
+            }
+        }
+        return null;
     }
 
     /** Returns spacing of DynamicItems
@@ -79,21 +105,6 @@ public class DynamicPanel {
         return width + 2 * border;
     }
 
-    public Color getMainColor() {
-        return mainColor;
-    }
-
-    public void setMainColor(Color mainColor) {
-        this.mainColor = mainColor;
-    }
-
-    public Color getAltColor() {
-        return altColor;
-    }
-
-    public void setAltColor(Color altColor) {
-        this.altColor = altColor;
-    }
 
     /** Draw method paints background and all DynamicItems
      *
@@ -102,11 +113,13 @@ public class DynamicPanel {
      * @param pY start y position
      */
     public void draw(Graphics g, int pX, int pY) {
+        Font font = g.getFont();
+
         int width = getWidth();
         int height = getHeight();
 
         //Background Box
-        g.setColor(BackgroundColor);
+        g.setColor(backColor);
         g.fillRect(pX, pY, width, height);
 
         pX += border;
@@ -114,6 +127,8 @@ public class DynamicPanel {
 
         //loops through contained items
         for (DynamicItem i : items) {
+            g.setColor(backColor);
+            g.setFont(font);
             i.draw(g, pX, pY);
             pY += i.getHeight() + spacing;
         }
