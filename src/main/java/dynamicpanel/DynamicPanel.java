@@ -1,17 +1,19 @@
 package dynamicpanel;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class DynamicPanel {
+public class DynamicPanel extends JPanel {
     private int border;
     private int spacing;
     private static Color backColor;
-    private ArrayList<DynamicItem> items;
-    private Shape borderBox;
+    private final ArrayList<DynamicPanel> items;
+    protected Rectangle borderBox;
+    protected boolean selected;
 
     /** 0-arg constructor instantiates ArrayList of
-     *  DynamicItems and calls default settings
+     *  DynamicPanels and calls default settings
      */
     public DynamicPanel() {
         items = new ArrayList<>();
@@ -27,13 +29,13 @@ public class DynamicPanel {
 
     /** Add Method for Items ArrayList
      *
-     * @param i DynamicItem to be added
+     * @param i DynamicPanel to be added
      */
-    public void add(DynamicItem i) {
+    public void addItem(DynamicPanel i) {
         items.add(i);
     }
 
-    public DynamicItem set(int index, DynamicItem i) {
+    public DynamicPanel set(int index, DynamicPanel i) {
         return items.set(index, i);
     }
 
@@ -41,16 +43,20 @@ public class DynamicPanel {
         items.clear();
     }
 
-    public int size() {
+    public int numItems() {
         return items.size();
     }
 
-    public int indexOf(DynamicItem i) {
+    public int indexOf(DynamicPanel i) {
         return items.indexOf(i);
     }
 
-    public void add(int i, DynamicItem item) {
+    public void addItem(int i, DynamicPanel item) {
         items.add(i, item);
+    }
+
+    public DynamicPanel getItem(int i) {
+        return items.get(i);
     }
 
     public void remove(int i) {
@@ -73,7 +79,7 @@ public class DynamicPanel {
     }
 
     public void clearSelection() {
-        for(DynamicItem i : items) {
+        for(DynamicPanel i : items) {
             i.setSelected(false);
         }
     }
@@ -86,8 +92,8 @@ public class DynamicPanel {
      */
     public int getIndexAt(int mouseX, int mouseY) {
         if(isSelected(mouseX, mouseY)) {
-            for (DynamicItem i : items) {
-                Shape shape = i.getDynamicItem();
+            for (DynamicPanel i : items) {
+                Shape shape = i.getBorderBox();
                 if(shape != null && shape.contains(mouseX, mouseY)) {
                     return items.indexOf(i);
                 }
@@ -106,19 +112,19 @@ public class DynamicPanel {
         return (borderBox != null && borderBox.contains(mouseX, mouseY));
     }
 
-    /** Returns spacing of DynamicItems
+    /** Returns spacing of DynamicPanels
      *
-     * @return spacing of DynamicItems
+     * @return spacing of DynamicPanels
      */
     public int getSpacing() {
         return spacing;
     }
 
-    /** Returns border of DynamicItems
+    /** Returns border of DynamicPanels
      *
-     * @return border size
+     * @return border numItems
      */
-    public int getBorder() {
+    public int getPanelBorder() {
         return border;
     }
 
@@ -129,7 +135,7 @@ public class DynamicPanel {
      */
     public int getHeight() {
         int height = 2 * border;
-        for (DynamicItem i : items) {
+        for (DynamicPanel i : items) {
             height += i.getHeight();
         }
         height += ((items.size() - 1) * spacing);
@@ -143,7 +149,7 @@ public class DynamicPanel {
      */
     public int getWidth() {
         int width = 0;
-        for (DynamicItem i : items) {
+        for (DynamicPanel i : items) {
             width = Math.max(i.getWidth(), width);
         }
         return width + 2 * border;
@@ -159,7 +165,7 @@ public class DynamicPanel {
     }
 
 
-    /** Draw method paints background and all DynamicItems
+    /** Draw method paints background and all DynamicPanels
      *
      * @param g graphics
      * @param pX start x position
@@ -180,11 +186,23 @@ public class DynamicPanel {
         pY += border;
 
         //loops through contained items
-        for (DynamicItem i : items) {
+        for (DynamicPanel i : items) {
             g.setColor(backColor);
             g.setFont(font);
             i.draw(g, pX, pY);
             pY += i.getHeight() + spacing;
         }
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    protected Shape getBorderBox() {
+        return borderBox;
     }
 }

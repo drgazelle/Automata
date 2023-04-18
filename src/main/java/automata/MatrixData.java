@@ -1,7 +1,7 @@
 package automata;
 
 /** MatrixData class assigns a title to
- *  a CellMatrix's and stores the size
+ *  a CellMatrix's and stores the numItems
  *  and living cells contents.
  *
  * @author RMizelle
@@ -15,10 +15,10 @@ public class MatrixData {
     private String date;
     private Size size;
 
-    /** 3-arg constructor instantiates title, size, and cells.
+    /** 3-arg constructor instantiates title, numItems, and cells.
      *
      * @param name matrix title
-     * @param size grid size [x,y]
+     * @param size grid numItems [x,y]
      * @param rleString Encoded Cell Coordinates
      */
     public MatrixData(String name, int[] size, String rleString) {
@@ -27,10 +27,10 @@ public class MatrixData {
         this.rleString = rleString;
     }
 
-    /** 2-arg Constructor instantiates size and cells with
+    /** 2-arg Constructor instantiates numItems and cells with
      *  default title of "CellMatrix_(W*H)"
      *
-     * @param size grid size [x,y]
+     * @param size grid numItems [x,y]
      * @param rleString encoded Cell Coordinates
      */
     public MatrixData(int[] size, String rleString) {
@@ -65,7 +65,7 @@ public class MatrixData {
 
     /** Converts Matrix Data to CellMatrix
      *
-     * @return CellMatrix of size with all cells revived
+     * @return CellMatrix of numItems with all cells revived
      */
     public CellMatrix toCellMatrix() {
         CellMatrix matrix = new CellMatrix(size.getX(), size.getY());

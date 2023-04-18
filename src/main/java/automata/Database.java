@@ -1,6 +1,7 @@
 package automata;
 
 import com.google.gson.*;
+import dynamicpanel.DynamicItem;
 import dynamicpanel.DynamicPanel;
 import dynamicpanel.ProgressBar;
 import dynamicpanel.TextBar;
@@ -43,7 +44,7 @@ public class Database {
         startIndex = 0;
 
         databaseMenu = new DynamicPanel();
-        databaseMenu.add(new TextBar("Database", MainPanel.titleFont, MainPanel.mainColor));
+        databaseMenu.addItem(new TextBar("Database", MainPanel.titleFont, MainPanel.mainColor));
         startIndex++;
 
         //creates resource folder if necessary
@@ -79,7 +80,7 @@ public class Database {
         //Adds storageBar to end
         storageBar = new ProgressBar(databaseMenu.getBorderlessWidth(), 10, 0, maxSize, size());
         storageBar.setColors(Color.darkGray, Color.gray, Color.black);
-        databaseMenu.add(storageBar);
+        databaseMenu.addItem(storageBar);
     }
 
     /** importData method instantiates database using data.txt
@@ -150,7 +151,7 @@ public class Database {
     public void add(MatrixData m) {
         if(size() < maxSize) {
             database.add(m);
-            databaseMenu.add(startIndex + size() - 1, new TextBar(m.getTitle(), MainPanel.mainFont, Color.white));
+            databaseMenu.addItem(startIndex + size() - 1, new TextBar(m.getTitle(), MainPanel.mainFont, Color.white));
         }
     }
 
@@ -182,7 +183,7 @@ public class Database {
 
     /** Returns length of database
      *
-     * @return size of database
+     * @return numItems of database
      */
     public int size() {
         return database.size();

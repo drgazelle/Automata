@@ -20,7 +20,7 @@ public class CellMatrix {
 
     /**
      * 2-arg constructor instantiates a 2D matrix
-     * of Cell objects of size numRows by NumCols.
+     * of Cell objects of numItems numRows by NumCols.
      *
      * @param numR Matrix length
      * @param numC Matrix numCols
@@ -146,9 +146,11 @@ public class CellMatrix {
         if(buffer.size() == bufferMax) {
             buffer.remove(0);
         }
-        buffer.add(g2.matrix);
         //migrates previous to current generation
         matrix = g2.matrix;
+
+        //Adds Matrix to buffer
+        buffer.add(g2.matrix);
     }
 
     /** Returns matrix to previous state within buffer
@@ -158,6 +160,7 @@ public class CellMatrix {
     public boolean rollback() {
         if(buffer.indexOf(matrix) > 0) {
             matrix = buffer.get(buffer.indexOf(matrix) - 1);
+            clearSpotlight();
             return true;
         }
         return false;

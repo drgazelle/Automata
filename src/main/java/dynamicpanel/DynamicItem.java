@@ -1,23 +1,32 @@
 package dynamicpanel;
 
-import javax.swing.*;
 import java.awt.*;
 
 /** DynamicItem class creates the objects to
  *  be placed into a DynamicPanel.
  *
  */
-public class DynamicItem extends JPanel {
+public class DynamicItem extends DynamicPanel {
     private int height;
     private int width;
-    private boolean selected;
-    private Rectangle borderBox;
+    protected Font font;
 
+    /** 2-arg constructor instantiates a item
+     *  with dimensions
+     *
+     * @param width vertical size
+     * @param height horizontal size
+     */
     public DynamicItem(int width, int height) {
         setDimensions(width, height);
     }
 
+    /** 0-arg constructor instantiates empty item
+     *
+     */
     public DynamicItem() {
+        height = 0;
+        width = 0;
     }
 
     public void setDimensions(int width, int height) {
@@ -25,31 +34,22 @@ public class DynamicItem extends JPanel {
         this.height = height;
     }
 
+    @Override
     public int getHeight() {
         return height;
     }
 
+    @Override
     public int getWidth() {
         return width;
     }
 
-    public Shape getDynamicItem() {
-        return borderBox;
-    }
-
+    @Override
     public void draw(Graphics g, int pX, int pY) {
-        borderBox = new Rectangle(pX, pY, width, height);
+        super.borderBox = new Rectangle(pX, pY, width, height);
         if(isSelected()) {
             g.setColor(Color.gray);
             g.fillRect(pX, pY, width, height);
         }
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected = selected;
-    }
-
-    public boolean isSelected() {
-        return selected;
     }
 }

@@ -18,8 +18,8 @@ public class ProgressBar extends DynamicItem {
     /** 4-arg constructor instantiates empty
      *  progress bar
      *
-     * @param width horizontal size
-     * @param height vertical size
+     * @param width horizontal numItems
+     * @param height vertical numItems
      * @param min minimum value
      * @param max maximum value
      *
@@ -31,8 +31,8 @@ public class ProgressBar extends DynamicItem {
     /** 5-arg constructor instantiates active
      *  progress bar
      *
-     * @param width horizontal size
-     * @param height vertical size
+     * @param width horizontal numItems
+     * @param height vertical numItems
      * @param min minimum value
      * @param max maximum value
      * @param progress quantity of completion

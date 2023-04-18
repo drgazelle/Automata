@@ -117,7 +117,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     /** Resizes grid with given navigateUp.
      *
-     * @param i navigateUp size
+     * @param i navigateUp numItems
      */
     private void changeGrid(int i) {
         int numRows = matrix.getNumRows() + i;
@@ -192,7 +192,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if (matrix.getBufferSize() > 0) {
             //Draws buffer progress
             g2.setStroke(new BasicStroke(2));
-            //draws buffer size bar
+            //draws buffer numItems bar
             g2.setColor(Color.darkGray);
             int line_length = (int) (pX + ((double) boxWidth / matrix.getBufferMax() * matrix.getBufferSize()));
             g2.drawLine(pX + 1, pY + boxHeight + 1, line_length - 1, pY + boxHeight + 1);
@@ -258,9 +258,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
         //updates mainMenu
         mainMenu.clear();
-        mainMenu.add(new TextBar(title, titleFont, mainColor));
+        mainMenu.addItem(new TextBar(title, titleFont, mainColor));
         for(String i : displayItems) {
-            mainMenu.add(new TextBar(i, mainFont, Color.white));
+            mainMenu.addItem(new TextBar(i, mainFont, Color.white));
         }
     }
 
@@ -479,14 +479,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
         }
         if(e.getKeyCode() == KeyEvent.VK_E) {
-            //increases grid size on 'E'
+            //increases grid numItems on 'E'
             if (numRows < AppDriver.WIDTH / 4) {
                 numTicks = 0;
                 changeGrid(increment);
             }
         }
         if(e.getKeyCode() == KeyEvent.VK_Q) {
-            //decreases grid size on 'Q'
+            //decreases grid numItems on 'Q'
             if (numRows > increment) {
                 numTicks = 0;
                 changeGrid(-1 * increment);
@@ -541,14 +541,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if(e.getKeyCode() == KeyEvent.VK_B) {
             if(mainFont.getSize() < 20) {
-                //increases font size if less than 50
+                //increases font numItems if less than 50
                 mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() + 2);
                 titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
             }
         }
         if(e.getKeyCode() == KeyEvent.VK_V) {
             if(mainFont.getSize() > 10) {
-                //decreases font size if greater than 14
+                //decreases font numItems if greater than 14
                 mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() - 2);
                 titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
             }
