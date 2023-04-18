@@ -103,10 +103,10 @@ public class ProgressBar extends DynamicItem {
         //draws progress num
         int dY = (super.getHeight() + getFontMetrics(g2.getFont()).getAscent()) / 2 - 2;
         g2.setColor(textColor);
-        g2.drawString(String.valueOf(progress), pX, pY + dY);
+        g2.drawString(String.valueOf(progress), pX + 5, pY + dY);
 
         //draws max num
         int textWidth = getFontMetrics(g.getFont()).stringWidth(String.valueOf(max));
-        g2.drawString(String.valueOf(max), pX + super.getWidth() - textWidth, pY + dY);
+        g2.drawString(String.valueOf(max), pX + super.getWidth() - textWidth - 5, pY + dY);
     }
 }

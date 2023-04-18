@@ -34,6 +34,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     //Database Variables
     private final Database database;
 
+
     //Animation Variables
     public static Color mainColor;
     public static Font mainFont;

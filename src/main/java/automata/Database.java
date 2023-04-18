@@ -29,6 +29,7 @@ public class Database {
     private int index;
     private int startIndex;
     private final DynamicPanel databaseMenu;
+    private final ProgressBar storageBar;
 
     /** 0-arg constructor implements ArrayList of SparseMatrices
      *  of Cells objects from a text document.
@@ -36,11 +37,13 @@ public class Database {
     public Database() {
         database = new ArrayList<>();
 
+        //Default Index
         index = -1;
         startIndex = 0;
 
         databaseMenu = new DynamicPanel();
-        addDynamicItem(new TextBar("Database", MainPanel.titleFont, MainPanel.mainColor));
+        databaseMenu.add(new TextBar("Database", MainPanel.titleFont, MainPanel.mainColor));
+        startIndex++;
 
         //creates resource folder if necessary
         File directory = new File("src/main/resources");
@@ -71,6 +74,8 @@ public class Database {
             System.out.println("ERROR: Could not generate Database");
             e.printStackTrace();
         }
+        storageBar = new ProgressBar(databaseMenu.getWidth(), 10, 0, 100, size());
+        databaseMenu.add(storageBar);
     }
 
     /** importData method instantiates database using data.txt
@@ -125,17 +130,8 @@ public class Database {
         return true;
     }
 
-    /** Adds DynamicItem to Menu
-     *
-     * @param i item add
-     */
-    public void addDynamicItem(DynamicItem i) {
-        databaseMenu.add(i);
-        startIndex++;
-    }
-
-    private void refreshMenu(int max) {
-
+    private void updateBar() {
+        storageBar.setProgress(size());
     }
 
     /** Adds MatrixData to internal database
@@ -152,7 +148,11 @@ public class Database {
      */
     public MatrixData deleteIndex() {
         databaseMenu.remove(index + startIndex);
-        return database.remove(index);
+        MatrixData temp = database.remove(index);
+        if(index >= size()) {
+            index--;
+        }
+        return temp;
     }
 
     /** Empties internal Database */
@@ -226,6 +226,7 @@ public class Database {
         if(isSelected()) {
             databaseMenu.select(index + startIndex);
         }
+        updateBar();
         databaseMenu.draw(g2, 10, 10);
     }
 
