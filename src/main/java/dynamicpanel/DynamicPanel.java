@@ -39,6 +39,27 @@ public class DynamicPanel {
     public void clear() {
         items.clear();
     }
+
+    public int size() {
+        return items.size();
+    }
+
+    public void add(int i, DynamicItem item) {
+        items.add(i, item);
+    }
+
+    public void remove(int i) {
+        items.remove(i);
+    }
+
+    public void removeItemsRange(int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex >= items.size()) {
+            return;
+        }
+        for (int i = startIndex; i < endIndex; i++) {
+            items.remove(i);
+        }
+    }
     public void select(int i) {
         if(i < 0) {
             return;

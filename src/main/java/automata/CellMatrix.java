@@ -195,7 +195,7 @@ public class CellMatrix {
                 //skips over compared cell
                 if(x == pX && y == pY) {
                     if (y + 1 < matrix[0].length) {
-                        //if inside matrix, increment
+                        //if inside matrix, navigateUp
                         y++;
                     }
                     else {
@@ -204,7 +204,7 @@ public class CellMatrix {
                     }
                 }
                 if(matrix[x][y].isAlive()) {
-                    //if alive, increment
+                    //if alive, navigateUp
                     num++;
                 }
             }
@@ -222,21 +222,21 @@ public class CellMatrix {
                 if (pY == sideT) {
                     //if top left corner
                     if (matrix[sideR][sideB].isAlive()) {
-                        //if bottom right corner alive, increment
+                        //if bottom right corner alive, navigateUp
                         num++;
                     }
                 }
                 if (pY == sideB) {
                     //if bottom left corner
                     if(matrix[sideR][sideT].isAlive()) {
-                        //if top right corner alive, increment
+                        //if top right corner alive, navigateUp
                         num++;
                     }
                 }
                 for (int y = startY; y <= endY; y++) {
                     //loops through opposite side
                     if (matrix[sideR][y].isAlive()) {
-                        //if alive, increment
+                        //if alive, navigateUp
                         num++;
                     }
                 }
@@ -246,21 +246,21 @@ public class CellMatrix {
                 if (pY == sideT) {
                     //if top right corner
                     if (matrix[sideL][sideB].isAlive()) {
-                        //if bottom left corner alive, increment
+                        //if bottom left corner alive, navigateUp
                         num++;
                     }
                 }
                 if (pY == sideB) {
                     //if bottom right corner
                     if(matrix[sideL][sideT].isAlive()) {
-                        //if top left corner alive, increment
+                        //if top left corner alive, navigateUp
                         num++;
                     }
                 }
                 for (int y = startY; y <= endY; y++) {
                     //loops through opposite side
                     if (matrix[sideL][y].isAlive()) {
-                        //if alive, increment
+                        //if alive, navigateUp
                         num++;
                     }
                 }
@@ -269,7 +269,7 @@ public class CellMatrix {
                 for (int x = startX; x <= endX; x++) {
                     //loops through opposite side
                     if (matrix[x][sideB].isAlive()) {
-                        //if alive, increment
+                        //if alive, navigateUp
                         num++;
                     }
                 }
@@ -278,7 +278,7 @@ public class CellMatrix {
                 for (int x = startX; x <= endX; x++) {
                     //loops through opposite side
                     if (matrix[x][sideT].isAlive()) {
-                        //if alive, increment
+                        //if alive, navigateUp
                         num++;
                     }
                 }

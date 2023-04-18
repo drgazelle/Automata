@@ -16,6 +16,14 @@ public class TextBar extends DynamicItem {
         super.setDimensions(getWidth(), getHeight());
     }
 
+    public TextBar(String text, Font font, Color color) {
+        super();
+        textColor = color;
+        this.textFont = font;
+        this.text = text;
+        super.setDimensions(getWidth(), getHeight());
+    }
+
     @Override
     public int getHeight() {
         return getFontMetrics(textFont).getAscent() - getFontMetrics(textFont).getDescent();
@@ -30,9 +38,15 @@ public class TextBar extends DynamicItem {
         textColor = c;
     }
 
+    public void setText(String s) {
+        text = s;
+        setDimensions(getWidth(), getHeight());
+    }
+
 
     @Override
     public void draw(Graphics g, int pX, int pY) {
+        super.setDimensions(getWidth(), getHeight());
         super.draw(g, pX, pY);
         if(textFont != null) {
             g.setFont(textFont);

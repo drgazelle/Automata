@@ -22,10 +22,7 @@ public class DynamicMenu extends DynamicPanel {
      * @param items display items
      */
     public DynamicMenu(String title, String[] items) {
-        this.title = title;
-        this.items = items;
-        this.index = 0;
-        setDefaultColors();
+        this(title, items, 0);
     }
 
     /** 3-arg constructor instantiates menu with an index
@@ -35,26 +32,10 @@ public class DynamicMenu extends DynamicPanel {
      * @param index selection index
      */
     public DynamicMenu(String title, String[] items, int index) {
-        this.title = title;
         this.items = items;
         this.index = index;
+        this.title = title;
         setDefaultColors();
-    }
-
-    public void build() {
-        super.clear();
-        TextBar titleBar = new TextBar(title, MainPanel.titleFont);
-        titleBar.setColor(titleColor);
-        super.add(titleBar);
-
-        for(int i = 0; i < items.length; i++) {
-            TextBar item = new TextBar(items[i], MainPanel.mainFont);
-            item.setColor(mainColor);
-            super.add(item);
-        }
-        if(index > 0) {
-            super.select(index);
-        }
     }
 
 
@@ -66,12 +47,18 @@ public class DynamicMenu extends DynamicPanel {
         titleFont = f;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitle(String str) {
+        title = str;
     }
 
     public void setItems(String[] items) {
-        this.items = items;
+        super.clear();
+
+        for(int i = 0; i < items.length; i++) {
+            TextBar item = new TextBar(items[i], MainPanel.mainFont);
+            item.setColor(mainColor);
+            super.add(item);
+        }
     }
 
     /** Sets default for background and text colors
@@ -108,5 +95,13 @@ public class DynamicMenu extends DynamicPanel {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    @Override
+    public void draw(Graphics g, int pX, int pY) {
+        if(index > 0) {
+            super.select(index);
+        }
+        super.draw(g, pX, pY);
     }
 }

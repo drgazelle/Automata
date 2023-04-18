@@ -1,10 +1,12 @@
 package automata;
 
 import com.google.gson.*;
-import dynamicpanel.DynamicMenu;
+import dynamicpanel.DynamicItem;
+import dynamicpanel.DynamicPanel;
+import dynamicpanel.ProgressBar;
+import dynamicpanel.TextBar;
 import kong.unirest.*;
 
-import javax.swing.JPanel;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,17 +23,24 @@ import java.util.Scanner;
  *
  * @author RMizelle
  */
-public class Database extends JPanel {
+public class Database {
     private final ArrayList<MatrixData> database;
     private File data;
-    private final DynamicMenu databaseMenu;
+    private int index;
+    private int startIndex;
+    private final DynamicPanel databaseMenu;
 
     /** 0-arg constructor implements ArrayList of SparseMatrices
      *  of Cells objects from a text document.
      */
     public Database() {
         database = new ArrayList<>();
-        databaseMenu = new DynamicMenu("Database", null, -1);
+
+        index = -1;
+        startIndex = 0;
+
+        databaseMenu = new DynamicPanel();
+        addDynamicItem(new TextBar("Database", MainPanel.titleFont, MainPanel.mainColor));
 
         //creates resource folder if necessary
         File directory = new File("src/main/resources");
@@ -79,7 +88,7 @@ public class Database extends JPanel {
                 int[] size = new int[]{Integer.parseInt(dimensions[0]), Integer.parseInt(dimensions[1])};
                 String rleString = removeShell(parts[2]);
                 //adds new MatrixData to database
-                database.add(new MatrixData(name, size, rleString));
+                add(new MatrixData(name, size, rleString));
             }
             //closes scanner
             input.close();
@@ -116,33 +125,47 @@ public class Database extends JPanel {
         return true;
     }
 
+    /** Adds DynamicItem to Menu
+     *
+     * @param i item add
+     */
+    public void addDynamicItem(DynamicItem i) {
+        databaseMenu.add(i);
+        startIndex++;
+    }
+
+    private void refreshMenu(int max) {
+
+    }
+
     /** Adds MatrixData to internal database
      *
      * @param m CellMatrix to be Added
      */
     public void add(MatrixData m) {
         database.add(m);
+        databaseMenu.add(new TextBar(m.getTitle(), MainPanel.mainFont, Color.white));
     }
 
     /** Removes MatrixData from internal database
      *
-     * @param index to be removed
      */
-    public MatrixData removeAtIndex(int index) {
+    public MatrixData deleteIndex() {
+        databaseMenu.remove(index + startIndex);
         return database.remove(index);
     }
 
     /** Empties internal Database */
     public void wipe() {
+        databaseMenu.removeItemsRange(startIndex, database.size() + startIndex);
         database.clear();
     }
 
     /** Retrieves MatrixData at index
      *
-     * @param index selected
      * @return MatrixData at index
      */
-    public MatrixData get(int index) {
+    public MatrixData get() {
         return database.get(index);
     }
 
@@ -150,30 +173,60 @@ public class Database extends JPanel {
      *
      * @return size of database
      */
-    public int sizeDB() {
+    public int size() {
         return database.size();
+    }
+
+    /** Increments index with error
+     *  checking
+     *
+     * @return database index
+     */
+    public int navigateUp() {
+        index++;
+        if(index >= database.size()) {
+            index = 0;
+        }
+        return index;
+    }
+
+    /** Reduces index with error
+     *  checking
+     *
+     * @return database index
+     */
+    public int navigateDown() {
+        index--;
+        if(index < 0) {
+            index = database.size() - 1;
+        }
+        return index;
+    }
+
+    /** Clears selection */
+    public void clearSelection() {
+        index = -1;
+    }
+
+    /** Returns true if selected
+     *
+     * @return true if item is selected, false otherwise
+     */
+    public boolean isSelected() {
+        return index > -1;
     }
 
     /** Paints Database with Title and dynamic list of elements
      *
      * @param g graphics
-     * @param index index of selection
      */
-    public void paintDatabase(Graphics g, int index) {
+    public void paintDatabase(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
-        String[] items = new String[database.size()];
-        for (int i = 0; i < database.size(); i++) {
-            items[i] = database.get(i).getTitle();
+        databaseMenu.clearSelection();
+        if(isSelected()) {
+            databaseMenu.select(index + startIndex);
         }
-        //updates menu
-        databaseMenu.setItems(items);
-        databaseMenu.setIndex(index);
-        databaseMenu.build();
         databaseMenu.draw(g2, 10, 10);
-    }
-
-    public void setIndexColor(Color c) {
-        databaseMenu.setIndexColor(c);
     }
 
     /** Accesses wikicollections api for patterns based of search term
@@ -217,7 +270,7 @@ public class Database extends JPanel {
         JsonArray elements = JsonParser.parseString(response.getBody()).getAsJsonArray();
 
         for(JsonElement e : elements) {
-            database.add(gson.fromJson(e.getAsJsonObject(), MatrixData.class));
+            add(gson.fromJson(e.getAsJsonObject(), MatrixData.class));
         }
     }
 }

@@ -17,7 +17,8 @@ public class DynamicItem extends JPanel {
         setDimensions(width, height);
     }
 
-    public DynamicItem() {}
+    public DynamicItem() {
+    }
 
     protected void setDimensions(int width, int height) {
         this.width = width;

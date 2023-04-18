@@ -1,8 +1,6 @@
 package automata;
 
-import dynamicpanel.DynamicItem;
-import dynamicpanel.DynamicMenu;
-import dynamicpanel.ProgressBar;
+import dynamicpanel.*;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -35,7 +33,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     //Database Variables
     private final Database database;
-    private int indexDB;
 
     //Animation Variables
     public static Color mainColor;
@@ -54,7 +51,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean wrapEnabled;
 
     //Menu Object
-    private final DynamicMenu mainMenu;
+    private final DynamicPanel mainMenu;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -83,10 +80,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         numTicks = 0;
         timer = new Timer(delay, this);
 
-        //database variables
-        database = new Database();
-        indexDB = -1;
-
         //default menu status
         showStatus = true;
         showMenu = true;
@@ -113,15 +106,19 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         UIManager.put("TextField.foreground", textColor);
         UIManager.put("TextField.selectionForeground", backColor);
 
+        //database variables
         DynamicMenu.setTextColor(mainColor);
-        mainMenu = new DynamicMenu(null, null);
+        DynamicMenu.setTitleFont(mainFont);
+        database = new Database();
+
+        mainMenu = new DynamicPanel();
         updateMenu();
         repaint();
     }
 
-    /** Resizes grid with given increment.
+    /** Resizes grid with given navigateUp.
      *
-     * @param i increment size
+     * @param i navigateUp size
      */
     private void changeGrid(int i) {
         int numRows = matrix.getNumRows() + i;
@@ -152,13 +149,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             g.setFont(mainFont);
         }
         if(showMenu) {
-            mainMenu.build();
             int pX = AppDriver.WIDTH - 10 - mainMenu.getWidth();
             int pY = AppDriver.HEIGHT - 10 - mainMenu.getHeight();
             mainMenu.draw(g, pX, pY);
         }
         if (showDatabase) {
-            database.paintDatabase(g, indexDB + 1);
+            database.paintDatabase(g);
             g.setFont(mainFont);
         }
     }
@@ -264,8 +260,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
 
         //updates mainMenu
-        mainMenu.setItems(displayItems);
-        mainMenu.setTitle(title);
+        mainMenu.clear();
+        mainMenu.add(new TextBar(title, titleFont, mainColor));
+        for(String i : displayItems) {
+            mainMenu.add(new TextBar(i, mainFont, Color.white));
+        }
     }
 
     /** Accessor Method for Database
@@ -302,12 +301,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 //centers placement
                 coords[0] -= cm.getNumRows() / 2;
                 coords[1] -= cm.getNumCols() / 2;
-                if(matrix.placeCellMatrix(coords[0], coords[1], cm)) {
-                    database.setIndexColor(new Color(34, 139, 34));
-                }
-                else {
-                    database.setIndexColor(Color.red);
-                }
+                matrix.placeCellMatrix(coords[0], coords[1], cm);
             }
             else if (cell != null) cell.flip();
         }
@@ -384,12 +378,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             //adjusts placement from center to corner;
             coords[0] -= cm.getNumRows() / 2;
             coords[1] -= cm.getNumCols() / 2;
-            if (matrix.spotlightPlacement(coords[0], coords[1], cm)) {
-                database.setIndexColor(Color.darkGray);
-            }
-            else {
-                database.setIndexColor(Color.red);
-            }
+            matrix.spotlightPlacement(coords[0], coords[1], cm);
         }
         else if (cell != null) cell.spotlight();
 
@@ -522,7 +511,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if (e.getKeyCode() == KeyEvent.VK_J) {
             // toggles database and resets index 0n 'J'
             showDatabase = !showDatabase;
-            indexDB = -1;
+            database.clearSelection();
             cm = null;
             matrix.clearSpotlight();
         }
@@ -567,29 +556,23 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     database.addFromSearch(s);
                 }
             }
-            if (database.sizeDB() > 0) {
+            if (database.size() > 0) {
                 //if database is visible and not empty
                 if (e.getKeyCode() == KeyEvent.VK_U) {
                     //if database showing and exists, navigate down and update on 'U'
-                    indexDB--;
-                    if (indexDB < 0) {
-                        indexDB = database.sizeDB() - 1;
-                    }
+                    database.navigateDown();
                     importFromDB();
                 }
                 if (e.getKeyCode() == KeyEvent.VK_N) {
                     //if database showing and exists, navigate down and update on 'M'
-                    indexDB++;
-                    if (indexDB >= database.sizeDB()) {
-                        indexDB = 0;
-                    }
+                    database.navigateUp();
                     importFromDB();
                 }
-                if (indexDB > -1) {
+                if (database.isSelected()) {
                     //if item selected
                     if (e.getKeyCode() == KeyEvent.VK_H) {
                         //Renames on 'H'
-                        MatrixData m = database.get(indexDB);
+                        MatrixData m = database.get();
                         String name = m.getTitle();
 
                         //Prompts User for new Name
@@ -603,15 +586,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     }
                     if (e.getKeyCode() == KeyEvent.VK_K) {
                         //removes CellMatrix at Index
-                        database.removeAtIndex(indexDB);
-                        //moves up if at bottom of list
-                        if (indexDB == database.sizeDB()) {
-                            indexDB--;
-                        }
+                        database.deleteIndex();
                     }
                     if (e.getKeyCode() == KeyEvent.VK_G) {
                         //displays RLE String on 'G'
-                        MatrixData m = database.get(indexDB);
+                        MatrixData m = database.get();
                         String rleString = m.getRleString();
 
                         //Prompts User for new Name
@@ -627,13 +606,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     if (e.getKeyCode() == KeyEvent.VK_M) {
                         //Clear selection at index
                         cm = null;
-                        indexDB = -1;
+                        database.clearSelection();
                     }
                 }
                 if (e.getKeyCode() == KeyEvent.VK_L) {
                     //wipes database on 'L'
                     database.wipe();
-                    indexDB = -1;
+                    database.clearSelection();
                 }
             }
         }
@@ -645,7 +624,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      *  updates numRows, numColumns and matrix
      */
     private void importFromDB() {
-        MatrixData m = database.get(indexDB);
+        MatrixData m = database.get();
         cm = m.toCellMatrix();
     }
 
