@@ -62,7 +62,7 @@ public class Cell {
         spotlit = true;
     }
 
-    /** Removes spotlight from cell */
+    /** Removes select from cell */
     public void unspotlight() {
         spotlit = false;
     }

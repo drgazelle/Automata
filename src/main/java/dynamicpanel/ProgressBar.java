@@ -52,6 +52,18 @@ public class ProgressBar extends DynamicItem {
         textColor = Color.black;
     }
 
+    /** Sets progress bar theme
+     *
+     * @param barColor back color
+     * @param progColor front color
+     * @param textColor text color
+     */
+    public void setColors(Color barColor, Color progColor, Color textColor) {
+        this.barColor = barColor;
+        this.progColor = progColor;
+        this.textColor = textColor;
+    }
+
     /** Updates progress
      *
      * @param p progress

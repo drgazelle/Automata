@@ -108,9 +108,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         UIManager.put("TextField.selectionForeground", backColor);
 
         //database variables
-        DynamicMenu.setTextColor(mainColor);
-        DynamicMenu.setTitleFont(mainFont);
-        database = new Database();
+        database = new Database(25);
 
         mainMenu = new DynamicPanel();
         updateMenu();
@@ -136,8 +134,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void paintComponent(Graphics g) {
-        DynamicMenu.setTitleColor(mainColor);
-
         g.setFont(mainFont);
         if(showHighlight) {
             Rectangle rect = new Rectangle();
@@ -371,10 +367,31 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         mouseX = e.getX();
         mouseY = e.getY();
 
+        updateSpotlight();
+
+        if(showHighlight) {
+            //resets select
+            showHighlight = false;
+            //resets points
+            startPoint = null;
+            endPoint = null;
+        }
+
+        if(showDatabase) {
+            database.select(mouseX, mouseY);
+            if(database.isSelected()) {
+                importFromDB();
+            }
+        }
+        repaint();
+    }
+
+    /** Updates spotlighted items */
+    private void updateSpotlight() {
         matrix.clearSpotlight();
         Cell cell = matrix.findCellAt(mouseX, mouseY);
         if (cm != null && cell != null) {
-            //if moving spotlight
+            //if moving select
             int[] coords = matrix.getCellCoordinates(cell);
             //adjusts placement from center to corner;
             coords[0] -= cm.getNumRows() / 2;
@@ -382,15 +399,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             matrix.spotlightPlacement(coords[0], coords[1], cm);
         }
         else if (cell != null) cell.spotlight();
-
-        if(showHighlight) {
-            //resets spotlight
-            showHighlight = false;
-            //resets points
-            startPoint = null;
-            endPoint = null;
-        }
-        repaint();
     }
 
     /**
@@ -588,6 +596,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     if (e.getKeyCode() == KeyEvent.VK_K) {
                         //removes CellMatrix at Index
                         database.deleteIndex();
+                        if(database.size() > 0) {
+                            importFromDB();
+                        }
+                        else {
+                            cm = null;
+                            database.clearSelection();
+                        }
                     }
                     if (e.getKeyCode() == KeyEvent.VK_G) {
                         //displays RLE String on 'G'
@@ -608,12 +623,15 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                         //Clear selection at index
                         cm = null;
                         database.clearSelection();
+                        matrix.clearSpotlight();
                     }
                 }
                 if (e.getKeyCode() == KeyEvent.VK_L) {
                     //wipes database on 'L'
                     database.wipe();
                     database.clearSelection();
+                    cm = null;
+                    matrix.clearSpotlight();
                 }
             }
         }
@@ -627,6 +645,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private void importFromDB() {
         MatrixData m = database.get();
         cm = m.toCellMatrix();
+        updateSpotlight();
     }
 
     /**

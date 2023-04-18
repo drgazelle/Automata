@@ -1,5 +1,3 @@
-import dynamicpanel.DynamicMenu;
-import dynamicpanel.DynamicPanel;
 import dynamicpanel.ProgressBar;
 import dynamicpanel.TextBar;
 

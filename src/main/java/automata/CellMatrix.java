@@ -302,7 +302,7 @@ public class CellMatrix {
         }
     }
 
-    /** removes spotlight from all Cells */
+    /** removes select from all Cells */
     public void clearSpotlight() {
         for (Cell[] row : matrix) {
             for(Cell c : row) {
@@ -376,7 +376,7 @@ public class CellMatrix {
      *
      * @param pX x position
      * @param pY y position
-     * @param cm matrix to spotlight
+     * @param cm matrix to select
      */
     public boolean spotlightPlacement(int pX, int pY, CellMatrix cm) {
         int[] coords = adjustToBounds(pX, pY, cm);

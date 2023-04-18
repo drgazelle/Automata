@@ -13,8 +13,8 @@ import java.awt.event.WindowEvent;
  */
 public class AppDriver {
     //window dimensions
-    public static int WIDTH = 700;
-    public static int HEIGHT = 700;
+    public static int WIDTH = 600;
+    public static int HEIGHT = 600;
 
     private static JFrame frame;
     public static MainPanel panel;

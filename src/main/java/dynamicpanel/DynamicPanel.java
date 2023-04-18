@@ -8,6 +8,7 @@ public class DynamicPanel {
     private int spacing;
     private static Color backColor;
     private ArrayList<DynamicItem> items;
+    private Shape borderBox;
 
     /** 0-arg constructor instantiates ArrayList of
      *  DynamicItems and calls default settings
@@ -44,6 +45,10 @@ public class DynamicPanel {
         return items.size();
     }
 
+    public int indexOf(DynamicItem i) {
+        return items.indexOf(i);
+    }
+
     public void add(int i, DynamicItem item) {
         items.add(i, item);
     }
@@ -56,8 +61,8 @@ public class DynamicPanel {
         if (startIndex < 0 || endIndex >= items.size()) {
             return;
         }
-        for (int i = startIndex; i < endIndex; i++) {
-            items.remove(i);
+        for (int i = 0; i < endIndex - startIndex; i++) {
+            items.remove(startIndex);
         }
     }
     public void select(int i) {
@@ -73,14 +78,32 @@ public class DynamicPanel {
         }
     }
 
-    public DynamicItem findItemAt(int mouseX, int mouseY) {
-        for(DynamicItem i : items) {
-            if(i.getDynamicItem().contains(mouseX, mouseY)) {
-                i.setSelected(true);
-                return i;
+    /** returns index of item at mouse position
+     *
+     * @param mouseX horizontal coordinate
+     * @param mouseY vertical coordinate
+     * @return index of item
+     */
+    public int getIndexAt(int mouseX, int mouseY) {
+        if(isSelected(mouseX, mouseY)) {
+            for (DynamicItem i : items) {
+                Shape shape = i.getDynamicItem();
+                if(shape != null && shape.contains(mouseX, mouseY)) {
+                    return items.indexOf(i);
+                }
             }
         }
-        return null;
+        return -1;
+    }
+
+    /** Checks if mouse is over DynamicPanel
+     *
+     * @param mouseX horizontal coordinate
+     * @param mouseY vertical coordinate
+     * @return true if selected, false otherwise
+     */
+    public boolean isSelected(int mouseX, int mouseY) {
+        return (borderBox != null && borderBox.contains(mouseX, mouseY));
     }
 
     /** Returns spacing of DynamicItems
@@ -126,6 +149,15 @@ public class DynamicPanel {
         return width + 2 * border;
     }
 
+    /** Calculates the max width without
+     *  borders
+     *
+     * @return width of the largest item
+     */
+    public int getBorderlessWidth() {
+        return getWidth() - 2 * border;
+    }
+
 
     /** Draw method paints background and all DynamicItems
      *
@@ -141,6 +173,7 @@ public class DynamicPanel {
 
         //Background Box
         g.setColor(backColor);
+        borderBox = new Rectangle(pX, pY, width, height);
         g.fillRect(pX, pY, width, height);
 
         pX += border;

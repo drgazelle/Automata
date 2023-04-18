@@ -1,7 +1,6 @@
 package automata;
 
 import com.google.gson.*;
-import dynamicpanel.DynamicItem;
 import dynamicpanel.DynamicPanel;
 import dynamicpanel.ProgressBar;
 import dynamicpanel.TextBar;
@@ -28,14 +27,16 @@ public class Database {
     private File data;
     private int index;
     private int startIndex;
+    private final int maxSize;
     private final DynamicPanel databaseMenu;
     private final ProgressBar storageBar;
 
     /** 0-arg constructor implements ArrayList of SparseMatrices
      *  of Cells objects from a text document.
      */
-    public Database() {
+    public Database(int size) {
         database = new ArrayList<>();
+        maxSize = size;
 
         //Default Index
         index = -1;
@@ -54,12 +55,12 @@ public class Database {
         //checks for data.txt
         try {
             data = new File("src/main/resources/data.txt");
-            //if data.txt does not exist, instantiates empty Database
             if (data.createNewFile()) {
+                //if data.txt does not exist, instantiates empty Database
                 System.out.println("New Data File Generated");
             }
-            //else data.txt exists, calls import method
             else {
+                //else data.txt exists, calls import method
                 System.out.println("Accessing Data...");
                 if (importData()) {
                     System.out.println("Data Retrieved Successfully");
@@ -74,7 +75,10 @@ public class Database {
             System.out.println("ERROR: Could not generate Database");
             e.printStackTrace();
         }
-        storageBar = new ProgressBar(databaseMenu.getWidth(), 10, 0, 100, size());
+
+        //Adds storageBar to end
+        storageBar = new ProgressBar(databaseMenu.getBorderlessWidth(), 10, 0, maxSize, size());
+        storageBar.setColors(Color.darkGray, Color.gray, Color.black);
         databaseMenu.add(storageBar);
     }
 
@@ -130,7 +134,12 @@ public class Database {
         return true;
     }
 
+    /** Resizes and updates progress
+     *  of storageBar
+     */
     private void updateBar() {
+        storageBar.setDimensions(0, storageBar.getHeight());
+        storageBar.setDimensions(databaseMenu.getBorderlessWidth(), storageBar.getHeight());
         storageBar.setProgress(size());
     }
 
@@ -139,8 +148,10 @@ public class Database {
      * @param m CellMatrix to be Added
      */
     public void add(MatrixData m) {
-        database.add(m);
-        databaseMenu.add(new TextBar(m.getTitle(), MainPanel.mainFont, Color.white));
+        if(size() < maxSize) {
+            database.add(m);
+            databaseMenu.add(startIndex + size() - 1, new TextBar(m.getTitle(), MainPanel.mainFont, Color.white));
+        }
     }
 
     /** Removes MatrixData from internal database
@@ -206,6 +217,7 @@ public class Database {
     /** Clears selection */
     public void clearSelection() {
         index = -1;
+        databaseMenu.clearSelection();
     }
 
     /** Returns true if selected
@@ -214,6 +226,13 @@ public class Database {
      */
     public boolean isSelected() {
         return index > -1;
+    }
+
+    public void select(int mouseX, int mouseY) {
+        int temp = databaseMenu.getIndexAt(mouseX, mouseY);
+        if(temp > 0 && temp <= size()) {
+            index = temp - startIndex;
+        }
     }
 
     /** Paints Database with Title and dynamic list of elements
@@ -272,6 +291,9 @@ public class Database {
 
         for(JsonElement e : elements) {
             add(gson.fromJson(e.getAsJsonObject(), MatrixData.class));
+            if(size() > maxSize) {
+                break;
+            }
         }
     }
 }
