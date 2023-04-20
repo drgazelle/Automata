@@ -10,6 +10,8 @@ public class DynamicItem extends DynamicPanel {
     private int height;
     private int width;
     protected Font font;
+    private Color selectionColor;
+    protected String description;
 
     /** 2-arg constructor instantiates a item
      *  with dimensions
@@ -25,8 +27,15 @@ public class DynamicItem extends DynamicPanel {
      *
      */
     public DynamicItem() {
-        height = 0;
-        width = 0;
+        this(0, 0);
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setDimensions(int width, int height) {
@@ -44,12 +53,30 @@ public class DynamicItem extends DynamicPanel {
         return width;
     }
 
+    public void setSelectionColor(Color selectionColor) {
+        this.selectionColor = selectionColor;
+    }
+
     @Override
     public void draw(Graphics g, int pX, int pY) {
         super.borderBox = new Rectangle(pX, pY, width, height);
         if(isSelected()) {
-            g.setColor(Color.gray);
-            g.fillRect(pX, pY, width, height);
+            if(selectionColor == null) {
+                selectionColor = Color.gray;
+            }
+            g.setColor(selectionColor);
         }
+        else {
+            g.setColor(backColor);
+        }
+        g.fillRect(pX, pY, width, height);
+    }
+
+    @Override
+    public String toString() {
+        if(description == null) {
+            return "N/A";
+        }
+        return description;
     }
 }
