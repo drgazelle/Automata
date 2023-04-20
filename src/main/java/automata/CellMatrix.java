@@ -166,6 +166,18 @@ public class CellMatrix {
         return false;
     }
 
+    public int numLivingCells() {
+        int living = 0;
+        for (Cell[] cells : matrix) {
+            for(Cell cell : cells) {
+                if(cell.isAlive()) {
+                    living++;
+                }
+            }
+        }
+        return living;
+    }
+
     /** Counts the number of neighbors that are living.
      *
      * @param pX position X
