@@ -14,6 +14,11 @@ public class ProgressBar extends DynamicItem {
     private Color barColor;
     private Color progColor;
     private Color textColor;
+    private boolean showMin;
+
+    public ProgressBar(int width, int height) {
+        this(width, height, 0, 0, 0);
+    }
 
     /** 4-arg constructor instantiates empty
      *  progress bar
@@ -50,6 +55,14 @@ public class ProgressBar extends DynamicItem {
         barColor = Color.red;
         progColor = Color.green;
         textColor = Color.black;
+    }
+
+    public void showMin() {
+        showMin = true;
+    }
+
+    public void showProg() {
+        showMin = false;
     }
 
     /** Sets progress bar theme
@@ -102,7 +115,9 @@ public class ProgressBar extends DynamicItem {
      */
     @Override
     public void draw(Graphics g, int pX, int pY) {
+        super.draw(g, pX, pY);
         Graphics2D g2 = (Graphics2D) g;
+        g2.setFont(font);
         //draws full percent bar
         g2.setColor(barColor);
         g2.fillRect(pX, pY, super.getWidth(), super.getHeight());
@@ -115,7 +130,12 @@ public class ProgressBar extends DynamicItem {
         //draws progress num
         int dY = (super.getHeight() + getFontMetrics(g2.getFont()).getAscent()) / 2 - 2;
         g2.setColor(textColor);
-        g2.drawString(String.valueOf(progress), pX + 5, pY + dY);
+        if (showMin) {
+            g2.drawString(String.valueOf(min), pX + 5, pY + dY);
+        }
+        else {
+            g2.drawString(String.valueOf(progress), pX + 5, pY + dY);
+        }
 
         //draws max num
         int textWidth = getFontMetrics(g.getFont()).stringWidth(String.valueOf(max));
