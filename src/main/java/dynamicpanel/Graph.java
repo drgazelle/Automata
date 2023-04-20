@@ -74,7 +74,8 @@ public class Graph extends DynamicItem {
             return;
         }
         Graphics2D g2 = (Graphics2D) g;
-
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         if(lineWidth > 0) {
             g2.setStroke(new BasicStroke(lineWidth));
         }
@@ -97,9 +98,10 @@ public class Graph extends DynamicItem {
             }
             g.setColor(lineColor);
             g2.draw(new Line2D.Double(pX + p1[0] * xScale, pY + super.getHeight() - p1[1] * yScale,
-                        pX + p2[0] * xScale, pY + super.getHeight() - p2[1] * yScale));
-            g.setColor(Color.darkGray);
+                        pX + p2[0] * xScale - lineWidth, pY + super.getHeight() - p2[1] * yScale));
 
         }
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 }

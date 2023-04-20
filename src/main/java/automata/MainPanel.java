@@ -120,7 +120,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         updateMenu();
 
         //Simulation
-        simulation = new Simulation(125, 15);
+        simulation = new Simulation(125, 18);
         simulation.reset(matrix);
 
         repaint();
@@ -156,7 +156,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             paintStatus(g);
             g.setFont(mainFont);
         }
-        if(showMenu) {
+        if (showMenu) {
             int pX = AppDriver.WIDTH - 10 - mainMenu.getWidth();
             int pY = AppDriver.HEIGHT - 10 - mainMenu.getHeight();
             mainMenu.draw(g, pX, pY);
@@ -165,7 +165,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             database.paintDatabase(g);
             g.setFont(mainFont);
         }
-        simulation.draw(g, 10, AppDriver.HEIGHT - simulation.getBoxHeight() - 10);
+        if (showStats) {
+            simulation.draw(g, 10, AppDriver.HEIGHT - simulation.getBoxHeight() - 10);
+        }
     }
 
     /** Displays an indicator if the
@@ -243,23 +245,23 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int numColumns = matrix.getNumCols();
         String title = "Automata" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
         String[] menuItems = {"Toggle Simulation [SPACE]",
-                                "Single Tick [F]",
+                                "Single Tick [F/Y]",
                                 "Resize Grid [Q/E]",
                                 "Change Speed [A/D]",
                                 "Wrap-Around Grid [W]",
                                 "Generate Random Seed [S]",
-                                "Save [Z]",
                                 "Toggle Grid [X]",
-                                "Clear [C]"};
+                                "Clear [C]",
+                                "Toggle Menus [R/T/I/J]"};
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
                                 "Navigate Database [U/N]",
                                 "Rename Selected [H]",
                                 "Remove Selected [K]",
                                 "Clear Selection [M]",
+                                "Save [Z]",
                                 "Wipe Database [L]",
-                                "Toggle Menu [T]",
-                                "Toggle Status [R]"};
+                                "Hover to Selected"};
 
         //displays correct information
         String[] displayItems = menuItems;
@@ -525,19 +527,26 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if (e.getKeyCode() == KeyEvent.VK_R) {
             //Two layer toggle for Status
             if(!showStatus) {
+                //case 1: hidden
                 showStatus = true;
                 showBuffer = true;
             }
             else if (showBuffer) {
+                //case 2: all shown
                 showBuffer = false;
             }
             else {
+                //case 3: only status
                 showStatus = false;
             }
         }
         if (e.getKeyCode() == KeyEvent.VK_T) {
             //toggles menu on 'T'
             showMenu = !showMenu;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            //toggles stats on 'I'
+            showStats = !showStats;
         }
         if (e.getKeyCode() == KeyEvent.VK_J) {
             // toggles database and resets index 0n 'J'

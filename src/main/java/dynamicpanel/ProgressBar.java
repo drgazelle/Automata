@@ -16,6 +16,11 @@ public class ProgressBar extends DynamicItem {
     private Color textColor;
     private boolean showMin;
 
+    /** 2-arg constructor instantates empty progress bar
+     *
+     * @param width box width
+     * @param height box height
+     */
     public ProgressBar(int width, int height) {
         this(width, height, 0, 0, 0);
     }
@@ -51,16 +56,19 @@ public class ProgressBar extends DynamicItem {
         setDefaultColors();
     }
 
+    /** Sets default colors */
     private void setDefaultColors() {
         barColor = Color.red;
         progColor = Color.green;
         textColor = Color.black;
     }
 
+    /** Sets showMin to true */
     public void showMin() {
         showMin = true;
     }
 
+     /** Sets showMin to false */
     public void showProg() {
         showMin = false;
     }

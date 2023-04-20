@@ -39,10 +39,11 @@ public class Simulation {
         livingGraph = new Graph(width, 2 * height);
         livingGraph.setBackColor(Color.darkGray);
         livingGraph.setDescription("Cells vs Ticks");
-        livingGraph.setLineWidth(2);
+        livingGraph.setLineWidth(1);
 
         deathRate = new TextBar("Cells/Tick: N/A", MainPanel.mainFont, Color.white);
         toolTip = new TextBar("Hover for Details", MainPanel.mainFont, Color.gray);
+
 
         panel.addItem(new TextBar("Statistics", MainPanel.titleFont, MainPanel.mainColor));
         panel.addItem(livingBar);

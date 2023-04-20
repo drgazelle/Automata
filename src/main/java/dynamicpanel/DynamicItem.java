@@ -59,17 +59,18 @@ public class DynamicItem extends DynamicPanel {
 
     @Override
     public void draw(Graphics g, int pX, int pY) {
+        Graphics2D g2 = (Graphics2D) g;
         super.borderBox = new Rectangle(pX, pY, width, height);
         if(isSelected()) {
             if(selectionColor == null) {
                 selectionColor = Color.gray;
             }
-            g.setColor(selectionColor);
+            g2.setColor(selectionColor);
         }
         else {
-            g.setColor(backColor);
+            g2.setColor(backColor);
         }
-        g.fillRect(pX, pY, width, height);
+        g2.fill(borderBox);
     }
 
     @Override
