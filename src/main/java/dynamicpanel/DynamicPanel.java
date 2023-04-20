@@ -7,9 +7,10 @@ import java.util.ArrayList;
 public class DynamicPanel extends JPanel {
     private int border;
     private int spacing;
-    private static Color backColor;
     private final ArrayList<DynamicPanel> items;
     protected Rectangle borderBox;
+
+    protected Color backColor;
     protected boolean selected;
 
     /** 0-arg constructor instantiates ArrayList of
@@ -25,6 +26,10 @@ public class DynamicPanel extends JPanel {
         border = 10;
         spacing = 5;
         backColor = Color.black;
+    }
+
+    public void setBackColor(Color backColor) {
+        this.backColor = backColor;
     }
 
     /** Add Method for Items ArrayList
@@ -100,6 +105,24 @@ public class DynamicPanel extends JPanel {
             }
         }
         return -1;
+    }
+
+    /** returns item at mouse position
+     *
+     * @param mouseX horizontal coordinate
+     * @param mouseY vertical coordinate
+     * @return item, null otherwise
+     */
+    public DynamicPanel getItemAt(int mouseX, int mouseY) {
+        if(isSelected(mouseX, mouseY)) {
+            for (DynamicPanel i : items) {
+                Shape shape = i.getBorderBox();
+                if(shape != null && shape.contains(mouseX, mouseY)) {
+                    return i;
+                }
+            }
+        }
+        return null;
     }
 
     /** Checks if mouse is over DynamicPanel
