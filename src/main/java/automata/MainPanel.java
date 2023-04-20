@@ -50,9 +50,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showDatabase;
     private boolean showHighlight;
     private boolean wrapEnabled;
+    private boolean showStats;
+    private boolean showBuffer;
 
     //Menu Object
     private final DynamicPanel mainMenu;
+    private final Simulation simulation;
 
     /** 0-arg constructor adds Mouse Listeners
      *  and instantiates the matrix and timer.
@@ -87,6 +90,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showDatabase = false;
         showHighlight = false;
         showGrid = true;
+        showStats = true;
+        showBuffer = true;
 
         //Sets Application Theme
         mainColor = new Color((int) (Math.random() * 0x1000000));
@@ -108,10 +113,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         UIManager.put("TextField.selectionForeground", backColor);
 
         //database variables
-        database = new Database(25);
+        database = new Database(20);
 
+        //Main menu
         mainMenu = new DynamicPanel();
         updateMenu();
+
+        //Simulation
+        simulation = new Simulation(125, 15);
+        simulation.reset(matrix);
+
         repaint();
     }
 
@@ -154,6 +165,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             database.paintDatabase(g);
             g.setFont(mainFont);
         }
+        simulation.draw(g, 10, AppDriver.HEIGHT - simulation.getBoxHeight() - 10);
     }
 
     /** Displays an indicator if the
@@ -183,23 +195,22 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             g2.setColor(Color.GREEN);
         }
         g2.fill(indicator);
+        if (showBuffer && matrix.getBufferSize() > 0) {
+            //Draws buffer progress
+            //draws buffer numItems bar
+            g2.setColor(Color.darkGray);
+            int line_length = (int) ((double) boxWidth / matrix.getBufferMax() * matrix.getBufferSize());
+            g2.fillRect(pX, pY + boxHeight + boxHeight / 8, line_length, boxHeight / 8);
+
+            g2.setColor(Color.gray);
+            line_length = (int) ((double) boxWidth / matrix.getBufferMax() * (matrix.getBufferIndex() + 1));
+            g2.fillRect(pX, pY + boxHeight + boxHeight / 8, line_length, boxHeight / 8);
+        }
 
         //wrap indicator
         g2.setColor(Color.white);
         if (!wrapEnabled) {
             g2.draw(tickBox);
-        }
-        if (matrix.getBufferSize() > 0) {
-            //Draws buffer progress
-            g2.setStroke(new BasicStroke(2));
-            //draws buffer numItems bar
-            g2.setColor(Color.darkGray);
-            int line_length = (int) (pX + ((double) boxWidth / matrix.getBufferMax() * matrix.getBufferSize()));
-            g2.drawLine(pX + 1, pY + boxHeight + 1, line_length - 1, pY + boxHeight + 1);
-
-            g2.setColor(Color.gray);
-            line_length = (int) (pX + ((double) boxWidth / matrix.getBufferMax() * (matrix.getBufferIndex() + 1)));
-            g2.drawLine(pX + 1, pY + boxHeight + 1, line_length - 1, pY + boxHeight + 1);
         }
 
         g2.setColor(Color.white);
@@ -383,6 +394,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 importFromDB();
             }
         }
+        if(showStats) {
+            simulation.showToolTip(mouseX, mouseY);
+        }
         repaint();
     }
 
@@ -410,6 +424,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     public void actionPerformed(ActionEvent e) {
         matrix.tick(wrapEnabled);
         numTicks++;
+        simulation.update(numTicks);
         repaint();
     }
 
@@ -468,14 +483,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             //if paused
             if(e.getKeyCode() == KeyEvent.VK_F) {
                 //Singular tick
-                matrix.tick(wrapEnabled);
-                numTicks++;
+                tick();
             }
             if(e.getKeyCode() == KeyEvent.VK_Y) {
-                //rewinds matrix
-                if (matrix.rollback()) {
-                    numTicks--;
-                }
+                rollback();
             }
         }
         if(e.getKeyCode() == KeyEvent.VK_E) {
@@ -483,6 +494,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             if (numRows < AppDriver.WIDTH / 4) {
                 numTicks = 0;
                 changeGrid(increment);
+                simulation.reset(matrix);
             }
         }
         if(e.getKeyCode() == KeyEvent.VK_Q) {
@@ -490,6 +502,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             if (numRows > increment) {
                 numTicks = 0;
                 changeGrid(-1 * increment);
+                simulation.reset(matrix);
             }
         }
         if (e.getKeyCode() == KeyEvent.VK_X) {
@@ -510,8 +523,17 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
         }
         if (e.getKeyCode() == KeyEvent.VK_R) {
-            //toggles status on 'R'
-            showStatus = !showStatus;
+            //Two layer toggle for Status
+            if(!showStatus) {
+                showStatus = true;
+                showBuffer = true;
+            }
+            else if (showBuffer) {
+                showBuffer = false;
+            }
+            else {
+                showStatus = false;
+            }
         }
         if (e.getKeyCode() == KeyEvent.VK_T) {
             //toggles menu on 'T'
@@ -533,11 +555,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             matrix.genocide();
             matrix.randomSeed(maxP);
             numTicks = 0;
+            simulation.reset(matrix);
         }
         if (e.getKeyCode() == KeyEvent.VK_C) {
             //kills all cells on 'C'
             matrix.genocide();
             numTicks = 0;
+            simulation.reset(matrix);
         }
         if(e.getKeyCode() == KeyEvent.VK_B) {
             if(mainFont.getSize() < 20) {
@@ -637,6 +661,20 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         updateMenu();
         repaint();
+    }
+
+    private void rollback() {
+        //rewinds matrix
+        if (matrix.rollback()) {
+            numTicks--;
+            simulation.update(numTicks);
+        }
+    }
+
+    private void tick() {
+        matrix.tick(wrapEnabled);
+        numTicks++;
+        simulation.update(numTicks);
     }
 
     /** Accesses MatrixData from internal index and
