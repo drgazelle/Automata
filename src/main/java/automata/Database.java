@@ -297,4 +297,8 @@ public class Database {
             }
         }
     }
+
+    public void updateTitle(String s) {
+        ((TextBar) databaseMenu.getItem(index + 1)).setText(s);
+    }
 }

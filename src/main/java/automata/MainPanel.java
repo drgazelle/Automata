@@ -52,6 +52,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean wrapEnabled;
     private boolean showStats;
     private boolean showBuffer;
+    private boolean showModifier;
 
     //Menu Object
     private final DynamicPanel mainMenu;
@@ -86,12 +87,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
         //default menu status
         showStatus = true;
+        showBuffer = true;
         showMenu = true;
+        showStats = false;
         showDatabase = false;
         showHighlight = false;
         showGrid = true;
-        showStats = true;
-        showBuffer = true;
+        showModifier = false;
 
         //Sets Application Theme
         mainColor = new Color((int) (Math.random() * 0x1000000));
@@ -245,14 +247,18 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int numColumns = matrix.getNumCols();
         String title = "Automata" + " (" + numRows + "x" + numColumns + ") " + "(" + delay + "ms)";
         String[] menuItems = {"Toggle Simulation [SPACE]",
-                                "Single Tick [F/Y]",
                                 "Resize Grid [Q/E]",
                                 "Change Speed [A/D]",
                                 "Wrap-Around Grid [W]",
                                 "Generate Random Seed [S]",
-                                "Toggle Grid [X]",
                                 "Clear [C]",
-                                "Toggle Menus [R/T/I/J]"};
+                                "Toggle Grid [X]",
+                                "Toggle Status [T]",
+                                "Toggle Statistics [F]",
+                                "Toggle Menu [G]",
+                                "Toggle Modifiers [SHIFT]"};
+        String[] modifierItems = {"Forward Tick [SHIFT + A]",
+                                "Reverse Tick [SHIFT + D]",};
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
                                 "Navigate Database [U/N]",
@@ -261,11 +267,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Clear Selection [M]",
                                 "Save [Z]",
                                 "Wipe Database [L]",
-                                "Hover to Selected"};
+                                "Hover to Select"};
 
         //displays correct information
         String[] displayItems = menuItems;
-        if (showDatabase) {
+        if(showModifier) {
+            displayItems = modifierItems;
+        }
+        else if (showDatabase) {
             displayItems = databaseItems;
         }
 
@@ -452,139 +461,151 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         int numRows = matrix.getNumRows();
         int numCols = matrix.getNumCols();
 
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            //toggles simulation on space-bar
-            if(timer.isRunning()) {
-                timer.stop();
-            }
-            else {
-                timer.start();
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            //activates modifiers on 'SHIFT'
+            showModifier = true;
+        }
+
+        if (showModifier) {
+            //if modifier pressed
+
+            if (!timer.isRunning()) {
+                //if paused
+                if(e.getKeyCode() == KeyEvent.VK_D) {
+                    //Singular tick
+                    tick();
+                }
+                if(e.getKeyCode() == KeyEvent.VK_A) {
+                    rollback();
+                }
             }
         }
-        if (e.getKeyCode() == KeyEvent.VK_D && timer.getDelay() > 1) {
-            //speeds up timer on 'D'
-            if (delay > 100) {
-                delay -= 10;
+        else {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                //toggles simulation on space-bar
+                if(timer.isRunning()) {
+                    timer.stop();
+                }
+                else {
+                    timer.start();
+                }
             }
-            else {
-                delay -= 1;
+            if (e.getKeyCode() == KeyEvent.VK_D && timer.getDelay() > 1) {
+                //speeds up timer on 'D'
+                if (delay > 100) {
+                    delay -= 10;
+                }
+                else {
+                    delay -= 1;
+                }
+                timer.setDelay(delay);
             }
-            timer.setDelay(delay);
-        }
-        if (e.getKeyCode() == KeyEvent.VK_A && timer.getDelay() < 5000) {
-            //slows down timer on up 'A'
-            if (delay >= 100) {
-                delay += 10;
+            if (e.getKeyCode() == KeyEvent.VK_A && timer.getDelay() < 5000) {
+                //slows down timer on up 'A'
+                if (delay >= 100) {
+                    delay += 10;
+                }
+                else {
+                    delay += 1;
+                }
+                timer.setDelay(delay);
             }
-            else {
-                delay += 1;
+            if(e.getKeyCode() == KeyEvent.VK_E) {
+                //increases grid numItems on 'E'
+                if (numRows < AppDriver.WIDTH / 4) {
+                    numTicks = 0;
+                    changeGrid(increment);
+                    simulation.reset(matrix);
+                }
             }
-            timer.setDelay(delay);
-        }
-        if (!timer.isRunning()) {
-            //if paused
-            if(e.getKeyCode() == KeyEvent.VK_F) {
-                //Singular tick
-                tick();
+            if(e.getKeyCode() == KeyEvent.VK_Q) {
+                //decreases grid numItems on 'Q'
+                if (numRows > increment) {
+                    numTicks = 0;
+                    changeGrid(-1 * increment);
+                    simulation.reset(matrix);
+                }
             }
-            if(e.getKeyCode() == KeyEvent.VK_Y) {
-                rollback();
+            if (e.getKeyCode() == KeyEvent.VK_X) {
+                //turns grid on and off on 'X'
+                showGrid = !showGrid;
             }
-        }
-        if(e.getKeyCode() == KeyEvent.VK_E) {
-            //increases grid numItems on 'E'
-            if (numRows < AppDriver.WIDTH / 4) {
+            if (e.getKeyCode() == KeyEvent.VK_Z) {
+                // Saves Cell Matrix on 'Z'
+                MatrixData md;
+                if (showHighlight) {
+                    md = matrix.fromSpotlight().toMatrixData();
+                }
+                else {
+                    md = matrix.toMatrixData();
+                }
+                if(md != null) {
+                    database.add(md);
+                }
+            }
+            if (e.getKeyCode() == KeyEvent.VK_T) {
+                //Two layer toggle for Status
+                if(!showStatus) {
+                    //case 1: hidden
+                    showStatus = true;
+                    showBuffer = true;
+                }
+                else if (showBuffer) {
+                    //case 2: all shown
+                    showBuffer = false;
+                }
+                else {
+                    //case 3: only status
+                    showStatus = false;
+                }
+            }
+            if (e.getKeyCode() == KeyEvent.VK_G) {
+                //toggles menu on 'G'
+                showMenu = !showMenu;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_F) {
+                //toggles stats on 'F'
+                showStats = !showStats;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_W) {
+                //toggles wrap around on 'W'
+                wrapEnabled = !wrapEnabled;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_S) {
+                //randomizes matrix seed on 'S'
+                matrix.genocide();
+                matrix.randomSeed(maxP);
                 numTicks = 0;
-                changeGrid(increment);
                 simulation.reset(matrix);
             }
-        }
-        if(e.getKeyCode() == KeyEvent.VK_Q) {
-            //decreases grid numItems on 'Q'
-            if (numRows > increment) {
+            if (e.getKeyCode() == KeyEvent.VK_C) {
+                //kills all cells on 'C'
+                matrix.genocide();
                 numTicks = 0;
-                changeGrid(-1 * increment);
                 simulation.reset(matrix);
             }
-        }
-        if (e.getKeyCode() == KeyEvent.VK_X) {
-            //turns grid on and off on 'X'
-            showGrid = !showGrid;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_Z) {
-            // Saves Cell Matrix on 'Z'
-            MatrixData md;
-            if (showHighlight) {
-                md = matrix.fromSpotlight().toMatrixData();
+            if(e.getKeyCode() == KeyEvent.VK_B) {
+                if(mainFont.getSize() < 20) {
+                    //increases font numItems if less than 50
+                    mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() + 2);
+                    titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
+                }
             }
-            else {
-                md = matrix.toMatrixData();
-            }
-            if(md != null) {
-                database.add(md);
+            if(e.getKeyCode() == KeyEvent.VK_V) {
+                if(mainFont.getSize() > 10) {
+                    //decreases font numItems if greater than 14
+                    mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() - 2);
+                    titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
+                }
             }
         }
-        if (e.getKeyCode() == KeyEvent.VK_R) {
-            //Two layer toggle for Status
-            if(!showStatus) {
-                //case 1: hidden
-                showStatus = true;
-                showBuffer = true;
-            }
-            else if (showBuffer) {
-                //case 2: all shown
-                showBuffer = false;
-            }
-            else {
-                //case 3: only status
-                showStatus = false;
-            }
-        }
-        if (e.getKeyCode() == KeyEvent.VK_T) {
-            //toggles menu on 'T'
-            showMenu = !showMenu;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_I) {
-            //toggles stats on 'I'
-            showStats = !showStats;
-        }
+
         if (e.getKeyCode() == KeyEvent.VK_J) {
             // toggles database and resets index 0n 'J'
             showDatabase = !showDatabase;
             database.clearSelection();
             cm = null;
             matrix.clearSpotlight();
-        }
-        if (e.getKeyCode() == KeyEvent.VK_W) {
-            //toggles wrap around on 'W'
-            wrapEnabled = !wrapEnabled;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_S) {
-            //randomizes matrix seed on 'S'
-            matrix.genocide();
-            matrix.randomSeed(maxP);
-            numTicks = 0;
-            simulation.reset(matrix);
-        }
-        if (e.getKeyCode() == KeyEvent.VK_C) {
-            //kills all cells on 'C'
-            matrix.genocide();
-            numTicks = 0;
-            simulation.reset(matrix);
-        }
-        if(e.getKeyCode() == KeyEvent.VK_B) {
-            if(mainFont.getSize() < 20) {
-                //increases font numItems if less than 50
-                mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() + 2);
-                titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
-            }
-        }
-        if(e.getKeyCode() == KeyEvent.VK_V) {
-            if(mainFont.getSize() > 10) {
-                //decreases font numItems if greater than 14
-                mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() - 2);
-                titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
-            }
         }
 
         if (showDatabase) {
@@ -624,6 +645,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                         if (s != null) {
                             //if name changed
                             m.setTitle(s);
+                            database.updateTitle(s);
                         }
                     }
                     if (e.getKeyCode() == KeyEvent.VK_K) {
@@ -704,7 +726,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void keyReleased(KeyEvent e) {
-
+        if(showModifier) {
+            if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+                showModifier = false;
+                updateMenu();
+                repaint();
+            }
+        }
     }
 
     /**

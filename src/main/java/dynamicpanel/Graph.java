@@ -32,9 +32,16 @@ public class Graph extends DynamicItem {
         points.clear();
     }
 
-    public double getSlope() {
-        int[] pStart = points.get(0);
-        int[] pEnd = points.get(points.size() - 1);
+    /** Calculates slope from start point
+     *  to end point
+     *
+     * @param start start index, inclusive
+     * @param end end index, exclusive
+     * @return slope between points
+     */
+    public double getSlope(int start, int end) {
+        int[] pStart = points.get(start);
+        int[] pEnd = points.get(end - 1);
         return (double) (pEnd[1] - pStart[1]) / (pEnd[0] - pStart[0]);
     }
 
@@ -103,5 +110,7 @@ public class Graph extends DynamicItem {
         }
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
+        g2.setColor(backColor);
+        //g2.draw(borderBox);
     }
 }
