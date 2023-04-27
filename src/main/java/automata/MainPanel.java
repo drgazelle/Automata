@@ -70,7 +70,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         this.setFocusable(true);
 
         //instantiates matrix
-        matrix = new CellMatrix(100, 100);
+        matrix = new CellMatrix( 100, 100);
 
         //configuration
         increment = 5;
@@ -250,6 +250,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Resize Grid [Q/E]",
                                 "Change Speed [A/D]",
                                 "Wrap-Around Grid [W]",
+                                "Change Rule [R]",
                                 "Generate Random Seed [S]",
                                 "Clear [C]",
                                 "Toggle Grid [X]",
@@ -263,6 +264,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Search wiki-collections [;]",
                                 "Navigate Database [U/N]",
                                 "Rename Selected [H]",
+                                "Modify RLE [I]",
                                 "Remove Selected [K]",
                                 "Clear Selection [M]",
                                 "Save [Z]",
@@ -558,6 +560,22 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     showStatus = false;
                 }
             }
+            if (e.getKeyCode() == KeyEvent.VK_R) {
+                //Changes rule on 'R'
+                //Prompts User for Rule
+                String s = (String) JOptionPane.showInputDialog(
+                        this, "Change Rule Below:", "Settings",
+                        JOptionPane.PLAIN_MESSAGE, null, null, CellMatrix.getRule());
+                if (s != null) {
+                    if(validRule(s)) {
+                        CellMatrix.setRule(s.trim());
+                    }
+                    else {
+                        System.out.println("ERROR: Formatted Incorrectly");
+                    }
+                }
+
+            }
             if (e.getKeyCode() == KeyEvent.VK_G) {
                 //toggles menu on 'G'
                 showMenu = !showMenu;
@@ -658,8 +676,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                             database.clearSelection();
                         }
                     }
-                    if (e.getKeyCode() == KeyEvent.VK_G) {
-                        //displays RLE String on 'G'
+                    if (e.getKeyCode() == KeyEvent.VK_I) {
+                        //displays RLE String on 'I'
                         MatrixData m = database.get();
                         String rleString = m.getRleString();
 
@@ -691,6 +709,47 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         updateMenu();
         repaint();
+    }
+
+    /** Verifies that a non-null String
+     *  is a valid rule
+     *
+     * @param s ruleString to test
+     * @return true if valid, false otherwise
+     */
+    private boolean validRule(String s) {
+        if(s.contains("/")) {
+            s = s.toUpperCase().trim();
+            int numS = 0;
+            int numB = 0;
+            int numSlash = 0;
+            char[] chars = s.toCharArray();
+            for(char c : chars) {
+                if(c == 'S') {
+                    numS++;
+                    if(numS > 1) {
+                        return false;
+                    }
+                }
+                else if (c == 'B') {
+                    numB++;
+                    if(numB > 1) {
+                        return false;
+                    }
+                }
+                else if (c == '/') {
+                    numSlash++;
+                    if(numSlash > 1) {
+                        return false;
+                    }
+                }
+                else if (!Character.isDigit(c)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /** Rewinds matrix by rolling back the matrix,

@@ -3,6 +3,7 @@ package automata;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /** CellMatrix class generates and
  *  modifies a 2D array of Cell
@@ -14,8 +15,10 @@ public class CellMatrix {
     private Cell[][] matrix;
     private final int numRows;
     private final int numCols;
-
     private final ArrayList<Cell[][]> buffer;
+    private static String ruleString = "B3/S23";
+    private static LinkedList<Integer> birth;
+    private static LinkedList<Integer> survival;
     private static int bufferMax = 100;
 
     /**
@@ -38,6 +41,64 @@ public class CellMatrix {
         }
         buffer = new ArrayList<>();
         buffer.add(matrix);
+
+        //fills rule lists on first run
+        if (birth == null || survival == null) {
+            fillRuleLists();
+        }
+    }
+
+    /** Accessor Method for Rule
+     *
+     * @return rule as String
+     */
+    public static String getRule() {
+        return ruleString;
+    }
+
+    /** Sets rule and updates lists
+     *
+     * @param rule correctly formatted rule
+     */
+    public static void setRule(String rule) {
+        ruleString = rule;
+        fillRuleLists();
+    }
+
+    /** Fills internal rule lists
+     *
+     */
+    private static void fillRuleLists() {
+        if(ruleString == null) {
+            return;
+        }
+        String[] parts = ruleString.split("/");
+
+        String b = parts[0];
+        String s = parts[1];
+
+        //swaps placement if S/B
+        if(parts[0].toUpperCase().contains("S")) {
+            b = parts[1];
+            s = parts[0];
+        }
+
+        birth = fromRuleSet(b.substring(1, b.length()));
+        survival = fromRuleSet(s.substring(1, s.length()));
+    }
+
+    /** Converts String to int[]
+     *
+     * @param str string to be converted
+     * @return int[] of digits
+     */
+    private static LinkedList<Integer> fromRuleSet(String str) {
+        char[] nums = str.toCharArray();
+        LinkedList<Integer> temp = new LinkedList();
+        for (char c : nums) {
+            temp.add(Integer.valueOf("" + c));
+        }
+        return temp;
     }
 
     public int getNumRows() {
@@ -64,7 +125,6 @@ public class CellMatrix {
      * @param probability % chance for cell to be alive
      */
     public void randomSeed(double probability) {
-        buffer.clear();
         for (Cell[] cells : matrix) {
             for (Cell c : cells) {
                 if (Math.random() < probability) {
@@ -72,6 +132,7 @@ public class CellMatrix {
                 }
             }
         }
+        buffer.clear();
         buffer.add(matrix);
     }
 
@@ -105,7 +166,7 @@ public class CellMatrix {
     /** Ticks matrix to next generation according to the
      *  rules of the Conway's Game of Life.
      */
-    public void tick(Boolean wrapEnabled) {
+    public void tick(boolean wrapEnabled) {
         if(buffer.indexOf(matrix) < buffer.size() - 1) {
             //if already ticked
             matrix = buffer.get(buffer.indexOf(matrix) + 1);
@@ -121,22 +182,21 @@ public class CellMatrix {
                 Cell c = matrix[x][y];
                 //num of living neighbors
                 int numLiving = numLivingNeighbors(x, y, wrapEnabled);
-                if (!c.isAlive() && numLiving == 3) {
-                    //reproduction
-                    g2.matrix[x][y].revive();
-                }
-                else if (c.isAlive() && (numLiving < 2 || numLiving > 3)) {
-                    //over or under population
-                    g2.matrix[x][y].kill();
-                }
-                else if (c.isAlive()) {
-                    //if previously alive
-                    g2.matrix[x][y].revive();
+                if (c.isAlive()) {
+                    //if alive
+                    if(survival.contains(numLiving)) {
+                        //if survives
+                        g2.matrix[x][y].revive();
+                    }
                 }
                 else {
-                    //isolation or previously dead
-                    g2.matrix[x][y].kill();
+                    //else dead
+                    if (birth.contains(numLiving)) {
+                        //reproduction
+                        g2.matrix[x][y].revive();
+                    }
                 }
+                //else dies to isolation, under-population, or over-population
                 if(c.isSpotlit()) {
                     //if cell is spotlit
                     g2.matrix[x][y].spotlight();
