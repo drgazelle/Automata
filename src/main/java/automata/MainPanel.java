@@ -468,7 +468,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
         if (showModifier) {
             //if modifier pressed
-
             if (!timer.isRunning()) {
                 //if paused
                 if(e.getKeyCode() == KeyEvent.VK_D) {
@@ -694,6 +693,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         repaint();
     }
 
+    /** Rewinds matrix by rolling back the matrix,
+     *  reducing numTicks, and updating the simulation
+     */
     private void rollback() {
         //rewinds matrix
         if (matrix.rollback()) {
@@ -702,6 +704,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
     }
 
+    /** Ticks the matrix forward and updates
+     *  the simulation
+     */
     private void tick() {
         matrix.tick(wrapEnabled);
         numTicks++;

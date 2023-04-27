@@ -13,13 +13,14 @@ public class Simulation {
     private final Graph livingGraph;
     private final ProgressBar livingBar;
     private final ProgressBar maxBar;
-    private final TextBar deathRate;
+    private final TextBar deathAvgRate;
+    private final TextBar deathInstRate;
     private final TextBar toolTip;
     private int population;
     private int maxLiving;
     private int minLiving;
-    private int numText;
     private int numTicks;
+
 
     /** 2-arg Constructor instantiates the menu
      *
@@ -41,15 +42,20 @@ public class Simulation {
         livingGraph.setDescription("Cells vs Ticks");
         livingGraph.setLineWidth(1);
 
-        deathRate = new TextBar("Cells/Tick: N/A", MainPanel.mainFont, Color.white);
-        toolTip = new TextBar("Hover for Details", MainPanel.mainFont, Color.gray);
+        deathAvgRate = new TextBar("Avg. Cells/Tick: N/A", MainPanel.mainFont, Color.white);
+        deathAvgRate.setDescription("Slope of Entire Graph");
 
+        deathInstRate = new TextBar("Curr. Cells/Tick: N/A", MainPanel.mainFont, Color.white);
+        deathInstRate.setDescription("Slope of Last Points");
+
+        toolTip = new TextBar("Hover for Details", MainPanel.mainFont, Color.gray);
 
         panel.addItem(new TextBar("Statistics", MainPanel.titleFont, MainPanel.mainColor));
         panel.addItem(livingBar);
         panel.addItem(maxBar);
         panel.addItem(livingGraph);
-        panel.addItem(deathRate);
+        panel.addItem(deathAvgRate);
+        panel.addItem(deathInstRate);
         panel.addItem(toolTip);
     }
 
@@ -63,18 +69,25 @@ public class Simulation {
         this.matrix = matrix;
         population = matrix.numLivingCells();
 
+        //Sets livingBar to max and min possible values
         livingBar.setMax(matrix.getNumRows() * matrix.getNumCols());
         livingBar.setMin(0);
 
+        //Sets maxBar to population range
         maxBar.setMax(population);
         maxBar.setMin(population);
 
+        //resets max and min living to current population
         maxLiving = population;
         minLiving = population;
 
+        //clears graph
         livingGraph.clear();
 
-        deathRate.setText("Cells/Tick: N/A");
+        //resets deathAvgRate
+        deathAvgRate.setText("Avg. Cells/Tick: N/A");
+        deathInstRate.setText("Curr. Cells/Tick: N/A");
+
         update(0);
     }
 
@@ -115,12 +128,16 @@ public class Simulation {
 
         if (livingGraph.numPoints() >= 2) {
             //if sufficient data
-            double slope = Math.round(livingGraph.getSlope() * 100) / 100.0;
-            deathRate.setText("Cells/Tick: " + slope);
+            double slope = Math.round(livingGraph.getSlope(0, numTicks) * 100) / 100.0;
+            deathAvgRate.setText("Avg. Cells/Tick: " + slope);
+
+            slope = Math.round(livingGraph.getSlope(numTicks - 2, numTicks) * 100) / 100.0;
+            deathInstRate.setText("Curr. Cells/Tick: " + slope);
         }
         else {
             //else insufficient data
-            deathRate.setText("Cells/Tick: N/A");
+            deathAvgRate.setText("Avg. Cells/Tick: N/A");
+            deathInstRate.setText("Curr. Cells/Tick: N/A");
         }
     }
 

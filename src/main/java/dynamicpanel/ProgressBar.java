@@ -125,6 +125,9 @@ public class ProgressBar extends DynamicItem {
     public void draw(Graphics g, int pX, int pY) {
         super.draw(g, pX, pY);
         Graphics2D g2 = (Graphics2D) g;
+        if(font == null) {
+            font = g2.getFont();
+        }
         g2.setFont(font);
         //draws full percent bar
         g2.setColor(barColor);
@@ -136,7 +139,9 @@ public class ProgressBar extends DynamicItem {
         g2.fill(new Rectangle2D.Double(pX, pY, percent, super.getHeight()));
 
         //draws progress num
-        int dY = (super.getHeight() + getFontMetrics(g2.getFont()).getAscent()) / 2 - 2;
+        //calculates vertical height
+        int dY = (super.getHeight() + getFontMetrics(font).getAscent()
+                                        - getFontMetrics(font).getDescent()) / 2;
         g2.setColor(textColor);
         if (showMin) {
             g2.drawString(String.valueOf(min), pX + 5, pY + dY);
