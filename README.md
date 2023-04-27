@@ -23,7 +23,7 @@ A lightweight simulation Conway's Game of Life
 
 - [x] Convert to RLE
 - [x] Update Storage
-- [ ] Display New Searched Terms
+- [X] Display New Searched Terms
 - [ ] Migrate Search to Dedicated Window
 - [ ] Upload Matrices to customcollections
 - [X] Dynamic Menus and Status
@@ -34,5 +34,5 @@ A lightweight simulation Conway's Game of Life
 #### Simulation
 
 - [ ] Optimization/Efficency
-- [ ] dynamicpanel.SimulationPanel for Simulations
-- [ ] Export dynamicpanel.SimulationPanel with Analysis
+- [X] dynamicpanel.SimulationPanel for Simulations
+- [X] Export dynamicpanel.SimulationPanel with Analysis
