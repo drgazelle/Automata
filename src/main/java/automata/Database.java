@@ -1,7 +1,6 @@
 package automata;
 
 import com.google.gson.*;
-import dynamicpanel.DynamicItem;
 import dynamicpanel.DynamicPanel;
 import dynamicpanel.ProgressBar;
 import dynamicpanel.TextBar;
@@ -14,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 /** Database Class imports and exports
@@ -26,7 +25,7 @@ import java.util.Scanner;
  */
 public class Database {
     private final ArrayList<MatrixData> database;
-    private File data;
+    private static File directory;
     private int index;
     private int startIndex;
     private final int maxSize;
@@ -49,34 +48,37 @@ public class Database {
         startIndex++;
 
         //creates resource folder if necessary
-        File directory = new File("src/main/resources");
+        directory = new File("src/main/resources/storage");
         if (!directory.exists()) {
             System.out.println("New Resources Directory Generated");
             directory.mkdir();
         }
-        //checks for data.txt
         try {
-            data = new File("src/main/resources/data.txt");
-            if (data.createNewFile()) {
-                //if data.txt does not exist, instantiates empty Database
-                System.out.println("New Data File Generated");
-            }
-            else {
-                //else data.txt exists, calls import method
-                System.out.println("Accessing Data...");
-                if (importData()) {
-                    System.out.println("Data Retrieved Successfully");
+            File[] files = directory.listFiles();
+            System.out.println("Accessing Data...");
+            for(File file : files) {
+
+                if (file.isFile() && file.getName().contains(".rle")) {
+                    //if file exists, imports
+                    if(importData(file)) {
+                        System.out.println("Added " + file.getName());
+                    }
+                    else {
+                        System.out.println("ERROR: Failed to Import " + file.getName());
+                    }
                 }
                 else {
-                    System.out.println("ERROR: Failed to Retrieve Data");
+                    System.out.println("ERROR: Invalid File " + file.getName());
                 }
             }
         }
-        catch (IOException e) {
+        catch (Exception e) {
             //Error when generating Database
             System.out.println("ERROR: Could not generate Database");
             e.printStackTrace();
         }
+
+        //checks for data.txt
 
         //Adds storageBar to end
         storageBar = new ProgressBar(databaseMenu.getBorderlessWidth(), 10, 0, maxSize, size());
@@ -87,20 +89,34 @@ public class Database {
     /** importData method instantiates database using data.txt
      *  @return true if successfully instantiated database, false if error
      */
-    private boolean importData() {
+    private boolean importData(File file) {
         try {
+            String name = "";
+            int[] size = new int[]{0, 0};
+            String rleString = "";
+            String rule = "B2/S23";
+
             //creates scanner
-            Scanner input = new Scanner(data);
+            Scanner input = new Scanner(file);
             while (input.hasNextLine()) {
                 String line = input.nextLine();
-                String[] parts = line.split("////");
-                String name = removeShell(parts[0]).trim();
-                String[] dimensions = removeShell(parts[1]).split("x");
-                int[] size = new int[]{Integer.parseInt(dimensions[0]), Integer.parseInt(dimensions[1])};
-                String rleString = removeShell(parts[2]);
+                if(line.contains("#N")) {
+                    name = line.substring(line.indexOf("#N") + 2, line.length()).trim();
+                }
+                if(!line.contains("#")) {
+                    if(line.contains("=")) {
+                        String[] parts = line.split(",");
+                        size = new int[]{toDimensions(parts[0]), toDimensions(parts[1])};
+                        parts = parts[2].split(" ");
+                        rule = parts[parts.length - 1];
+                    }
+                    else {
+                        rleString += line;
+                    }
+                }
                 //adds new MatrixData to database
-                add(new MatrixData(name, size, rleString));
             }
+            add(new MatrixData(rule, name, size, rleString));
             //closes scanner
             input.close();
         } catch (FileNotFoundException e) {
@@ -111,29 +127,44 @@ public class Database {
         return true;
     }
 
-    private String removeShell(String s) {
-        return s.substring(1, s.length() - 1);
+    private int toDimensions(String s) {
+        char[] letters = s.toCharArray();
+        String temp = "";
+        for(char c : letters) {
+            if(Character.isDigit(c)) {
+                temp += c;
+            }
+        }
+        return Integer.valueOf(temp);
     }
 
-    /** exportData method takes existing
-     *  Database and implements data.txt
+    /** exportData method writes patterns to rle
+     *  files
      *
      *  @return true if successful, false if error
      */
     public boolean exportDatabase() {
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            file.delete();
+        }
         try {
-            FileWriter output = new FileWriter(data);
             for (MatrixData m : database) {
-                output.write(m.toString() + "\n");
+                FileWriter output = new FileWriter(new File(directory.getAbsolutePath(), formatTitle(m.getTitle())));
+                output.write(m.toString());
+                output.close();
             }
-            output.close();
         }
         catch (IOException e) {
-            System.out.println("ERROR: Failure to write data.txt");
+            System.out.println("ERROR: Failed to Export Data");
             e.printStackTrace();
             return false;
         }
         return true;
+    }
+
+    private String formatTitle(String title) {
+        return title.replaceAll(" ", "").replaceAll("/", "").toLowerCase() + ".rle";
     }
 
     /** Resizes and updates progress

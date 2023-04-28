@@ -12,8 +12,23 @@ public class MatrixData {
     private String title;
     private String[] description;
     private String rleString;
+    private String rule;
     private String date;
     private Size size;
+
+    /** 4-arg constructor instantiates title, numItems, rule, and cells.
+     *
+     * @param rule rule
+     * @param name matrix title
+     * @param size grid numItems [x,y]
+     * @param rleString Encoded Cell Coordinates
+     */
+    public MatrixData(String rule, String name, int[] size, String rleString) {
+        this.rule = rule;
+        this.title = name;
+        this.size = new Size(size[0], size[1]);
+        this.rleString = rleString;
+    }
 
     /** 3-arg constructor instantiates title, numItems, and cells.
      *
@@ -22,9 +37,7 @@ public class MatrixData {
      * @param rleString Encoded Cell Coordinates
      */
     public MatrixData(String name, int[] size, String rleString) {
-        this.title = name;
-        this.size = new Size(size[0], size[1]);
-        this.rleString = rleString;
+        this("B2/S23", name, size, rleString);
     }
 
     /** 2-arg Constructor instantiates numItems and cells with
@@ -34,9 +47,7 @@ public class MatrixData {
      * @param rleString encoded Cell Coordinates
      */
     public MatrixData(int[] size, String rleString) {
-        this.title = "CellMatrix_(" + size[0] + "x" + size[1] + ")";
-        this.size = new Size(size[0], size[1]);
-        this.rleString = rleString;
+        this("CellMatrix_(" + size[0] + "x" + size[1] + ")", size, rleString);
     }
 
     /** Setter Method for Name
@@ -121,12 +132,25 @@ public class MatrixData {
 
     @Override
     public String toString() {
-        String temp = "\"" + title + "\"";
-        temp += "////";
-        temp += "(" + size.getX() + "x" + size.getY() + ")";
-        temp += "////";
-        temp += "[" + rleString + "]";
-        return temp;
+        StringBuilder sb = new StringBuilder();
+        sb.append("#N " + title + "\n");
+        sb.append("x = " + size.getX() + ", y = " + size.getY());
+        sb.append(", rule = ");
+        if(rule == null) {
+            sb.append("B2/S23");
+        }
+        else {
+            sb.append(rule);
+        }
+        sb.append("\n");
+        char[] temp = rleString.toCharArray();
+        for(int i = 0; i < rleString.length(); i++) {
+            if(i > 0 && i % 60 == 0) {
+                sb.append("\n");
+            }
+            sb.append(temp[i]);
+        }
+        return sb.toString();
     }
 
     public String getRleString() {
@@ -135,6 +159,10 @@ public class MatrixData {
 
     public void setRleString(String rle) {
         rleString = rle;
+    }
+
+    public String getRule() {
+        return rule;
     }
 }
 
