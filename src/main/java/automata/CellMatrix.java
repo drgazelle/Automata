@@ -2,6 +2,7 @@ package automata;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -360,6 +361,48 @@ public class CellMatrix {
             }
         }
         return num;
+    }
+
+    public BufferedImage toImage(double width) {
+        int numFullCols = numFullCols();
+
+        //calculates scale and height
+        double size = width / numRows;
+        double height = size * numFullCols;
+
+        BufferedImage image = new BufferedImage((int) width, (int) height, BufferedImage.TYPE_3BYTE_BGR);
+        Graphics2D g2 = image.createGraphics();
+
+        Cell[][] temp = new Cell[numRows][numFullCols];
+        for (int x = 0; x < numRows; x++) {
+            for (int y = 0; y < numFullCols; y++) {
+                temp[x][y] = new Cell(x * size, y * size, size);
+                if(matrix[x][y].isAlive()) {
+                    temp[x][y].revive();
+                }
+                temp[x][y].drawCell(g2, false);
+            }
+        }
+        return image;
+    }
+
+    /** Calculates the true height of a cell matrix
+     *
+     * @return number of filled columns
+     */
+    private int numFullCols() {
+        //calculates number of non-blank columns
+        int numFullCols = numCols;
+        for(int y = numCols - 1; y >= 0; y--) {
+            //loops through columns from bottom
+            for (int x = 0; x < numRows; x++) {
+                if(matrix[x][y].isAlive()) {
+                    return numFullCols;
+                }
+            }
+            numFullCols--;
+        }
+        return numFullCols;
     }
 
     /**

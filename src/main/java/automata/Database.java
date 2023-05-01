@@ -1,19 +1,20 @@
 package automata;
 
 import com.google.gson.*;
+import dynamicpanel.DynamicImage;
 import dynamicpanel.DynamicPanel;
 import dynamicpanel.ProgressBar;
 import dynamicpanel.TextBar;
 import kong.unirest.*;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import java.util.LinkedList;
 import java.util.Scanner;
 
 /** Database Class imports and exports
@@ -31,6 +32,8 @@ public class Database {
     private final int maxSize;
     private final DynamicPanel databaseMenu;
     private final ProgressBar storageBar;
+    private final DynamicImage previewImage;
+    private boolean showPreview;
 
     /** 0-arg constructor implements ArrayList of SparseMatrices
      *  of Cells objects from a text document.
@@ -56,11 +59,12 @@ public class Database {
         try {
             File[] files = directory.listFiles();
             System.out.println("Accessing Data...");
+            //navigates through files
             for(File file : files) {
-
                 if (file.isFile() && file.getName().contains(".rle")) {
-                    //if file exists, imports
+                    //if valid file
                     if(importData(file)) {
+                        //if successfully imported
                         System.out.println("Added " + file.getName());
                     }
                     else {
@@ -78,12 +82,14 @@ public class Database {
             e.printStackTrace();
         }
 
-        //checks for data.txt
-
         //Adds storageBar to end
         storageBar = new ProgressBar(databaseMenu.getBorderlessWidth(), 10, 0, maxSize, size());
         storageBar.setColors(Color.darkGray, Color.gray, Color.black);
         databaseMenu.addItem(storageBar);
+
+        previewImage = new DynamicImage(0, 0, null);
+        databaseMenu.addItem(previewImage);
+        showPreview = true;
     }
 
     /** importData method instantiates database using data.txt
@@ -91,6 +97,7 @@ public class Database {
      */
     private boolean importData(File file) {
         try {
+            //default config
             String name = "";
             int[] size = new int[]{0, 0};
             String rleString = "";
@@ -101,9 +108,11 @@ public class Database {
             while (input.hasNextLine()) {
                 String line = input.nextLine();
                 if(line.contains("#N")) {
+                    //if name comment
                     name = line.substring(line.indexOf("#N") + 2, line.length()).trim();
                 }
                 if(!line.contains("#")) {
+                    //if not a comment
                     if(line.contains("=")) {
                         String[] parts = line.split(",");
                         size = new int[]{toDimensions(parts[0]), toDimensions(parts[1])};
@@ -127,6 +136,11 @@ public class Database {
         return true;
     }
 
+    /** Dissects string for digits and assembles
+     *  a number.
+     * @param s string
+     * @return number from string
+     */
     private int toDimensions(String s) {
         char[] letters = s.toCharArray();
         String temp = "";
@@ -163,8 +177,16 @@ public class Database {
         return true;
     }
 
+    /** formats string by removing
+     *  spaces, /, and putting it all to
+     *  lowercase. Adds a .rle extension
+     *
+     * @param title string to be formatted
+     * @return formatted string
+     */
     private String formatTitle(String title) {
-        return title.replaceAll(" ", "").replaceAll("/", "").toLowerCase() + ".rle";
+        return title.replaceAll(" ", "")
+                .replaceAll("/", "").toLowerCase() + ".rle";
     }
 
     /** Resizes and updates progress
@@ -231,6 +253,7 @@ public class Database {
         if(index >= database.size()) {
             index = 0;
         }
+        updateImage();
         return index;
     }
 
@@ -244,6 +267,7 @@ public class Database {
         if(index < 0) {
             index = database.size() - 1;
         }
+        updateImage();
         return index;
     }
 
@@ -261,6 +285,11 @@ public class Database {
         return index > -1;
     }
 
+    /** passthrough for selection in menu
+     *
+     * @param mouseX horizontal mouse position
+     * @param mouseY vertical mouse position
+     */
     public void select(int mouseX, int mouseY) {
         int temp = databaseMenu.getIndexAt(mouseX, mouseY);
         if(temp > 0 && temp <= size()) {
@@ -278,8 +307,16 @@ public class Database {
         if(isSelected()) {
             databaseMenu.select(index + startIndex);
         }
+        else {
+            previewImage.setImage(null);
+        }
         updateBar();
         databaseMenu.draw(g2, 10, 10);
+    }
+
+    private void updateImage() {
+        int width = databaseMenu.getBorderlessWidth();
+        previewImage.setImage(database.get(index).toImage(width));
     }
 
     /** Accesses wikicollections api for patterns based of search term
@@ -330,6 +367,10 @@ public class Database {
         }
     }
 
+    /** Updates title at a given index
+     *
+     * @param s new title
+     */
     public void updateTitle(String s) {
         ((TextBar) databaseMenu.getItem(index + 1)).setText(s);
     }

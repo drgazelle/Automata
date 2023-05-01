@@ -122,7 +122,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         updateMenu();
 
         //Simulation
-        simulation = new Simulation(125, 18);
+        simulation = new Simulation(130, 20);
         simulation.reset(matrix);
 
         repaint();

@@ -1,5 +1,8 @@
 package automata;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
 /** MatrixData class assigns a title to
  *  a CellMatrix's and stores the numItems
  *  and living cells contents.
@@ -151,6 +154,10 @@ public class MatrixData {
             sb.append(temp[i]);
         }
         return sb.toString();
+    }
+
+    public BufferedImage toImage(double width) {
+        return toCellMatrix().toImage(width);
     }
 
     public String getRleString() {
