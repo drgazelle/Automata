@@ -20,6 +20,8 @@ public class Simulation {
     private int maxLiving;
     private int minLiving;
     private int numTicks;
+    private int numTicksEquilibrium;
+    private int duration;
 
 
     /** 2-arg Constructor instantiates the menu
@@ -133,7 +135,23 @@ public class Simulation {
 
             slope = Math.round(livingGraph.getSlope(numTicks - 2, numTicks) * 100) / 100.0;
             deathInstRate.setText("Curr. Cells/Tick: " + slope);
-        }
+
+            if (livingGraph.getSlope(numTicks - 2, numTicks) == 0) {
+                if(numTicksEquilibrium == -1) {
+                    numTicksEquilibrium = numTicks;
+                }
+                if(duration > 5) {
+                    deathInstRate.setText("Equilibrium @ (" + numTicksEquilibrium + ", " + population + ")");
+                }
+                else {
+                    duration++;
+                }
+            }
+            else {
+                numTicksEquilibrium = -1;
+                duration = 0;
+            }
+         }
         else {
             //else insufficient data
             deathAvgRate.setText("Avg. Cells/Tick: N/A");
@@ -185,3 +203,4 @@ public class Simulation {
         panel.draw(g, pX, pY);
     }
 }
+

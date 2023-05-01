@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GameOfLife.iml" filepath="$PROJECT_DIR$/GameOfLife.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../SparseMatrix/src/SparseMatrix.iml" filepath="$PROJECT_DIR$/../SparseMatrix/src/SparseMatrix.iml" />
     </modules>
   </component>
 </project>
