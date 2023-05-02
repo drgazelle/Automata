@@ -33,6 +33,7 @@ public class CellMatrix {
         numRows = numR;
         numCols = numC;
 
+        //instantiates matrix
         matrix = new Cell[numRows][numCols];
         double size = ((double) AppDriver.WIDTH) / numR;
         for (int x = 0; x < numR; x++) {
@@ -40,6 +41,8 @@ public class CellMatrix {
                 matrix[x][y] = new Cell(x * size, y * size, size);
             }
         }
+
+        //instantiates buffer adding initial state
         buffer = new ArrayList<>();
         buffer.add(matrix);
 
@@ -363,6 +366,11 @@ public class CellMatrix {
         return num;
     }
 
+    /** Converts matrix to buffered image excluding
+     *  blank rows
+      * @param width desired image width
+     * @return image of CellMatrix
+     */
     public BufferedImage toImage(double width) {
         int numFullCols = numFullCols();
 
@@ -370,9 +378,11 @@ public class CellMatrix {
         double size = width / numRows;
         double height = size * numFullCols;
 
+        //creates a new buffered image and graphics
         BufferedImage image = new BufferedImage((int) width, (int) height, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D g2 = image.createGraphics();
 
+        //loops through bounded cell matrix and draws image to graphic
         Cell[][] temp = new Cell[numRows][numFullCols];
         for (int x = 0; x < numRows; x++) {
             for (int y = 0; y < numFullCols; y++) {
@@ -397,6 +407,7 @@ public class CellMatrix {
             //loops through columns from bottom
             for (int x = 0; x < numRows; x++) {
                 if(matrix[x][y].isAlive()) {
+                    //ends if non-blank row
                     return numFullCols;
                 }
             }
@@ -474,9 +485,11 @@ public class CellMatrix {
         if(coords == null) {
             return false;
         }
+        //adjusted coordinates
         pX = coords[0];
         pY = coords[1];
 
+        //loops through new matrix and places to position
         for (int x = pX; x < cm.matrix.length + pX; x++) {
             for (int y = pY; y < cm.matrix[0].length + pY; y++) {
                 if(cm.matrix[x - pX][y - pY].isAlive()) {

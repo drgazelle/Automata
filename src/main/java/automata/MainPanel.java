@@ -53,6 +53,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showStats;
     private boolean showBuffer;
     private boolean showModifier;
+    private boolean showPreview;
 
     //Menu Object
     private final DynamicPanel mainMenu;
@@ -94,6 +95,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showHighlight = false;
         showGrid = true;
         showModifier = false;
+        showPreview = false;
 
         //Sets Application Theme
         mainColor = new Color((int) (Math.random() * 0x1000000));
@@ -164,7 +166,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             mainMenu.draw(g, pX, pY);
         }
         if (showDatabase) {
-            database.paintDatabase(g);
+            database.paintDatabase(g, showPreview);
             g.setFont(mainFont);
         }
         if (showStats) {
@@ -267,6 +269,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Modify RLE [I]",
                                 "Remove Selected [K]",
                                 "Clear Selection [M]",
+                                "Toggle Preview [Y]",
                                 "Save [Z]",
                                 "Wipe Database [L]",
                                 "Hover to Select"};
@@ -626,6 +629,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
 
         if (showDatabase) {
+            if (e.getKeyCode() == KeyEvent.VK_Y) {
+                //shows preview on 'Y'
+                showPreview = !showPreview;
+            }
             if (e.getKeyCode() == KeyEvent.VK_SEMICOLON) {
                 //Prompts User for search term
                 String s = (String) JOptionPane.showInputDialog(

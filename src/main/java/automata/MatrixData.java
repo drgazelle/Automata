@@ -1,6 +1,5 @@
 package automata;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /** MatrixData class assigns a title to

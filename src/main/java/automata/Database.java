@@ -8,7 +8,6 @@ import dynamicpanel.TextBar;
 import kong.unirest.*;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -109,7 +108,7 @@ public class Database {
                 String line = input.nextLine();
                 if(line.contains("#N")) {
                     //if name comment
-                    name = line.substring(line.indexOf("#N") + 2, line.length()).trim();
+                    name = line.substring(line.indexOf("#N") + 2).trim();
                 }
                 if(!line.contains("#")) {
                     //if not a comment
@@ -301,11 +300,14 @@ public class Database {
      *
      * @param g graphics
      */
-    public void paintDatabase(Graphics g) {
+    public void paintDatabase(Graphics g, boolean showPreview) {
         Graphics2D g2 = (Graphics2D) g;
         databaseMenu.clearSelection();
         if(isSelected()) {
             databaseMenu.select(index + startIndex);
+        }
+        if(showPreview && isSelected()) {
+            previewImage.setImage(database.get(index).toImage(databaseMenu.getBorderlessWidth()));
         }
         else {
             previewImage.setImage(null);
