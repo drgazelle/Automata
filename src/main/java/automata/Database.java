@@ -32,7 +32,6 @@ public class Database {
     private final DynamicPanel databaseMenu;
     private final ProgressBar storageBar;
     private final DynamicImage previewImage;
-    private boolean showPreview;
 
     /** 0-arg constructor implements ArrayList of SparseMatrices
      *  of Cells objects from a text document.
@@ -62,9 +61,11 @@ public class Database {
             for(File file : files) {
                 if (file.isFile() && file.getName().contains(".rle")) {
                     //if valid file
-                    if(importData(file)) {
+                    MatrixData md = importData(file);
+                    if (md != null) {
                         //if successfully imported
                         System.out.println("Added " + file.getName());
+                        add(md);
                     }
                     else {
                         System.out.println("ERROR: Failed to Import " + file.getName());
@@ -88,13 +89,12 @@ public class Database {
 
         previewImage = new DynamicImage(0, 0, null);
         databaseMenu.addItem(previewImage);
-        showPreview = true;
     }
 
     /** importData method instantiates database using data.txt
      *  @return true if successfully instantiated database, false if error
      */
-    private boolean importData(File file) {
+    public MatrixData importData(File file) {
         try {
             //default config
             String name = "";
@@ -122,17 +122,16 @@ public class Database {
                         rleString += line;
                     }
                 }
-                //adds new MatrixData to database
             }
-            add(new MatrixData(rule, name, size, rleString));
             //closes scanner
             input.close();
+            //Returns new MatrixData
+            return new MatrixData(rule, name, size, rleString);
         } catch (FileNotFoundException e) {
             System.out.println("ERROR: Couldn't Read File");
             e.printStackTrace();
-            return false;
         }
-        return true;
+        return null;
     }
 
     /** Dissects string for digits and assembles
@@ -148,7 +147,7 @@ public class Database {
                 temp += c;
             }
         }
-        return Integer.valueOf(temp);
+        return Integer.parseInt(temp);
     }
 
     /** exportData method writes patterns to rle
@@ -304,18 +303,27 @@ public class Database {
         Graphics2D g2 = (Graphics2D) g;
         databaseMenu.clearSelection();
         if(isSelected()) {
+            //selects item at index
             databaseMenu.select(index + startIndex);
         }
-        if(showPreview && isSelected()) {
-            previewImage.setImage(database.get(index).toImage(databaseMenu.getBorderlessWidth()));
+        if (showPreview && isSelected()) {
+            //if preview is shown and item is selected
+            if (previewImage.getImage() == null) {
+                //if no image present
+                updateImage();
+            }
         }
         else {
+            //else sets image to null
             previewImage.setImage(null);
         }
         updateBar();
         databaseMenu.draw(g2, 10, 10);
     }
 
+    /** Updates Image to be within menu width
+     *
+     */
     private void updateImage() {
         int width = databaseMenu.getBorderlessWidth();
         previewImage.setImage(database.get(index).toImage(width));

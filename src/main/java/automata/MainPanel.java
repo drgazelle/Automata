@@ -8,6 +8,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 
 /** MainPanel class renders a CellMatrix
  *  representing an interactive version
@@ -126,6 +127,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //Simulation
         simulation = new Simulation(130, 20);
         simulation.reset(matrix);
+
+        matrix.placeCellMatrix(28, 35, database.importData(new File("src/main/resources/halftitle.rle")).toCellMatrix());
 
         repaint();
     }
@@ -261,7 +264,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Toggle Menu [G]",
                                 "Toggle Modifiers [SHIFT]"};
         String[] modifierItems = {"Forward Tick [SHIFT + A]",
-                                "Reverse Tick [SHIFT + D]",};
+                                "Reverse Tick [SHIFT + D]",
+                                "Paint Cells [SHIFT + MOUSE]"};
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
                                 "Navigate Database [U/N]",
@@ -356,7 +360,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void mouseEntered(MouseEvent e) {
-
     }
 
     /**
@@ -405,13 +408,23 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
 
         if(showDatabase) {
+            //if database is visible
             database.select(mouseX, mouseY);
             if(database.isSelected()) {
+                //if item is selected
                 importFromDB();
             }
         }
         if(showStats) {
+            //tool-tips on hover
             simulation.showToolTip(mouseX, mouseY);
+        }
+        if (showModifier) {
+            //paints cells when modifier is active
+            Cell cell = matrix.findCellAt(mouseX, mouseY);
+            if(cell != null) {
+                cell.revive();
+            }
         }
         repaint();
     }

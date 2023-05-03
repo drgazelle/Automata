@@ -45,4 +45,8 @@ public class DynamicImage extends DynamicItem {
         super.draw(g, pX, pY);
         g.drawImage(image, pX, pY, null);
     }
+
+    public BufferedImage getImage() {
+        return image;
+    }
 }
