@@ -21,6 +21,7 @@ public class CellMatrix {
     private static LinkedList<Integer> birth;
     private static LinkedList<Integer> survival;
     private static int bufferMax = 100;
+    private static boolean heapMap = false;
 
     /**
      * 2-arg constructor instantiates a 2D matrix
@@ -105,6 +106,10 @@ public class CellMatrix {
         return temp;
     }
 
+    public static void setHeapMap(boolean heapMap) {
+        CellMatrix.heapMap = heapMap;
+    }
+
     public int getNumRows() {
         return numRows;
     }
@@ -138,6 +143,7 @@ public class CellMatrix {
         }
         buffer.clear();
         buffer.add(matrix);
+
     }
 
     /** Kills all cells. */
@@ -215,6 +221,19 @@ public class CellMatrix {
 
         //Adds Matrix to buffer
         buffer.add(g2.matrix);
+    }
+
+    /** Displays heatMap
+     *
+     * @param wrapEnabled edge condition
+     */
+    public void heatMap(boolean wrapEnabled) {
+        for (int x = 0; x < numRows; x++) {
+            for (int y = 0; y < numCols; y++) {
+                Cell c = matrix[x][y];
+                c.heatMap(numLivingNeighbors(x, y, wrapEnabled));
+            }
+        }
     }
 
     /** Returns matrix to previous state within buffer

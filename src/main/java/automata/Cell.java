@@ -15,6 +15,8 @@ public class Cell {
     private Rectangle2D gridCell;
     private boolean alive;
     private boolean spotlit;
+    private Color mainColor = new Color(0xc8c8c8);
+    private Color backColor = new Color(0x141414);
 
     /** 3-arg constructor that instantiates a default Cell.
      *
@@ -75,6 +77,17 @@ public class Cell {
         return gridCell;
     }
 
+    /** Sets cell color to heat map
+     *
+     * @param numLiving living neighbors
+     */
+    public void heatMap(int numLiving) {
+        int[] hexValues = new int[]{0x81D58, 0xA2c6b,0x0D47a1, 0x1976D2, 0x2196F3, 0xFFFF00, 0xFFC107,
+                                        0xFF5722, 0xdE64A19, 0xB71c1c};
+        backColor = new Color(hexValues[0]);
+        mainColor = new Color(hexValues[numLiving + 1]);
+    }
+
     /**
      * Draws cell depending on configuration.
      *
@@ -84,20 +97,19 @@ public class Cell {
     public void drawCell(Graphics g, boolean showGrid) {
         Graphics2D g2 = (Graphics2D) g;
         //generates respective color
-        float[] hsbVal = Color.RGBtoHSB(200, 200, 200, null);
-        //additionally brightness for dead cells
-        double brightness = 0.0;
+        Color c;
         //darkens for dead cells
         if (!alive) {
-            hsbVal[2] = (float) (hsbVal[2] * 0.10);
-            //increments brightness
-            brightness++;
+            c = backColor;
+        }
+        else {
+            c = mainColor;
         }
         //lightens for highlight
         if (spotlit) {
-            hsbVal[2] = (float) (hsbVal[2] * (1.25 + brightness));
+            c = c.brighter().brighter();
         }
-        g2.setColor(Color.getHSBColor(hsbVal[0], hsbVal[1], hsbVal[2]));
+        g2.setColor(c);
         //fills gridCell
         g2.fill(gridCell);
         //adds border

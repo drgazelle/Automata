@@ -55,6 +55,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showBuffer;
     private boolean showModifier;
     private boolean showPreview;
+    private boolean showHeatMap;
 
     //Menu Object
     private final DynamicPanel mainMenu;
@@ -97,6 +98,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showGrid = true;
         showModifier = false;
         showPreview = false;
+        showHeatMap = false;
 
         //Sets Application Theme
         mainColor = new Color((int) (Math.random() * 0x1000000));
@@ -153,6 +155,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void paintComponent(Graphics g) {
         g.setFont(mainFont);
+        if(showHeatMap) {
+            matrix.heatMap(wrapEnabled);
+        }
         if(showHighlight) {
             Rectangle rect = new Rectangle();
             rect.setFrameFromDiagonal(endPoint, startPoint);
@@ -265,6 +270,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Toggle Modifiers [SHIFT]"};
         String[] modifierItems = {"Forward Tick [SHIFT + A]",
                                 "Reverse Tick [SHIFT + D]",
+                                "Toggle Heat Map [SHIFT + X]",
                                 "Paint Cells [SHIFT + MOUSE]"};
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
@@ -451,9 +457,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        matrix.tick(wrapEnabled);
-        numTicks++;
-        simulation.update(numTicks);
+        tick();
         repaint();
     }
 
@@ -493,8 +497,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     tick();
                 }
                 if(e.getKeyCode() == KeyEvent.VK_A) {
+                    //singular rollback
                     rollback();
                 }
+            }
+            if(e.getKeyCode() == KeyEvent.VK_X) {
+                //toggles heatmap on 'X'
+                showHeatMap = !showHeatMap;
             }
         }
         else {
@@ -606,9 +615,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
             if (e.getKeyCode() == KeyEvent.VK_S) {
                 //randomizes matrix seed on 'S'
-                matrix.genocide();
-                matrix.randomSeed(maxP);
-                numTicks = 0;
+                changeGrid(0);
                 simulation.reset(matrix);
             }
             if (e.getKeyCode() == KeyEvent.VK_C) {
