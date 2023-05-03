@@ -21,7 +21,7 @@ public class CellMatrix {
     private static LinkedList<Integer> birth;
     private static LinkedList<Integer> survival;
     private static int bufferMax = 100;
-    private static boolean heapMap = false;
+    private static boolean showLegacy = false;
 
     /**
      * 2-arg constructor instantiates a 2D matrix
@@ -51,6 +51,14 @@ public class CellMatrix {
         if (birth == null || survival == null) {
             fillRuleLists();
         }
+    }
+
+    /** Sets status of legacy
+     *
+     * @param status condition
+     */
+    public static void setLegacy(boolean status) {
+        showLegacy = status;
     }
 
     /** Accessor Method for Rule
@@ -88,8 +96,8 @@ public class CellMatrix {
             s = parts[0];
         }
 
-        birth = fromRuleSet(b.substring(1, b.length()));
-        survival = fromRuleSet(s.substring(1, s.length()));
+        birth = fromRuleSet(b.substring(1));
+        survival = fromRuleSet(s.substring(1));
     }
 
     /** Converts String to int[]
@@ -99,15 +107,11 @@ public class CellMatrix {
      */
     private static LinkedList<Integer> fromRuleSet(String str) {
         char[] nums = str.toCharArray();
-        LinkedList<Integer> temp = new LinkedList();
+        LinkedList<Integer> temp = new LinkedList<>();
         for (char c : nums) {
             temp.add(Integer.valueOf("" + c));
         }
         return temp;
-    }
-
-    public static void setHeapMap(boolean heapMap) {
-        CellMatrix.heapMap = heapMap;
     }
 
     public int getNumRows() {
@@ -141,9 +145,21 @@ public class CellMatrix {
                 }
             }
         }
+        if(showLegacy) {
+            //if showing legacy
+            randomColors();
+        }
         buffer.clear();
         buffer.add(matrix);
+    }
 
+    /** Gives randomColors to each living cell */
+    public void randomColors() {
+        for (Cell[] cells : matrix) {
+            for(Cell cell : cells) {
+                cell.setMainColor(new Color((int) (Math.random() * 0x1000000)));
+            }
+        }
     }
 
     /** Kills all cells. */
@@ -197,6 +213,9 @@ public class CellMatrix {
                     if(survival.contains(numLiving)) {
                         //if survives
                         g2.matrix[x][y].revive();
+                        if (showLegacy) {
+                            g2.matrix[x][y].setMainColor(c.getMainColor());
+                        }
                     }
                 }
                 else {
@@ -204,6 +223,9 @@ public class CellMatrix {
                     if (birth.contains(numLiving)) {
                         //reproduction
                         g2.matrix[x][y].revive();
+                        if(showLegacy) {
+                            g2.matrix[x][y].setMainColor(new Color((int) (Math.random() * 0x1000000)));
+                        }
                     }
                 }
                 //else dies to isolation, under-population, or over-population
@@ -221,6 +243,15 @@ public class CellMatrix {
 
         //Adds Matrix to buffer
         buffer.add(g2.matrix);
+    }
+
+    public void reset() {
+        for(Cell[] cells : matrix) {
+            for(Cell cell : cells) {
+                cell.setMainColor(new Color(0xc8c8c8));
+                cell.setBackColor(new Color(0x141414));
+            }
+        }
     }
 
     /** Displays heatMap
@@ -249,6 +280,10 @@ public class CellMatrix {
         return false;
     }
 
+    /** Calculates the number
+     *  of living cells
+     * @return population size
+     */
     public int numLivingCells() {
         int living = 0;
         for (Cell[] cells : matrix) {
@@ -440,7 +475,7 @@ public class CellMatrix {
      * draws Cell Matrix.
      *
      * @param g        graphics
-     * @param showGrid
+     * @param showGrid if grid enabled
      */
     public void drawMatrix(Graphics g, boolean showGrid) {
         for (Cell[] row : matrix) {
@@ -657,22 +692,6 @@ public class CellMatrix {
             }
         }
         return cm;
-    }
-
-    /** Number of Living Cells
-     *
-     * @return population
-     */
-    public int population() {
-        int population = 0;
-        for(Cell[] cells : matrix) {
-            for (Cell c : cells) {
-                if(c.isAlive()) {
-                    population++;
-                }
-            }
-        }
-        return population;
     }
 
     /** String representation of CellMatrix in RLE format

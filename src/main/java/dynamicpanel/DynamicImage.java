@@ -46,6 +46,10 @@ public class DynamicImage extends DynamicItem {
         g.drawImage(image, pX, pY, null);
     }
 
+    /** Accessor Method for image
+     *
+     * @return image
+     */
     public BufferedImage getImage() {
         return image;
     }

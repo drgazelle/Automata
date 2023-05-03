@@ -56,6 +56,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showModifier;
     private boolean showPreview;
     private boolean showHeatMap;
+    private boolean showLegacy;
 
     //Menu Object
     private final DynamicPanel mainMenu;
@@ -99,6 +100,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showModifier = false;
         showPreview = false;
         showHeatMap = false;
+        showLegacy = false;
 
         //Sets Application Theme
         mainColor = new Color((int) (Math.random() * 0x1000000));
@@ -504,6 +506,22 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             if(e.getKeyCode() == KeyEvent.VK_X) {
                 //toggles heatmap on 'X'
                 showHeatMap = !showHeatMap;
+                if(!showHeatMap) {
+                    //resets matrix if off
+                    matrix.reset();
+                }
+            }
+            if(e.getKeyCode() == KeyEvent.VK_C) {
+                //toggles legacy on 'C'
+                showLegacy = !showLegacy;
+                CellMatrix.setLegacy(showLegacy);
+                if (showLegacy) {
+                    matrix.randomColors();
+                }
+                else {
+                    //resets if off
+                    matrix.reset();
+                }
             }
         }
         else {

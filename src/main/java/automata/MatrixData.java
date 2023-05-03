@@ -2,9 +2,9 @@ package automata;
 
 import java.awt.image.BufferedImage;
 
-/** MatrixData class assigns a title to
- *  a CellMatrix's and stores the numItems
- *  and living cells contents.
+/** MatrixData class provides a container
+ *  for CellMatrix data and other relevant
+ *  information.
  *
  * @author RMizelle
  */
@@ -136,7 +136,7 @@ public class MatrixData {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("#N " + title + "\n");
-        sb.append("x = " + size.getX() + ", y = " + size.getY());
+        sb.append(size);
         sb.append(", rule = ");
         if(rule == null) {
             sb.append("B2/S23");
@@ -199,6 +199,6 @@ class Size {
 
     @Override
     public String toString() {
-        return "X:" + x + "\tY: " + y;
+        return "x = " + x + ", y = " + y;
     }
 }

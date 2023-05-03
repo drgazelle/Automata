@@ -12,7 +12,7 @@ import java.awt.geom.Rectangle2D;
  * @author RMizelle
  */
 public class Cell {
-    private Rectangle2D gridCell;
+    private final Rectangle2D gridCell;
     private boolean alive;
     private boolean spotlit;
     private Color mainColor = new Color(0xc8c8c8);
@@ -88,11 +88,23 @@ public class Cell {
         mainColor = new Color(hexValues[numLiving + 1]);
     }
 
+    public Color getMainColor() {
+        return mainColor;
+    }
+
+    public void setMainColor(Color c) {
+        mainColor = c;
+    }
+
+    public void setBackColor(Color c) {
+        backColor = c;
+    }
+
     /**
      * Draws cell depending on configuration.
      *
      * @param g        graphics component
-     * @param showGrid
+     * @param showGrid if grid enabled
      */
     public void drawCell(Graphics g, boolean showGrid) {
         Graphics2D g2 = (Graphics2D) g;
