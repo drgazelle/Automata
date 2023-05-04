@@ -208,7 +208,10 @@ public class CellMatrix {
                 Cell c = matrix[x][y];
                 //num of living neighbors
                 int numLiving = numLivingNeighbors(x, y, wrapEnabled);
-                if (c.isAlive()) {
+                if(c.isWall()) {
+                    g2.matrix[x][y].setWall();
+                }
+                else if (c.isAlive()) {
                     //if alive
                     if(survival.contains(numLiving)) {
                         //if survives

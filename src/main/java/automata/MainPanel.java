@@ -57,6 +57,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private boolean showPreview;
     private boolean showHeatMap;
     private boolean showLegacy;
+    private boolean placeWall;
 
     //Menu Object
     private final DynamicPanel mainMenu;
@@ -101,6 +102,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         showPreview = false;
         showHeatMap = false;
         showLegacy = false;
+        placeWall = false;
 
         //Sets Application Theme
         mainColor = new Color((int) (Math.random() * 0x1000000));
@@ -273,6 +275,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         String[] modifierItems = {"Forward Tick [SHIFT + A]",
                                 "Reverse Tick [SHIFT + D]",
                                 "Toggle Heat Map [SHIFT + X]",
+                                "Toggle Placement [SHIFT + Z]",
                                 "Paint Cells [SHIFT + MOUSE]"};
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
@@ -339,7 +342,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 coords[1] -= cm.getNumCols() / 2;
                 matrix.placeCellMatrix(coords[0], coords[1], cm);
             }
-            else if (cell != null) cell.flip();
+            else if (cell != null) {
+                cell.flip(placeWall);
+            }
         }
         else if (button == MouseEvent.BUTTON3) {
             startPoint = new Point(mouseX, mouseY);
@@ -431,7 +436,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             //paints cells when modifier is active
             Cell cell = matrix.findCellAt(mouseX, mouseY);
             if(cell != null) {
-                cell.revive();
+                if(placeWall) {
+                    cell.setWall();
+                }
+                else {
+                    cell.revive();
+                }
             }
         }
         repaint();
@@ -502,6 +512,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     //singular rollback
                     rollback();
                 }
+            }
+            if(e.getKeyCode() == KeyEvent.VK_Z) {
+                //Changes placement mode on 'Z'
+                placeWall = !placeWall;
             }
             if(e.getKeyCode() == KeyEvent.VK_X) {
                 //toggles heatmap on 'X'

@@ -15,6 +15,7 @@ public class Cell {
     private final Rectangle2D gridCell;
     private boolean alive;
     private boolean spotlit;
+    private boolean wall;
     private Color mainColor = new Color(0xc8c8c8);
     private Color backColor = new Color(0x141414);
 
@@ -26,6 +27,7 @@ public class Cell {
      */
     public Cell(double pX, double pY, double size) {
         gridCell = new Rectangle2D.Double(pX, pY, size, size);
+        wall = false;
     }
 
     /** Returns Mortality of Cell.
@@ -33,6 +35,9 @@ public class Cell {
      * @return true if Cell is living, false otherwise
      */
     public boolean isAlive() {
+        if (wall) {
+            return false;
+        }
         return alive;
     }
 
@@ -47,8 +52,13 @@ public class Cell {
     }
 
     /** Inverses mortality status. */
-    public void flip() {
-        alive = !alive;
+    public void flip(boolean flipWall) {
+        if(flipWall) {
+            wall = !wall;
+        }
+        else {
+            alive = !alive;
+        }
     }
 
     /** Accessor Method for Spotlit.
@@ -85,7 +95,12 @@ public class Cell {
         int[] hexValues = new int[]{0x81D58, 0xA2c6b,0x0D47a1, 0x1976D2, 0x2196F3, 0xFFFF00, 0xFFC107,
                                         0xFF5722, 0xdE64A19, 0xB71c1c};
         backColor = new Color(hexValues[0]);
-        mainColor = new Color(hexValues[numLiving + 1]);
+        if(wall) {
+            mainColor = Color.white;
+        }
+        else {
+            mainColor = new Color(hexValues[numLiving + 1]);
+        }
     }
 
     public Color getMainColor() {
@@ -111,11 +126,11 @@ public class Cell {
         //generates respective color
         Color c;
         //darkens for dead cells
-        if (!alive) {
-            c = backColor;
+        if(wall || alive) {
+            c = mainColor;
         }
         else {
-            c = mainColor;
+            c = backColor;
         }
         //lightens for highlight
         if (spotlit) {
@@ -129,5 +144,14 @@ public class Cell {
             g2.setColor(Color.black);
             g2.draw(gridCell);
         }
+    }
+
+    public boolean isWall() {
+        return wall;
+    }
+
+    public void setWall() {
+        wall = true;
+        mainColor = Color.black;
     }
 }
