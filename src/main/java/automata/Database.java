@@ -1,11 +1,17 @@
 package automata;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import dynamicpanel.DynamicImage;
 import dynamicpanel.DynamicPanel;
 import dynamicpanel.ProgressBar;
 import dynamicpanel.TextBar;
-import kong.unirest.*;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
+import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -13,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import java.util.Scanner;
 
 /** Database Class imports and exports
@@ -156,6 +161,11 @@ public class Database {
      *  @return true if successful, false if error
      */
     public boolean exportDatabase() {
+        try {
+            FileUtils.cleanDirectory(directory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         File[] files = directory.listFiles();
         for (File file : files) {
             file.delete();

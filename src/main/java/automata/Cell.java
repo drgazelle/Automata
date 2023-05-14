@@ -52,8 +52,8 @@ public class Cell {
     }
 
     /** Inverses mortality status. */
-    public void flip(boolean flipWall) {
-        if(flipWall) {
+    public void flip(boolean placeWall) {
+        if (placeWall) {
             wall = !wall;
         }
         else {
@@ -152,6 +152,10 @@ public class Cell {
 
     public void setWall() {
         wall = true;
-        mainColor = Color.black;
+        mainColor = MainPanel.mainColor;
+    }
+
+    public void clearWall() {
+        wall = false;
     }
 }

@@ -114,6 +114,21 @@ public class CellMatrix {
         return temp;
     }
 
+    public static CellMatrix generatePaintBrush(boolean placeWall, int size) {
+        CellMatrix cm = new CellMatrix(size, size);
+        for(Cell[] cells : cm.matrix) {
+            for(Cell c : cells) {
+                if(placeWall) {
+                    c.setWall();
+                }
+                else {
+                    c.revive();
+                }
+            }
+        }
+        return cm;
+    }
+
     public int getNumRows() {
         return numRows;
     }
@@ -140,7 +155,7 @@ public class CellMatrix {
     public void randomSeed(double probability) {
         for (Cell[] cells : matrix) {
             for (Cell c : cells) {
-                if (Math.random() < probability) {
+                if (!c.isWall() && Math.random() < probability) {
                     c.revive();
                 }
             }
@@ -171,6 +186,19 @@ public class CellMatrix {
             }
         }
         buffer.add(matrix);
+    }
+
+    /** Removes all walls. */
+    public void clearWalls() {
+        for (Cell[] cells : matrix) {
+            for (Cell cell : cells) {
+                if(cell.isWall()) {
+                    cell.setMainColor(new Color(0xc8c8c8));
+                    cell.setBackColor(new Color(0x141414));
+                    cell.clearWall();
+                }
+            }
+        }
     }
 
     public static void setBufferMax(int max) {
@@ -549,7 +577,10 @@ public class CellMatrix {
         //loops through new matrix and places to position
         for (int x = pX; x < cm.matrix.length + pX; x++) {
             for (int y = pY; y < cm.matrix[0].length + pY; y++) {
-                if(cm.matrix[x - pX][y - pY].isAlive()) {
+                if (cm.matrix[x - pX][y - pY].isWall()) {
+                    matrix[x][y].setWall();
+                }
+                else if(cm.matrix[x - pX][y - pY].isAlive()) {
                     matrix[x][y].revive();
                 }
                 else {

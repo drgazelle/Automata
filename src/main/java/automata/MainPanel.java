@@ -29,8 +29,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     //Matrix Variables
     private CellMatrix matrix;
     private CellMatrix cm;
-    private final double maxP;
+    private double maxP;
     private final int increment;
+    private int brushSize;
 
     //Database Variables
     private final Database database;
@@ -80,6 +81,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         //configuration
         increment = 5;
         wrapEnabled = true;
+        brushSize = 1;
 
         //randomizes seed
         maxP = 0.30;
@@ -265,6 +267,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Change Speed [A/D]",
                                 "Wrap-Around Grid [W]",
                                 "Change Rule [R]",
+                                "Change Probability [V]",
                                 "Generate Random Seed [S]",
                                 "Clear [C]",
                                 "Toggle Grid [X]",
@@ -436,12 +439,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             //paints cells when modifier is active
             Cell cell = matrix.findCellAt(mouseX, mouseY);
             if(cell != null) {
-                if(placeWall) {
-                    cell.setWall();
-                }
-                else {
-                    cell.revive();
-                }
+                int[] coords = matrix.getCellCoordinates(cell);
+                //centers placement
+                CellMatrix temp = CellMatrix.generatePaintBrush(placeWall, brushSize);
+                coords[0] -= temp.getNumRows() / 2;
+                coords[1] -= temp.getNumCols() / 2;
+                matrix.placeCellMatrix(coords[0], coords[1], temp);
             }
         }
         repaint();
@@ -525,8 +528,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     matrix.reset();
                 }
             }
-            if(e.getKeyCode() == KeyEvent.VK_C) {
-                //toggles legacy on 'C'
+            if (e.getKeyCode() == KeyEvent.VK_S) {
+                //toggles legacy on 'S'
                 showLegacy = !showLegacy;
                 CellMatrix.setLegacy(showLegacy);
                 if (showLegacy) {
@@ -537,7 +540,39 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     matrix.reset();
                 }
             }
-        }
+            if (e.getKeyCode() == KeyEvent.VK_E) {
+                //increases brush size on 'E'
+                if (brushSize < numRows) {
+                    //increases brush size
+                    brushSize++;
+                }
+            }
+            if (e.getKeyCode() == KeyEvent.VK_Q) {
+                //decreases brush size on 'Q'
+                if (brushSize > 0) {
+                    //decreases brush size
+                    brushSize--;
+                }
+            }
+            if(e.getKeyCode() == KeyEvent.VK_C) {
+                //Clears wall on 'C'
+                matrix.clearWalls();
+            }
+            if(e.getKeyCode() == KeyEvent.VK_B) {
+                if(mainFont.getSize() < 20) {
+                    //increases font numItems if less than 50
+                    mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() + 2);
+                    titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
+                }
+            }
+            if(e.getKeyCode() == KeyEvent.VK_V) {
+                if(mainFont.getSize() > 10) {
+                    //decreases font numItems if greater than 14
+                    mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() - 2);
+                    titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
+                }
+            }
+         }
         else {
             if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                 //toggles simulation on space-bar
@@ -647,7 +682,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
             if (e.getKeyCode() == KeyEvent.VK_S) {
                 //randomizes matrix seed on 'S'
-                changeGrid(0);
+                matrix.genocide();
+                matrix.randomSeed(maxP);
+                numTicks = 0;
                 simulation.reset(matrix);
             }
             if (e.getKeyCode() == KeyEvent.VK_C) {
@@ -656,18 +693,21 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 numTicks = 0;
                 simulation.reset(matrix);
             }
-            if(e.getKeyCode() == KeyEvent.VK_B) {
-                if(mainFont.getSize() < 20) {
-                    //increases font numItems if less than 50
-                    mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() + 2);
-                    titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
-                }
-            }
-            if(e.getKeyCode() == KeyEvent.VK_V) {
-                if(mainFont.getSize() > 10) {
-                    //decreases font numItems if greater than 14
-                    mainFont = new Font(mainFont.getFontName(), mainFont.getStyle(), mainFont.getSize() - 2);
-                    titleFont = new Font(mainFont.getFontName(), titleFont.getStyle(), 4 * mainFont.getSize() / 3);
+            if (e.getKeyCode() == KeyEvent.VK_V) {
+                //Changes probability on 'V'
+                //Prompts User for Rule
+                String s = (String) JOptionPane.showInputDialog(
+                        this, "Change Probability:", "Settings",
+                        JOptionPane.PLAIN_MESSAGE, null, null, maxP);
+                if(s != null) {
+                    double temp = maxP;
+                    try {
+                        maxP = Double.parseDouble(s);
+                    }
+                    catch (NumberFormatException n) {
+                        System.out.println("ERROR: Invalid Input");
+                        maxP = temp;
+                    }
                 }
             }
         }
@@ -867,17 +907,24 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         int notches = e.getWheelRotation();
-        //
         if (notches > 0) {
-            //expands grid
-            if (matrix.getNumRows() < AppDriver.WIDTH / 4) {
+            if (showModifier && brushSize < matrix.getNumRows()) {
+                //increases brush size
+                brushSize++;
+            }
+            else if (matrix.getNumRows() < AppDriver.WIDTH / 4) {
+                //expands grid
                 numTicks = 0;
                 changeGrid(increment);
             }
         }
         else {
-            //contracts grid
-            if (matrix.getNumRows() > increment) {
+            if (showModifier && brushSize > 0) {
+                //decreases brush size
+                brushSize--;
+            }
+            else if (matrix.getNumRows() > increment) {
+                //contracts grid
                 numTicks = 0;
                 changeGrid(-1 * increment);
             }
