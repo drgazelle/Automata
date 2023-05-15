@@ -456,8 +456,11 @@ public class CellMatrix {
       * @param width desired image width
      * @return image of CellMatrix
      */
-    public BufferedImage toImage(double width) {
-        int numFullCols = numFullCols();
+    public BufferedImage toImage(double width, boolean removeEdge, boolean showGrid) {
+        int numFullCols = numCols;
+        if(removeEdge) {
+            numFullCols = numFullCols();
+        }
 
         //calculates scale and height
         double size = width / numRows;
@@ -475,7 +478,7 @@ public class CellMatrix {
                 if(matrix[x][y].isAlive()) {
                     temp[x][y].revive();
                 }
-                temp[x][y].drawCell(g2, false);
+                temp[x][y].drawCell(g2, showGrid);
             }
         }
         return image;

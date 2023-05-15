@@ -156,7 +156,7 @@ public class MatrixData {
     }
 
     public BufferedImage toImage(double width) {
-        return toCellMatrix().toImage(width);
+        return toCellMatrix().toImage(width, true, false);
     }
 
     public String getRleString() {

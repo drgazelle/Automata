@@ -2,12 +2,14 @@ package automata;
 
 import dynamicpanel.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 /** MainPanel class renders a CellMatrix
@@ -279,6 +281,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Reverse Tick [SHIFT + D]",
                                 "Toggle Heat Map [SHIFT + X]",
                                 "Toggle Placement [SHIFT + Z]",
+                                "Clear Walls [C]",
+                                "Toggle Legacy [S]",
+                                "Change Brush Size [Q/E]",
                                 "Paint Cells [SHIFT + MOUSE]"};
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
@@ -465,6 +470,27 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         else if (cell != null) cell.spotlight();
     }
 
+    /** Prints CellMatrix to File */
+    private void printScreen() { //REMOVED FOR RELEASE
+        // creates new filename
+        File dir = new File("src/main/resources/images/");
+        String[] images = dir.list();
+        // if no new images, starts at 1.
+        int num = 1;
+        if (images != null) {
+            num = images.length + 1;
+        }
+        // paints graphic to image
+        BufferedImage matrixImage = matrix.toImage(AppDriver.WIDTH, false, showGrid);
+        // writes image to file
+        try {
+            ImageIO.write(matrixImage,"png", new File("src/main/resources/images/" + "matrix" + num + ".png"));
+        }
+        catch (Exception e) {
+            System.exit(0);
+        }
+    }
+
     /**
      * Ticks CellMatrix and repaints.
      *
@@ -472,6 +498,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        //printScreen();
         tick();
         repaint();
     }
@@ -549,7 +576,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             }
             if (e.getKeyCode() == KeyEvent.VK_Q) {
                 //decreases brush size on 'Q'
-                if (brushSize > 0) {
+                if (brushSize > 1) {
                     //decreases brush size
                     brushSize--;
                 }
