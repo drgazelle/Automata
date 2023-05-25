@@ -1,6 +1,7 @@
 package automata;
 
-import dynamicpanel.*;
+import dynamicpanel.DynamicPanel;
+import dynamicpanel.TextBar;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -281,9 +282,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                                 "Reverse Tick [SHIFT + D]",
                                 "Toggle Heat Map [SHIFT + X]",
                                 "Toggle Placement [SHIFT + Z]",
-                                "Clear Walls [C]",
-                                "Toggle Legacy [S]",
-                                "Change Brush Size [Q/E]",
+                                "Clear Walls [SHIFT + C]",
+                                "Toggle Legacy [SHIFT + S]",
+                                "Change Brush Size [SHIFT + Q/E]",
                                 "Paint Cells [SHIFT + MOUSE]"};
         String[] databaseItems = {"Close Database [J]",
                                 "Search wiki-collections [;]",
